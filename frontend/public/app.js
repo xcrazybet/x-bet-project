@@ -1,11 +1,11 @@
 // Firebase Configuration - REPLACE WITH YOUR ACTUAL VALUES
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY_HERE",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "your-actual-api-key-from-firebase",
+    authDomain: "x-bet-prod-jd.firebaseapp.com",
+    projectId: "x-bet-prod-jd",
+    storageBucket: "x-bet-prod-jd.appspot.com",
+    messagingSenderId: "your-actual-sender-id",
+    appId: "your-actual-app-id"
 };
 
 // Initialize Firebase
