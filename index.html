@@ -153,7 +153,7 @@
         async function createUser(userId, userData) {
             await db.collection('users').doc(userId).set({
                 ...userData,
-                balance: 1000,
+                balance: 0,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
         }
