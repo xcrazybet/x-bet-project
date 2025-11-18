@@ -39,7 +39,8 @@
                     await createUser(user.uid, {
                         displayName: user.displayName || user.email,
                         email: user.email,
-                        photoURL: user.photoURL || ''
+                        photoURL: user.photoURL || '',
+                        memberSince: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     userData = await getUserData(user.uid);
                 }
@@ -56,6 +57,7 @@
                 mainContent.style.display = 'block';
                 renderGames();
                 setupRealTimeBalance(user.uid);
+                displayUserProfile(user, userData);
                 
             } else {
                 // User is signed out
@@ -153,8 +155,12 @@
         async function createUser(userId, userData) {
             await db.collection('users').doc(userId).set({
                 ...userData,
-                balance: 0,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                balance: 0, // ZERO balance start
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                totalBets: 0,
+                gamesPlayed: 0,
+                wins: 0,
+                losses: 0
             });
         }
 
@@ -162,6 +168,10 @@
             await db.collection('users').doc(userId).update({
                 balance: newBalance
             });
+        }
+
+        async function updateUserStats(userId, stats) {
+            await db.collection('users').doc(userId).update(stats);
         }
 
         async function addTransaction(userId, type, amount, game = null) {
@@ -181,7 +191,48 @@
                 const balanceElement = document.getElementById('live-balance');
                 if (balanceElement && userData) {
                     balanceElement.textContent = userData.balance;
+                    
+                    // Update profile display with latest data
+                    const user = auth.currentUser;
+                    if (user) {
+                        displayUserProfile(user, userData);
+                    }
                 }
+            });
+        }
+
+        // User Profile Functions
+        function displayUserProfile(user, userData) {
+            document.getElementById('user-id-display').textContent = user.uid;
+            document.getElementById('user-name-display').textContent = user.displayName || 'Not set';
+            document.getElementById('user-email-display').textContent = user.email;
+            document.getElementById('user-join-date').textContent = userData.createdAt ? 
+                new Date(userData.createdAt.toDate()).toLocaleDateString() : 'Recently';
+            
+            // Update stats
+            document.getElementById('total-bets').textContent = userData.totalBets || 0;
+            document.getElementById('games-played').textContent = userData.gamesPlayed || 0;
+            
+            const wins = userData.wins || 0;
+            const losses = userData.losses || 0;
+            const totalGames = wins + losses;
+            const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
+            document.getElementById('win-rate').textContent = winRate + '%';
+            
+            // Show warning if zero balance
+            const warningElement = document.getElementById('zero-balance-warning');
+            if (userData.balance === 0) {
+                warningElement.style.display = 'block';
+                document.getElementById('warning-user-id').textContent = user.uid;
+            } else {
+                warningElement.style.display = 'none';
+            }
+        }
+
+        function copyUserId() {
+            const userId = document.getElementById('user-id-display').textContent;
+            navigator.clipboard.writeText(userId).then(() => {
+                alert('User ID copied to clipboard! Share this with admin to get coins.');
             });
         }
 
@@ -218,6 +269,15 @@
             const user = auth.currentUser;
             if (!user) return alert('Please login first');
             
+            const userData = await getUserData(user.uid);
+            
+            // Check if user has zero balance
+            if (userData.balance === 0) {
+                alert('❌ Zero Balance!\n\nYou need IQD coins to play. Please contact admin with your User ID to purchase coins.');
+                copyUserId(); // Auto-copy user ID for them
+                return;
+            }
+            
             const betInput = document.getElementById(`bet-amount-${gameId}`);
             const betAmount = parseInt(betInput.value);
             
@@ -226,50 +286,35 @@
                 return;
             }
             
-            const userData = await getUserData(user.uid);
             if (userData.balance < betAmount) {
                 alert('Insufficient balance!');
                 return;
             }
             
-            // Process bet
+            // Process bet (50% win chance for demo)
             const win = Math.random() > 0.5;
             const winAmount = win ? Math.floor(betAmount * multiplier) : 0;
             const newBalance = win ? userData.balance + winAmount : userData.balance - betAmount;
             
+            // Update balance and stats
             await updateBalance(user.uid, newBalance);
+            
+            const statsUpdate = {
+                totalBets: (userData.totalBets || 0) + 1,
+                gamesPlayed: (userData.gamesPlayed || 0) + 1
+            };
+            
+            if (win) {
+                statsUpdate.wins = (userData.wins || 0) + 1;
+            } else {
+                statsUpdate.losses = (userData.losses || 0) + 1;
+            }
+            
+            await updateUserStats(user.uid, statsUpdate);
             await addTransaction(user.uid, win ? 'win' : 'loss', win ? winAmount : -betAmount, gameId);
             
             alert(win ? `🎉 You won ${winAmount} د.ع!` : `😞 You lost ${betAmount} د.ع. Try again!`);
             betInput.value = '';
-        }
-
-        // Admin Functions
-        function adminAddCoins() {
-            const userId = document.getElementById('admin-user-id').value;
-            const amount = parseInt(document.getElementById('admin-amount').value);
-            
-            if (!userId || !amount) {
-                alert('Please enter both User ID and Amount');
-                return;
-            }
-            
-            getUserData(userId).then(userData => {
-                if (!userData) {
-                    alert('User not found!');
-                    return;
-                }
-                
-                const newBalance = userData.balance + amount;
-                updateBalance(userId, newBalance);
-                addTransaction(userId, 'admin_add', amount, 'admin');
-                
-                alert(`✅ Added ${amount} د.ع to user ${userId}`);
-                document.getElementById('admin-user-id').value = '';
-                document.getElementById('admin-amount').value = '';
-            }).catch(error => {
-                alert('Error: ' + error.message);
-            });
         }
     </script>
 
@@ -321,8 +366,8 @@
         .btn-bet { background: #e67e22; color: white; padding: 12px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
         .btn-bet:hover { background: #d35400; }
         
-        /* Admin Panel */
-        .admin-panel {
+        /* User Profile Section */
+        .user-profile-section {
             background: white;
             padding: 25px;
             border-radius: 12px;
@@ -330,39 +375,107 @@
             box-shadow: 0 4px 16px rgba(0,0,0,0.1);
         }
 
-        .admin-panel h3 {
-            color: #333;
+        .user-profile-section h2 {
+            color: #2c3e50;
             margin-bottom: 20px;
-            border-bottom: 2px solid #667eea;
+            border-bottom: 2px solid #ecf0f1;
             padding-bottom: 10px;
         }
 
-        .admin-form {
+        .profile-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .profile-info {
             display: flex;
+            flex-direction: column;
             gap: 15px;
-            align-items: end;
         }
 
-        .admin-form input {
+        .profile-field {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 12px;
-            border: 2px solid #ddd;
+            background: #f8f9fa;
             border-radius: 6px;
-            font-size: 16px;
-            flex: 1;
         }
 
-        .btn-admin {
-            background: #9b59b6;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
+        .profile-field label {
             font-weight: 600;
-            cursor: pointer;
+            color: #2c3e50;
         }
 
-        .btn-admin:hover {
-            background: #8e44ad;
+        .user-id {
+            font-family: monospace;
+            background: #2c3e50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .btn-copy {
+            background: #3498db;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-copy:hover {
+            background: #2980b9;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat h3 {
+            font-size: 12px;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .stat p {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        /* Zero Balance Warning */
+        .warning-message {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .warning-message h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .warning-message p {
+            margin-bottom: 8px;
         }
     </style>
 </head>
@@ -376,13 +489,52 @@
             <div class="dashboard">
                 <div id="games-container"></div>
                 
-                <!-- Admin Panel -->
-                <div class="admin-panel">
-                    <h3>👑 Admin Controls</h3>
-                    <div class="admin-form">
-                        <input type="text" id="admin-user-id" placeholder="User ID">
-                        <input type="number" id="admin-amount" placeholder="Amount د.ع">
-                        <button onclick="adminAddCoins()" class="btn-admin">Add Coins</button>
+                <!-- Zero Balance Warning -->
+                <div id="zero-balance-warning" class="warning-message">
+                    <h3>💰 Zero Balance Detected</h3>
+                    <p>You need IQD coins to play games. Please contact an admin to purchase coins.</p>
+                    <p><strong>Your User ID: <span id="warning-user-id"></span></strong></p>
+                    <p>Share this ID with admin to get coins</p>
+                    <button onclick="copyUserId()" class="btn-copy">Copy My User ID</button>
+                </div>
+                
+                <!-- User Profile Section -->
+                <div class="user-profile-section">
+                    <h2>👤 Your Profile</h2>
+                    <div class="profile-card">
+                        <div class="profile-info">
+                            <div class="profile-field">
+                                <label>User ID:</label>
+                                <span id="user-id-display" class="user-id"></span>
+                                <button onclick="copyUserId()" class="btn-copy">Copy ID</button>
+                            </div>
+                            <div class="profile-field">
+                                <label>Display Name:</label>
+                                <span id="user-name-display"></span>
+                            </div>
+                            <div class="profile-field">
+                                <label>Email:</label>
+                                <span id="user-email-display"></span>
+                            </div>
+                            <div class="profile-field">
+                                <label>Member Since:</label>
+                                <span id="user-join-date"></span>
+                            </div>
+                        </div>
+                        <div class="profile-stats">
+                            <div class="stat">
+                                <h3>Total Bets</h3>
+                                <p id="total-bets">0</p>
+                            </div>
+                            <div class="stat">
+                                <h3>Games Played</h3>
+                                <p id="games-played">0</p>
+                            </div>
+                            <div class="stat">
+                                <h3>Win Rate</h3>
+                                <p id="win-rate">0%</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
