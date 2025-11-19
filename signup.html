@@ -5,146 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - X-Bet</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
         
-        body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .signup-container { background: rgba(0,0,0,0.6); border-radius: 15px; padding: 40px; width: 100%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .logo { text-align: center; font-size: 32px; font-weight: bold; color: #fdbb2d; margin-bottom: 10px; }
+        .tagline { text-align: center; margin-bottom: 30px; color: #ccc; }
         
-        .signup-container {
-            background: rgba(0,0,0,0.6);
-            border-radius: 15px;
-            padding: 40px;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #fdbb2d; }
+        .form-group input { width: 100%; padding: 12px 15px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 16px; transition: all 0.3s; }
+        .form-group input:focus { outline: none; border-color: #fdbb2d; background: rgba(255,255,255,0.15); }
         
-        .logo {
-            text-align: center;
-            font-size: 32px;
-            font-weight: bold;
-            color: #fdbb2d;
-            margin-bottom: 10px;
-        }
+        .btn { background: #fdbb2d; color: #1a2a6c; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: all 0.3s; width: 100%; margin-top: 10px; }
+        .btn:hover { background: #ffcc44; transform: translateY(-2px); }
         
-        .tagline {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #ccc;
-        }
+        .login-link { text-align: center; margin-top: 25px; color: #ccc; }
+        .login-link a { color: #fdbb2d; text-decoration: none; }
+        .login-link a:hover { text-decoration: underline; }
         
-        .form-group {
-            margin-bottom: 20px;
-        }
+        .features { margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2); }
+        .features h3 { color: #fdbb2d; margin-bottom: 15px; text-align: center; }
+        .features ul { list-style: none; }
+        .features li { padding: 8px 0; display: flex; align-items: center; }
+        .features li:before { content: "✓"; color: #fdbb2d; font-weight: bold; margin-right: 10px; }
         
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #fdbb2d;
-        }
+        .password-requirements { font-size: 12px; color: #aaa; margin-top: 5px; }
         
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 2px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
+        .nav { text-align: center; margin-bottom: 20px; }
+        .nav a { color: white; text-decoration: none; margin: 0 10px; padding: 5px 10px; border-radius: 5px; }
+        .nav a:hover { background: rgba(255,255,255,0.1); }
         
-        .form-group input:focus {
-            outline: none;
-            border-color: #fdbb2d;
-            background: rgba(255,255,255,0.15);
-        }
-        
-        .btn {
-            background: #fdbb2d;
-            color: #1a2a6c;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            transition: all 0.3s;
-            width: 100%;
-            margin-top: 10px;
-        }
-        
-        .btn:hover {
-            background: #ffcc44;
-            transform: translateY(-2px);
-        }
-        
-        .login-link {
-            text-align: center;
-            margin-top: 25px;
-            color: #ccc;
-        }
-        
-        .login-link a {
-            color: #fdbb2d;
-            text-decoration: none;
-        }
-        
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-        
-        .features {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .features h3 {
-            color: #fdbb2d;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .features ul {
-            list-style: none;
-        }
-        
-        .features li {
-            padding: 8px 0;
-            display: flex;
-            align-items: center;
-        }
-        
-        .features li:before {
-            content: "✓";
-            color: #fdbb2d;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        
-        .password-requirements {
-            font-size: 12px;
-            color: #aaa;
-            margin-top: 5px;
+        .error-message { 
+            background: #e74c3c; 
+            color: white; 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin: 10px 0; 
+            display: none; 
         }
     </style>
 </head>
 <body>
     <div class="signup-container">
+        <div class="nav">
+            <a href="index.html">Home</a>
+            <a href="games.html">Games</a>
+            <a href="login.html">Login</a>
+            <a href="signup.html" style="background: rgba(255,255,255,0.2);">Sign Up</a>
+        </div>
+        
         <div class="logo">X-BET</div>
         <p class="tagline">Create your account in seconds</p>
+        
+        <div class="error-message" id="error-message"></div>
         
         <form id="signupForm">
             <div class="form-group">
@@ -167,7 +81,7 @@
         </form>
         
         <div class="login-link">
-            Already have an account? <a href="login.html">Log in</a>
+            Already have an account? <a href="login.html">Log in here</a>
         </div>
         
         <div class="features">
@@ -177,11 +91,23 @@
                 <li>Instant access to all games</li>
                 <li>Welcome bonus for new users</li>
                 <li>Secure and anonymous</li>
+                <li>Play with Iraqi Dinar</li>
+                <li>Fast and easy registration</li>
             </ul>
         </div>
     </div>
 
     <script>
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error-message').style.display = 'none';
+        }
+
         document.getElementById('signupForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -190,22 +116,49 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
             
             // Simple validation
+            if (!username || !password || !confirmPassword) {
+                showError('Please fill all fields');
+                return;
+            }
+            
             if (password !== confirmPassword) {
-                alert('Passwords do not match!');
+                showError('Passwords do not match!');
                 return;
             }
             
             if (password.length < 6) {
-                alert('Password must be at least 6 characters long!');
+                showError('Password must be at least 6 characters long!');
                 return;
             }
             
-            // In a real app, you would send this to your server
-            // For demo purposes, we'll just show a success message
-            alert(`Account created successfully!\n\nUsername: ${username}\n\nYou can now log in and start playing.`);
+            hideError();
             
-            // Redirect to login or games page
-            window.location.href = 'games.html';
+            // For demo purposes - show success and redirect
+            alert(`🎉 Account created successfully!\n\nUsername: ${username}\n\nYou will be redirected to login page.`);
+            
+            // Redirect to login page
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
+        });
+
+        // Enter key support
+        document.getElementById('confirmPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('signupForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Real-time password validation
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                this.style.borderColor = '#e74c3c';
+            } else {
+                this.style.borderColor = 'rgba(255,255,255,0.2)';
+            }
         });
     </script>
 </body>
