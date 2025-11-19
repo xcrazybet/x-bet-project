@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Manager - X-Bet</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); color: white; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .logo { font-size: 28px; font-weight: bold; color: #fdbb2d; }
+        .admin-section { margin-top: 30px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 25px; }
+        .transfer-form { background: rgba(0,0,0,0.5); padding: 25px; border-radius: 10px; max-width: 500px; margin: 0 auto; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #fdbb2d; }
+        select, input { width: 100%; padding: 12px; border-radius: 5px; border: none; background: rgba(255,255,255,0.9); }
+        .btn { background: #fdbb2d; color: #1a2a6c; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .admin-list { margin-top: 30px; }
+        .admin-card { background: rgba(0,0,0,0.5); padding: 15px; margin: 10px 0; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">X-BET ADMIN MANAGER</div>
+            <nav>
+                <a href="admin.html" class="btn">Back to Admin</a>
+            </nav>
+        </header>
+        
+        <div class="admin-section">
+            <h2>Balance Transfer Manager</h2>
+            
+            <div class="transfer-form">
+                <h3>Transfer Balance Between Admins</h3>
+                <div class="form-group">
+                    <label>From Admin:</label>
+                    <select id="fromAdmin">
+                        <option value="admin1">Admin 1 (Balance: $0)</option>
+                        <option value="admin2">Admin 2 (Balance: $0)</option>
+                        <option value="main">Main Admin (Balance: $24,580)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>To Admin:</label>
+                    <select id="toAdmin">
+                        <option value="admin1">Admin 1 (Balance: $0)</option>
+                        <option value="admin2">Admin 2 (Balance: $0)</option>
+                        <option value="main">Main Admin (Balance: $24,580)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Amount:</label>
+                    <input type="number" id="amount" placeholder="Enter amount">
+                </div>
+                <button class="btn" onclick="transferBalance()">Transfer Balance</button>
+            </div>
+            
+            <div class="admin-list">
+                <h3>Admin Accounts</h3>
+                <div class="admin-card">
+                    <strong>Main Admin</strong> - Balance: $24,580
+                </div>
+                <div class="admin-card">
+                    <strong>Admin 1</strong> - Balance: $0
+                </div>
+                <div class="admin-card">
+                    <strong>Admin 2</strong> - Balance: $0
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function transferBalance() {
+            const fromAdmin = document.getElementById('fromAdmin').value;
+            const toAdmin = document.getElementById('toAdmin').value;
+            const amount = document.getElementById('amount').value;
+            
+            if(!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            if(fromAdmin === toAdmin) {
+                alert('Cannot transfer to the same account');
+                return;
+            }
+            
+            alert(`Transfer successful!\n$${amount} transferred from ${fromAdmin} to ${toAdmin}`);
+            document.getElementById('amount').value = '';
+        }
+    </script>
+</body>
+</html>
