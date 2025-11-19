@@ -3,492 +3,567 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Admin - X-Bet</title>
+    <title>X-Bet - Iraqi Dinar Gaming</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); color: white; min-height: 100vh; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
         
-        /* Login Form */
-        .login-container { 
-            background: rgba(0,0,0,0.7); 
-            padding: 40px; 
-            border-radius: 15px; 
-            max-width: 400px; 
-            margin: 100px auto;
+        /* Navigation */
+        nav { background: rgba(255,255,255,0.1); padding: 15px 0; margin-bottom: 20px; border-radius: 10px; }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: center; gap: 30px; }
+        nav a { color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; background: rgba(255,255,255,0.2); transition: all 0.3s; }
+        nav a:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+        
+        /* Auth Styles */
+        .auth-container { text-align: center; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); max-width: 400px; margin: 50px auto; }
+        .auth-container h1 { color: #333; margin-bottom: 10px; font-size: 2.5em; }
+        .auth-container p { color: #666; margin-bottom: 30px; font-size: 1.1em; }
+        
+        /* Login Styles */
+        .login-options { display: flex; flex-direction: column; gap: 15px; }
+        
+        .btn { padding: 14px 28px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .btn-google { background: #db4437; color: white; }
+        .btn-google:hover { background: #c23321; transform: translateY(-2px); }
+        .btn-simple { background: #667eea; color: white; width: 100%; }
+        .btn-simple:hover { background: #5a6fd8; transform: translateY(-2px); }
+        
+        .simple-login { display: flex; flex-direction: column; gap: 12px; }
+        .simple-login input { padding: 14px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .simple-login input:focus { border-color: #667eea; outline: none; }
+        
+        .divider { text-align: center; position: relative; margin: 20px 0; }
+        .divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #ddd; }
+        .divider span { background: white; padding: 0 15px; color: #666; }
+        
+        /* User Profile */
+        .user-profile { display: flex; align-items: center; gap: 15px; background: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); margin-bottom: 20px; flex-wrap: wrap; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; border: 3px solid #667eea; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .balance { font-weight: bold; color: #27ae60; margin-left: auto; }
+        .btn-logout { background: #e74c3c; color: white; padding: 8px 16px; font-size: 14px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-logout:hover { background: #c0392b; }
+        
+        /* Ads & Announcements */
+        .ads-section { background: rgba(255,255,255,0.9); padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; }
+        .announcement { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        
+        /* Quick Games Preview */
+        .games-preview { background: white; padding: 25px; border-radius: 12px; margin: 20px 0; }
+        .games-preview h2 { color: #333; margin-bottom: 15px; text-align: center; }
+        .preview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .preview-game { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }
+        .preview-game h4 { color: #333; margin-bottom: 10px; }
+        
+        /* User Profile Section */
+        .user-profile-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .user-profile-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .profile-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .profile-field {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .profile-field label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .user-id {
+            font-family: monospace;
+            background: #2c3e50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .btn-copy {
+            background: #3498db;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-copy:hover {
+            background: #2980b9;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
             text-align: center;
         }
-        .login-container h2 { color: #fdbb2d; margin-bottom: 30px; }
-        .login-input { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 8px; background: rgba(255,255,255,0.9); }
-        .login-btn { width: 100%; padding: 15px; background: #fdbb2d; color: #1a2a6c; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .login-btn:hover { background: #ffcc44; }
-        
-        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.2); }
-        .logo { font-size: 28px; font-weight: bold; color: #fdbb2d; }
-        nav ul { display: flex; list-style: none; }
-        nav ul li { margin-left: 20px; }
-        nav ul li a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; transition: background 0.3s; }
-        nav ul li a:hover { background: rgba(255,255,255,0.1); }
-        
-        .admin-section { margin-top: 30px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 25px; }
-        .admin-section h2 { margin-bottom: 20px; color: #fdbb2d; }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: rgba(0,0,0,0.5); padding: 20px; border-radius: 8px; text-align: center; }
-        .stat-card h3 { font-size: 14px; margin-bottom: 10px; color: #ccc; }
-        .stat-card .value { font-size: 24px; font-weight: bold; color: #fdbb2d; }
-        
-        .admin-actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .action-card { background: rgba(0,0,0,0.5); padding: 20px; border-radius: 8px; }
-        .action-card h3 { margin-bottom: 15px; color: #fdbb2d; }
-        
-        .btn { background: #fdbb2d; color: #1a2a6c; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.3s; display: inline-block; text-decoration: none; }
-        .btn:hover { background: #ffcc44; transform: translateY(-2px); }
-        
-        .user-list { margin-top: 30px; }
-        table { width: 100%; border-collapse: collapse; background: rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        th { background: rgba(0,0,0,0.7); color: #fdbb2d; }
-        
-        .balance-transfer { margin-top: 30px; }
-        .transfer-form { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-        .transfer-form input, .transfer-form select { padding: 10px; border-radius: 5px; border: none; background: rgba(255,255,255,0.9); flex: 1; min-width: 150px; }
-        
-        footer { margin-top: 50px; text-align: center; padding: 20px; border-top: 1px solid rgba(255,255,255,0.2); color: #ccc; }
-        
-        .admin-info { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        
-        .transaction-history { margin-top: 30px; }
-        .transaction-item { background: rgba(0,0,0,0.5); padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #fdbb2d; }
+
+        .stat h3 {
+            font-size: 12px;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .stat p {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        /* Zero Balance Warning */
+        .warning-message {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .warning-message h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .warning-message p {
+            margin-bottom: 8px;
+        }
+
+        /* Toggle between login and register */
+        .auth-toggle {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .auth-toggle button {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .auth-toggle button:hover {
+            color: #5a6fd8;
+        }
+
+        /* Play Now Button */
+        .play-now-btn {
+            background: #e67e22;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.3s;
+        }
+
+        .play-now-btn:hover {
+            background: #d35400;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
-    <div id="login-section">
-        <div class="login-container">
-            <h2>Super Admin Login</h2>
-            <input type="text" id="username" class="login-input" placeholder="Username" value="superadmin">
-            <input type="password" id="password" class="login-input" placeholder="Password">
-            <button onclick="login()" class="login-btn">Login</button>
-            <div style="margin-top: 20px; color: #fdbb2d; font-size: 14px;">
-                <strong>Username:</strong> superadmin<br>
-                <strong>Password:</strong> super123
-            </div>
+    <!-- Navigation Menu -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html">Home</a>
+            <a href="games.html">Play Games</a>
+            <a href="signup.html">Sign Up</a>
         </div>
+    </nav>
+
+    <!-- Ads & Announcements Section -->
+    <div class="ads-section">
+        <h3>🎯 Special Offers</h3>
+        <div class="announcement">
+            <strong>🔥 New Game Added!</strong> Try our exciting Number Race with 5x multipliers!
+        </div>
+        <div class="announcement">
+            <strong>💰 Welcome Bonus!</strong> New users get special starting bonuses!
+        </div>
+        <p>Advertisement Space - Contact for ads</p>
     </div>
 
-    <div id="admin-content" style="display: none;">
-        <div class="container">
-            <header>
-                <div class="logo">X-BET SUPER ADMIN</div>
-                <nav>
-                    <ul>
-                        <li><a href="index.html">Main App</a></li>
-                        <li><a href="admin.html" class="active">Super Admin</a></li>
-                        <li><a href="admin1.html">Admin 1</a></li>
-                        <li><a href="admin2.html">Admin 2</a></li>
-                        <li><a href="games.html">Games</a></li>
-                    </ul>
-                </nav>
-            </header>
-            
-            <div class="admin-info">
-                <h3>🔐 Super Admin Access - Full Transaction Control</h3>
-                <p>All money stored here: 14,000,000,000 IQD | Can transfer between all accounts (Admin↔Admin, Admin↔User, User↔Admin)</p>
+    <div id="app">
+        <header>
+            <div id="auth-section"></div>
+        </header>
+        
+        <main id="main-content" style="display: none;">
+            <!-- Quick Games Preview -->
+            <div class="games-preview">
+                <h2>🎮 Quick Play</h2>
+                <div class="preview-grid">
+                    <div class="preview-game">
+                        <h4>Coin Flip</h4>
+                        <p>Double your money!</p>
+                    </div>
+                    <div class="preview-game">
+                        <h4>Number Guess</h4>
+                        <p>Win 5x your bet!</p>
+                    </div>
+                    <div class="preview-game">
+                        <h4>Dice Roll</h4>
+                        <p>3x multiplier!</p>
+                    </div>
+                </div>
+                <a href="games.html" class="play-now-btn">🎯 Play All Games Now</a>
             </div>
             
-            <div class="admin-section">
-                <h2>💰 Super Admin Dashboard</h2>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>Total System Balance</h3>
-                        <div class="value" id="total-balance">14,000,000,000 IQD</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Admin 1 Balance</h3>
-                        <div class="value" id="admin1-balance">0 IQD</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Admin 2 Balance</h3>
-                        <div class="value" id="admin2-balance">0 IQD</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Active Users</h3>
-                        <div class="value">1,247</div>
-                    </div>
-                </div>
-                
-                <div class="admin-actions">
-                    <div class="action-card">
-                        <h3>💸 Make Transaction</h3>
-                        <p>Transfer funds between all accounts (Admins & Users)</p>
-                        <button class="btn" onclick="showTransactionModal()">Start Transaction</button>
-                    </div>
-                    <div class="action-card">
-                        <h3>👥 User Management</h3>
-                        <p>Manage all users, their balances and activities.</p>
-                        <button class="btn" onclick="showUserManagement()">Manage Users</button>
-                    </div>
-                    <div class="action-card">
-                        <h3>📊 System Report</h3>
-                        <p>View complete transaction history and system stats.</p>
-                        <button class="btn" onclick="showSystemReport()">View Report</button>
-                    </div>
-                </div>
-                
-                <div class="transaction-history">
-                    <h3>📋 Recent Transactions</h3>
-                    <div id="transactions-list">
-                        <!-- Transactions will appear here -->
-                    </div>
-                </div>
-                
-                <div class="user-list">
-                    <h3>👥 User Balances</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Username</th>
-                                <th>Balance</th>
-                                <th>Last Activity</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-table">
-                            <tr>
-                                <td>U1001</td>
-                                <td>john_doe</td>
-                                <td>150 IQD</td>
-                                <td>2 hours ago</td>
-                                <td><button class="btn" onclick="sendToUser('U1001')">Send Money</button></td>
-                            </tr>
-                            <tr>
-                                <td>U1002</td>
-                                <td>sarah_m</td>
-                                <td>75 IQD</td>
-                                <td>5 hours ago</td>
-                                <td><button class="btn" onclick="sendToUser('U1002')">Send Money</button></td>
-                            </tr>
-                            <tr>
-                                <td>U1003</td>
-                                <td>mike_t</td>
-                                <td>320 IQD</td>
-                                <td>1 day ago</td>
-                                <td><button class="btn" onclick="sendToUser('U1003')">Send Money</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <!-- Zero Balance Warning -->
+            <div id="zero-balance-warning" class="warning-message">
+                <h3>💰 Zero Balance Detected</h3>
+                <p>You need IQD coins to play games. Please contact an admin to purchase coins.</p>
+                <p><strong>Your User ID: <span id="warning-user-id"></span></strong></p>
+                <p>Share this ID with admin to get coins</p>
+                <button onclick="copyUserId()" class="btn-copy">Copy My User ID</button>
             </div>
             
-            <footer>
-                <p>&copy; 2023 X-Bet Super Admin Panel. Total System: <span id="system-total">14,000,000,000 IQD</span></p>
-            </footer>
-        </div>
+            <!-- User Profile Section -->
+            <div class="user-profile-section">
+                <h2>👤 Your Profile</h2>
+                <div class="profile-card">
+                    <div class="profile-info">
+                        <div class="profile-field">
+                            <label>User ID:</label>
+                            <span id="user-id-display" class="user-id"></span>
+                            <button onclick="copyUserId()" class="btn-copy">Copy ID</button>
+                        </div>
+                        <div class="profile-field">
+                            <label>Display Name:</label>
+                            <span id="user-name-display"></span>
+                        </div>
+                        <div class="profile-field">
+                            <label>Email:</label>
+                            <span id="user-email-display"></span>
+                        </div>
+                        <div class="profile-field">
+                            <label>Member Since:</label>
+                            <span id="user-join-date"></span>
+                        </div>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat">
+                            <h3>Total Bets</h3>
+                            <p id="total-bets">0</p>
+                        </div>
+                        <div class="stat">
+                            <h3>Games Played</h3>
+                            <p id="games-played">0</p>
+                        </div>
+                        <div class="stat">
+                            <h3>Win Rate</h3>
+                            <p id="win-rate">0%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
-        // Super Admin Credentials
-        const SUPER_ADMIN = {
-            username: "superadmin",
-            password: "super123"
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
+            authDomain: "x-bet-prod-jd.firebaseapp.com",
+            projectId: "x-bet-prod-jd",
+            storageBucket: "x-bet-prod-jd.firebasestorage.app",
+            messagingSenderId: "499334334535",
+            appId: "1:499334334535:web:bebc1bf817e24d9e3c4962",
+            measurementId: "G-PTV4XMYQ6P"
         };
 
-        // Initialize balances
-        let balances = JSON.parse(localStorage.getItem('admin_balances')) || {
-            super: 14000000000,
-            admin1: 0,
-            admin2: 0,
-            users: {
-                'U1001': 150,
-                'U1002': 75,
-                'U1003': 320
-            }
-        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        let transactions = JSON.parse(localStorage.getItem('admin_transactions')) || [];
+        let isRegisterMode = false;
 
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+        // Auth State Listener
+        auth.onAuthStateChanged(async (user) => {
+            const authSection = document.getElementById('auth-section');
+            const mainContent = document.getElementById('main-content');
             
-            if (username === SUPER_ADMIN.username && password === SUPER_ADMIN.password) {
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('admin-content').style.display = 'block';
-                localStorage.setItem('superadmin_loggedin', 'true');
-                loadDashboard();
+            if (user) {
+                // User is signed in
+                let userData = await getUserData(user.uid);
+                if (!userData) {
+                    await createUser(user.uid, {
+                        displayName: user.displayName || 'User',
+                        email: user.email || 'no-email@xbet.com',
+                        photoURL: user.photoURL || '',
+                        memberSince: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    userData = await getUserData(user.uid);
+                }
+                
+                // Generate avatar from first letter of name
+                const firstLetter = (user.displayName || 'U').charAt(0).toUpperCase();
+                
+                authSection.innerHTML = `
+                    <div class="user-profile">
+                        <div class="avatar">${firstLetter}</div>
+                        <span>${user.displayName || 'User'}</span>
+                        <div class="balance">Balance: <span id="live-balance">${userData.balance}</span> د.ع</div>
+                        <button onclick="logout()" class="btn-logout">Logout</button>
+                    </div>
+                `;
+                
+                mainContent.style.display = 'block';
+                setupRealTimeBalance(user.uid);
+                displayUserProfile(user, userData);
+                
             } else {
-                alert('Invalid credentials!');
-            }
-        }
-
-        function loadDashboard() {
-            updateBalancesDisplay();
-            updateTransactionsList();
-        }
-
-        function updateBalancesDisplay() {
-            document.getElementById('total-balance').textContent = formatMoney(balances.super) + ' IQD';
-            document.getElementById('admin1-balance').textContent = formatMoney(balances.admin1) + ' IQD';
-            document.getElementById('admin2-balance').textContent = formatMoney(balances.admin2) + ' IQD';
-            document.getElementById('system-total').textContent = formatMoney(balances.super) + ' IQD';
-        }
-
-        function formatMoney(amount) {
-            return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        }
-
-        function showTransactionModal() {
-            const modal = `
-                <div id="transaction-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:1000;">
-                    <div style="background:white; padding:30px; border-radius:10px; width:500px; color:black; max-height:90vh; overflow-y:auto;">
-                        <h3 style="color: #1a2a6c; margin-bottom:20px;">💸 Make Transaction</h3>
+                // User is signed out
+                authSection.innerHTML = `
+                    <div class="auth-container">
+                        <h1>X-Bet 🎯</h1>
+                        <p>Iraqi Dinar Gaming Platform</p>
                         
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                            <div>
-                                <label style="display:block; margin-bottom:5px; font-weight:bold;">From Account:</label>
-                                <select id="tx-from" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ddd;" onchange="updateToOptions()">
-                                    <option value="super">Super Admin (${formatMoney(balances.super)} IQD)</option>
-                                    <option value="admin1">Admin 1 (${formatMoney(balances.admin1)} IQD)</option>
-                                    <option value="admin2">Admin 2 (${formatMoney(balances.admin2)} IQD)</option>
-                                    <option value="user">User Account</option>
-                                </select>
+                        <div class="login-options">
+                            <button onclick="signInWithGoogle()" class="btn btn-google">
+                                📧 Continue with Google
+                            </button>
+                            
+                            <div class="divider">
+                                <span>or</span>
                             </div>
                             
-                            <div>
-                                <label style="display:block; margin-bottom:5px; font-weight:bold;">To Account:</label>
-                                <select id="tx-to" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ddd;">
-                                    <option value="super">Super Admin</option>
-                                    <option value="admin1">Admin 1</option>
-                                    <option value="admin2">Admin 2</option>
-                                    <option value="user">User Account</option>
-                                </select>
+                            <div id="simple-auth-form" class="simple-login">
+                                ${isRegisterMode ? `
+                                    <input type="text" id="first-name" placeholder="First Name" required>
+                                    <input type="text" id="last-name" placeholder="Last Name" required>
+                                    <input type="password" id="register-password" placeholder="Password (min 6 chars)" required>
+                                    <button onclick="registerWithName()" class="btn btn-simple">Create Account</button>
+                                ` : `
+                                    <input type="text" id="login-name" placeholder="Your Name" required>
+                                    <input type="password" id="login-password" placeholder="Your Password" required>
+                                    <button onclick="loginWithName()" class="btn btn-simple">Sign In</button>
+                                `}
+                            </div>
+                            
+                            <div class="auth-toggle">
+                                ${isRegisterMode ? 
+                                    'Already have an account? <button onclick="toggleAuthMode()">Sign In</button>' : 
+                                    'No account? <button onclick="toggleAuthMode()">Create One</button>'
+                                }
                             </div>
                         </div>
-
-                        <div id="user-id-section" style="margin-bottom:15px; display:none;">
-                            <label style="display:block; margin-bottom:5px; font-weight:bold;">User ID:</label>
-                            <input type="text" id="tx-userid" placeholder="Enter User ID (e.g., U1001)" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ddd;">
-                            <div style="font-size:12px; color:#666; margin-top:5px;">Available: U1001, U1002, U1003 or add new</div>
-                        </div>
-                        
-                        <div style="margin-bottom:20px;">
-                            <label style="display:block; margin-bottom:5px; font-weight:bold;">Amount (IQD):</label>
-                            <input type="number" id="tx-amount" placeholder="Enter amount in IQD" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ddd;">
-                        </div>
-
-                        <div style="background:#f8f9fa; padding:15px; border-radius:5px; margin-bottom:20px;">
-                            <h4 style="margin-bottom:10px; color:#333;">Available Balances:</h4>
-                            <div>Super Admin: ${formatMoney(balances.super)} IQD</div>
-                            <div>Admin 1: ${formatMoney(balances.admin1)} IQD</div>
-                            <div>Admin 2: ${formatMoney(balances.admin2)} IQD</div>
-                        </div>
-                        
-                        <div style="display:flex; gap:10px;">
-                            <button onclick="processTransaction()" style="flex:1; padding:12px; background:#27ae60; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">💸 Send Money</button>
-                            <button onclick="closeModal()" style="flex:1; padding:12px; background:#e74c3c; color:white; border:none; border-radius:5px; cursor:pointer;">Cancel</button>
-                        </div>
                     </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modal);
-        }
-
-        function updateToOptions() {
-            const from = document.getElementById('tx-from').value;
-            const toSelect = document.getElementById('tx-to');
-            const userSection = document.getElementById('user-id-section');
-            
-            userSection.style.display = (from === 'user' || toSelect.value === 'user') ? 'block' : 'none';
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('transaction-modal');
-            if (modal) modal.remove();
-        }
-
-        function processTransaction() {
-            const from = document.getElementById('tx-from').value;
-            const to = document.getElementById('tx-to').value;
-            const userId = document.getElementById('tx-userid').value;
-            const amount = parseInt(document.getElementById('tx-amount').value);
-
-            if (!amount || amount <= 0) {
-                alert('Please enter a valid amount');
-                return;
-            }
-
-            if (from === to) {
-                alert('Cannot transfer to the same account');
-                return;
-            }
-
-            // Validate user transactions
-            if ((from === 'user' || to === 'user') && !userId) {
-                alert('Please enter User ID for user transactions');
-                return;
-            }
-
-            // Check balances
-            if (from !== 'user') {
-                if (balances[from] < amount) {
-                    alert('Insufficient balance in source account');
-                    return;
-                }
-            } else {
-                if (!balances.users[userId] || balances.users[userId] < amount) {
-                    alert('User not found or insufficient balance');
-                    return;
-                }
-            }
-
-            // Process transaction
-            if (from !== 'user') {
-                balances[from] -= amount;
-            } else {
-                balances.users[userId] -= amount;
-            }
-
-            if (to !== 'user') {
-                balances[to] += amount;
-            } else {
-                if (!balances.users[userId]) balances.users[userId] = 0;
-                balances.users[userId] += amount;
-            }
-
-            // Record transaction
-            const transaction = {
-                id: Date.now(),
-                from: from,
-                to: to,
-                userId: userId,
-                amount: amount,
-                date: new Date().toLocaleString(),
-                status: 'completed'
-            };
-            transactions.unshift(transaction);
-            
-            // Save to localStorage
-            localStorage.setItem('admin_balances', JSON.stringify(balances));
-            localStorage.setItem('admin_transactions', JSON.stringify(transactions));
-            
-            alert(`✅ Transaction Successful!\n${amount} IQD transferred from ${from} to ${to}${userId ? ' (User: ' + userId + ')' : ''}`);
-            
-            closeModal();
-            loadDashboard();
-        }
-
-        function updateTransactionsList() {
-            const container = document.getElementById('transactions-list');
-            const recentTransactions = transactions.slice(0, 10);
-            
-            if (recentTransactions.length === 0) {
-                container.innerHTML = '<div class="transaction-item">No transactions yet</div>';
-                return;
-            }
-            
-            container.innerHTML = recentTransactions.map(tx => `
-                <div class="transaction-item">
-                    <strong>${tx.amount} IQD</strong> from ${tx.from} to ${tx.to} 
-                    ${tx.userId ? `(User: ${tx.userId})` : ''}
-                    <div style="font-size:12px; color:#ccc;">${tx.date}</div>
-                </div>
-            `).join('');
-        }
-
-        function sendToUser(userId) {
-            const modal = `
-                <div id="send-user-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:1000;">
-                    <div style="background:white; padding:30px; border-radius:10px; width:400px; color:black;">
-                        <h3 style="color: #1a2a6c; margin-bottom:20px;">Send to User ${userId}</h3>
-                        <p>Current balance: ${balances.users[userId] || 0} IQD</p>
-                        <input type="number" id="send-amount" placeholder="Amount in IQD" style="width:100%; padding:10px; margin:15px 0; border-radius:5px; border:1px solid #ddd;">
-                        <div style="display:flex; gap:10px;">
-                            <button onclick="completeSendToUser('${userId}')" style="flex:1; padding:12px; background:#27ae60; color:white; border:none; border-radius:5px; cursor:pointer;">Send</button>
-                            <button onclick="closeSendModal()" style="flex:1; padding:12px; background:#e74c3c; color:white; border:none; border-radius:5px; cursor:pointer;">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modal);
-        }
-
-        function closeSendModal() {
-            const modal = document.getElementById('send-user-modal');
-            if (modal) modal.remove();
-        }
-
-        function completeSendToUser(userId) {
-            const amount = parseInt(document.getElementById('send-amount').value);
-            
-            if (!amount || amount <= 0) {
-                alert('Please enter valid amount');
-                return;
-            }
-
-            if (balances.super < amount) {
-                alert('Insufficient balance in Super Admin account');
-                return;
-            }
-
-            // Process send to user
-            balances.super -= amount;
-            if (!balances.users[userId]) balances.users[userId] = 0;
-            balances.users[userId] += amount;
-
-            // Record transaction
-            const transaction = {
-                id: Date.now(),
-                from: 'super',
-                to: 'user',
-                userId: userId,
-                amount: amount,
-                date: new Date().toLocaleString(),
-                status: 'completed'
-            };
-            transactions.unshift(transaction);
-            
-            localStorage.setItem('admin_balances', JSON.stringify(balances));
-            localStorage.setItem('admin_transactions', JSON.stringify(transactions));
-            
-            alert(`✅ Sent ${amount} IQD to user ${userId}`);
-            closeSendModal();
-            loadDashboard();
-        }
-
-        function showUserManagement() {
-            alert('User Management System - Coming Soon');
-        }
-
-        function showSystemReport() {
-            let report = `📊 SYSTEM REPORT\n\n`;
-            report += `Total Super Admin: ${formatMoney(balances.super)} IQD\n`;
-            report += `Admin 1 Balance: ${formatMoney(balances.admin1)} IQD\n`;
-            report += `Admin 2 Balance: ${formatMoney(balances.admin2)} IQD\n`;
-            report += `Total Transactions: ${transactions.length}\n\n`;
-            report += `Recent Transactions:\n`;
-            
-            transactions.slice(0, 5).forEach(tx => {
-                report += `${tx.date} - ${tx.amount} IQD (${tx.from} → ${tx.to})\n`;
-            });
-            
-            alert(report);
-        }
-
-        // Check if already logged in
-        if (localStorage.getItem('superadmin_loggedin') === 'true') {
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('admin-content').style.display = 'block';
-            loadDashboard();
-        }
-
-        // Update to select change events
-        document.addEventListener('change', function(e) {
-            if (e.target.id === 'tx-from' || e.target.id === 'tx-to') {
-                updateToOptions();
+                `;
+                mainContent.style.display = 'none';
             }
         });
+
+        // Toggle between login and register
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            // Trigger auth state change to re-render
+            auth.onAuthStateChanged((user) => {});
+        }
+
+        // Simple Name-Based Authentication
+        function generateEmailFromName(firstName, lastName) {
+            const cleanFirstName = firstName.toLowerCase().replace(/\s+/g, '');
+            const cleanLastName = lastName.toLowerCase().replace(/\s+/g, '');
+            return `${cleanFirstName}.${cleanLastName}@xbet.local`;
+        }
+
+        function registerWithName() {
+            const firstName = document.getElementById('first-name').value;
+            const lastName = document.getElementById('last-name').value;
+            const password = document.getElementById('register-password').value;
+            
+            if (!firstName || !lastName || !password) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            const email = generateEmailFromName(firstName, lastName);
+            const displayName = `${firstName} ${lastName}`;
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Update profile with display name
+                    return userCredential.user.updateProfile({
+                        displayName: displayName
+                    });
+                })
+                .then(() => {
+                    alert(`Account created successfully!\nWelcome ${displayName}`);
+                })
+                .catch(error => {
+                    if (error.code === 'auth/email-already-in-use') {
+                        // Auto login if account exists
+                        loginWithName();
+                    } else {
+                        alert('Error creating account: ' + error.message);
+                    }
+                });
+        }
+
+        function loginWithName() {
+            const name = document.getElementById('login-name').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (!name || !password) {
+                alert('Please enter both name and password');
+                return;
+            }
+            
+            // Try to generate email from name
+            const nameParts = name.split(' ');
+            const firstName = nameParts[0] || 'User';
+            const lastName = nameParts.slice(1).join(' ') || 'Account';
+            const email = generateEmailFromName(firstName, lastName);
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .catch(error => {
+                    if (error.code === 'auth/user-not-found') {
+                        alert('Account not found. Please create an account first.');
+                        toggleAuthMode();
+                    } else {
+                        alert('Sign-in Error: ' + error.message);
+                    }
+                });
+        }
+
+        // Google Auth
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(error => {
+                alert('Google Sign-in Error: ' + error.message);
+            });
+        }
+
+        function logout() {
+            auth.signOut();
+        }
+
+        // Firestore Functions
+        async function getUserData(userId) {
+            const doc = await db.collection('users').doc(userId).get();
+            return doc.exists ? doc.data() : null;
+        }
+
+        async function createUser(userId, userData) {
+            await db.collection('users').doc(userId).set({
+                ...userData,
+                balance: 0, // ZERO balance start
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                totalBets: 0,
+                gamesPlayed: 0,
+                wins: 0,
+                losses: 0
+            });
+        }
+
+        // Real-time balance
+        function setupRealTimeBalance(userId) {
+            db.collection('users').doc(userId).onSnapshot((doc) => {
+                const userData = doc.data();
+                const balanceElement = document.getElementById('live-balance');
+                if (balanceElement && userData) {
+                    balanceElement.textContent = userData.balance;
+                    
+                    // Update profile display with latest data
+                    const user = auth.currentUser;
+                    if (user) {
+                        displayUserProfile(user, userData);
+                    }
+                }
+            });
+        }
+
+        // User Profile Functions
+        function displayUserProfile(user, userData) {
+            document.getElementById('user-id-display').textContent = user.uid;
+            document.getElementById('user-name-display').textContent = user.displayName || 'Not set';
+            document.getElementById('user-email-display').textContent = user.email || 'No email';
+            document.getElementById('user-join-date').textContent = userData.createdAt ? 
+                new Date(userData.createdAt.toDate()).toLocaleDateString() : 'Recently';
+            
+            // Update stats
+            document.getElementById('total-bets').textContent = userData.totalBets || 0;
+            document.getElementById('games-played').textContent = userData.gamesPlayed || 0;
+            
+            const wins = userData.wins || 0;
+            const losses = userData.losses || 0;
+            const totalGames = wins + losses;
+            const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
+            document.getElementById('win-rate').textContent = winRate + '%';
+            
+            // Show warning if zero balance
+            const warningElement = document.getElementById('zero-balance-warning');
+            if (userData.balance === 0) {
+                warningElement.style.display = 'block';
+                document.getElementById('warning-user-id').textContent = user.uid;
+            } else {
+                warningElement.style.display = 'none';
+            }
+        }
+
+        function copyUserId() {
+            const userId = document.getElementById('user-id-display').textContent;
+            navigator.clipboard.writeText(userId).then(() => {
+                alert('User ID copied to clipboard! Share this with admin to get coins.');
+            });
+        }
     </script>
 </body>
 </html>
