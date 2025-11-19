@@ -5,138 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin 1 - X-Bet</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); color: white; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         
-        body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            color: white;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .logo {
-            font-size: 28px;
-            font-weight: bold;
-            color: #fdbb2d;
-        }
-        
-        .admin-section {
-            margin-top: 30px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-            padding: 25px;
+        .login-container { 
+            background: rgba(0,0,0,0.7); 
+            padding: 40px; 
+            border-radius: 15px; 
+            max-width: 400px; 
+            margin: 100px auto;
             text-align: center;
         }
+        .login-container h2 { color: #fdbb2d; margin-bottom: 30px; }
+        .login-input { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 8px; background: rgba(255,255,255,0.9); }
+        .login-btn { width: 100%; padding: 15px; background: #fdbb2d; color: #1a2a6c; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         
-        .admin-section h2 {
-            margin-bottom: 20px;
-            color: #fdbb2d;
-        }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .logo { font-size: 28px; font-weight: bold; color: #fdbb2d; }
         
-        .balance-card {
-            background: rgba(0,0,0,0.5);
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 400px;
-            margin: 0 auto 30px;
-        }
+        .admin-section { margin-top: 30px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 25px; text-align: center; }
+        .admin-section h2 { margin-bottom: 20px; color: #fdbb2d; }
         
-        .balance-card h3 {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: #ccc;
-        }
+        .balance-card { background: rgba(0,0,0,0.5); padding: 30px; border-radius: 10px; max-width: 400px; margin: 0 auto 30px; }
+        .balance-card h3 { font-size: 18px; margin-bottom: 15px; color: #ccc; }
+        .balance-card .value { font-size: 36px; font-weight: bold; color: #ff4444; }
         
-        .balance-card .value {
-            font-size: 36px;
-            font-weight: bold;
-            color: #ff4444;
-        }
+        .btn { background: #fdbb2d; color: #1a2a6c; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.3s; display: inline-block; text-decoration: none; margin: 10px; }
         
-        .btn {
-            background: #fdbb2d;
-            color: #1a2a6c;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            display: inline-block;
-            text-decoration: none;
-            margin: 10px;
-        }
+        .note { margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px; font-style: italic; }
         
-        .btn:hover {
-            background: #ffcc44;
-            transform: translateY(-2px);
-        }
+        footer { margin-top: 50px; text-align: center; padding: 20px; border-top: 1px solid rgba(255,255,255,0.2); color: #ccc; }
         
-        .note {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-            font-style: italic;
-        }
-        
-        footer {
-            margin-top: 50px;
-            text-align: center;
-            padding: 20px;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            color: #ccc;
-        }
+        .admin-info { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">X-BET ADMIN 1</div>
-            <nav>
-                <a href="admin-manager.html" class="btn">Request Balance Transfer</a>
-                <a href="admin.html" class="btn">Main Admin</a>
-            </nav>
-        </header>
-        
-        <div class="admin-section">
-            <h2>Admin 1 Dashboard</h2>
-            
-            <div class="balance-card">
-                <h3>Current Balance</h3>
-                <div class="value">$0.00</div>
+    <div id="login-section">
+        <div class="login-container">
+            <h2>Admin 1 Login</h2>
+            <input type="text" id="username" class="login-input" placeholder="Username" value="admin1">
+            <input type="password" id="password" class="login-input" placeholder="Password">
+            <button onclick="login()" class="login-btn">Login</button>
+            <div style="margin-top: 20px; color: #fdbb2d; font-size: 14px;">
+                <strong>Username:</strong> admin1<br>
+                <strong>Password:</strong> admin1pass
             </div>
-            
-            <p>This admin account has zero balance. Request a transfer from the Admin Manager.</p>
-            
-            <div class="note">
-                <p>Note: This is one of the two new admin accounts with zero initial balance.</p>
-            </div>
-            
-            <a href="admin-manager.html" class="btn">Go to Admin Manager</a>
         </div>
-        
-        <footer>
-            <p>&copy; 2023 X-Bet Admin Panel. Admin 1 Account.</p>
-        </footer>
     </div>
+
+    <div id="admin-content" style="display: none;">
+        <div class="container">
+            <header>
+                <div class="logo">X-BET ADMIN 1</div>
+                <nav>
+                    <a href="admin-manager.html" class="btn">Request Balance Transfer</a>
+                    <a href="admin.html" class="btn">Super Admin</a>
+                </nav>
+            </header>
+            
+            <div class="admin-info">
+                <h3>🔐 Admin 1 Access</h3>
+                <p>Limited access - Can view dashboard but cannot transfer funds without Super Admin approval</p>
+            </div>
+            
+            <div class="admin-section">
+                <h2>Admin 1 Dashboard</h2>
+                
+                <div class="balance-card">
+                    <h3>Current Balance</h3>
+                    <div class="value">$0.00</div>
+                </div>
+                
+                <p>This admin account has zero balance. Request a transfer from the Super Admin.</p>
+                
+                <div class="note">
+                    <p>Note: This is Admin 1 account with zero initial balance. Contact Super Admin for funds.</p>
+                </div>
+                
+                <a href="admin-manager.html" class="btn">Request Funds from Super Admin</a>
+                <button onclick="logout()" class="btn" style="background: #e74c3c;">Logout</button>
+            </div>
+            
+            <footer>
+                <p>&copy; 2023 X-Bet Admin Panel. Admin 1 Account. Logged in as: Admin1</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Admin 1 Credentials
+        const ADMIN1 = {
+            username: "admin1",
+            password: "admin1pass"
+        };
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username === ADMIN1.username && password === ADMIN1.password) {
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'block';
+                localStorage.setItem('admin1_loggedin', 'true');
+            } else {
+                alert('Invalid credentials!');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('admin1_loggedin');
+            location.reload();
+        }
+
+        // Check if already logged in
+        if (localStorage.getItem('admin1_loggedin') === 'true') {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('admin-content').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
