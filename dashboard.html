@@ -52,7 +52,7 @@
         .navbar {
             background: rgba(0, 0, 0, 0.9);
             padding: 1rem 2rem;
-            display: flex;
+            display: none;
             justify-content: space-between;
             align-items: center;
             backdrop-filter: blur(10px);
@@ -63,6 +63,7 @@
             font-size: 2rem;
             font-weight: bold;
             color: #ffd700;
+            text-decoration: none;
         }
 
         .nav-links {
@@ -113,7 +114,7 @@
             padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
-            display: none; /* Hidden until auth check */
+            display: none;
         }
 
         .welcome-section {
@@ -176,11 +177,16 @@
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            text-decoration: none;
+            color: white;
+            display: block;
         }
 
         .action-card:hover {
             transform: translateY(-10px);
             background: rgba(255, 255, 255, 0.15);
+            color: white;
+            text-decoration: none;
         }
 
         .action-icon {
@@ -236,10 +242,14 @@
             font-weight: bold;
             margin-top: 1rem;
             transition: transform 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .play-btn:hover {
             transform: scale(1.1);
+            color: black;
+            text-decoration: none;
         }
 
         /* Footer */
@@ -283,8 +293,8 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="navbar" style="display: none;" id="navbar">
-        <div class="logo">X-BET</div>
+    <nav class="navbar" id="navbar">
+        <a href="dashboard.html" class="logo">X-BET</a>
         <div class="nav-links">
             <a href="dashboard.html" style="background: rgba(255, 215, 0, 0.2); color: #ffd700;">Dashboard</a>
             <a href="games.html">Games</a>
@@ -327,16 +337,16 @@
 
         <!-- Quick Actions -->
         <div class="quick-actions">
-            <div class="action-card" onclick="window.location.href='games.html'">
+            <a href="games.html" class="action-card">
                 <div class="action-icon">🎯</div>
                 <h3>Play Games</h3>
                 <p>Explore our exciting game collection</p>
-            </div>
-            <div class="action-card" onclick="window.location.href='bits.html'">
+            </a>
+            <a href="bits.html" class="action-card">
                 <div class="action-icon">💰</div>
                 <h3>Earn Bits</h3>
                 <p>Discover ways to earn rewards</p>
-            </div>
+            </a>
             <div class="action-card">
                 <div class="action-icon">🏆</div>
                 <h3>Tournaments</h3>
@@ -357,25 +367,25 @@
                     <div class="game-icon">🎯</div>
                     <h3>Lucky Dice</h3>
                     <p>Test your luck with classic dice rolling</p>
-                    <button class="play-btn">Play Now</button>
+                    <a href="games.html" class="play-btn">Play Now</a>
                 </div>
                 <div class="game-card">
                     <div class="game-icon">🃏</div>
                     <h3>Card Master</h3>
                     <p>Strategic card games for smart players</p>
-                    <button class="play-btn">Play Now</button>
+                    <a href="games.html" class="play-btn">Play Now</a>
                 </div>
                 <div class="game-card">
                     <div class="game-icon">🎰</div>
                     <h3>Fortune Slots</h3>
                     <p>Spin to win massive jackpots</p>
-                    <button class="play-btn">Play Now</button>
+                    <a href="games.html" class="play-btn">Play Now</a>
                 </div>
                 <div class="game-card">
                     <div class="game-icon">⚽</div>
                     <h3>Sports Predict</h3>
                     <p>Predict scores and win big</p>
-                    <button class="play-btn">Play Now</button>
+                    <a href="games.html" class="play-btn">Play Now</a>
                 </div>
             </div>
         </div>
@@ -409,7 +419,10 @@
             measurementId: "G-PTV4XMYQ6P"
         };
 
-        const app = firebase.initializeApp(firebaseConfig);
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const auth = firebase.auth();
 
         // Show loading screen initially
