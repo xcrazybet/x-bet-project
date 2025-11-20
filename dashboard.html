@@ -87,11 +87,41 @@
         .user-section {
             display: flex;
             align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
             gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd700);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
         }
 
         .user-email {
             color: #ffd700;
+            font-size: 0.9rem;
+        }
+
+        .user-balance {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1rem;
         }
 
         .logout-btn {
@@ -234,6 +264,46 @@
             margin-bottom: 1rem;
         }
 
+        /* Transaction Section */
+        .transaction-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .transaction-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .transaction-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .deposit-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .withdraw-btn {
+            background: linear-gradient(45deg, #ff6b6b, #e55050);
+            color: white;
+        }
+
+        .transaction-btn:hover {
+            transform: scale(1.05);
+        }
+
         /* Games Grid */
         .games-section {
             margin-top: 3rem;
@@ -343,6 +413,62 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1002;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .confirm-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .cancel-btn {
+            background: #ff6b6b;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -355,6 +481,34 @@
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
 
+    <!-- Deposit Modal -->
+    <div class="modal" id="depositModal">
+        <div class="modal-content">
+            <h3>💰 Deposit Funds</h3>
+            <p>Contact admin with your User ID to deposit funds</p>
+            <p><strong>Your User ID:</strong> <span id="modalUserId"></span></p>
+            <p><strong>Admin Email:</strong> admin@xbet.com</p>
+            <div class="modal-buttons">
+                <button class="modal-btn confirm-btn" onclick="copyUserId()">Copy User ID</button>
+                <button class="modal-btn cancel-btn" onclick="closeModal('depositModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div class="modal" id="withdrawModal">
+        <div class="modal-content">
+            <h3>💰 Withdraw Funds</h3>
+            <p>Contact admin with your User ID to withdraw funds</p>
+            <p><strong>Your User ID:</strong> <span id="withdrawUserId"></span></p>
+            <p><strong>Admin Email:</strong> admin@xbet.com</p>
+            <div class="modal-buttons">
+                <button class="modal-btn confirm-btn" onclick="copyUserId()">Copy User ID</button>
+                <button class="modal-btn cancel-btn" onclick="closeModal('withdrawModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <a href="dashboard.html" class="logo">X-BET</a>
@@ -366,7 +520,13 @@
             <a href="about.html">About</a>
         </div>
         <div class="user-section">
-            <span class="user-email" id="userEmail">user@example.com</span>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <span class="user-email" id="userEmail">user@example.com</span>
+                    <span class="user-balance" id="headerBalance">$0.00</span>
+                </div>
+            </div>
             <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
     </nav>
@@ -399,13 +559,23 @@
             </div>
             <div class="balance-card">
                 <h3>🏆 Total Wins</h3>
-                <div class="balance-amount">$0.00</div>
+                <div class="balance-amount" id="totalWins">$0.00</div>
                 <p>Your total earnings so far</p>
             </div>
             <div class="balance-card">
                 <h3>⭐ Player Level</h3>
-                <div class="balance-amount">1</div>
+                <div class="balance-amount" id="playerLevel">1</div>
                 <p>New Player - Keep playing to level up!</p>
+            </div>
+        </div>
+
+        <!-- Transaction Section -->
+        <div class="transaction-section">
+            <h3 style="text-align: center; margin-bottom: 1rem; color: #ffd700;">💳 Money Transactions</h3>
+            <p style="text-align: center; margin-bottom: 1rem;">Deposit funds to play or withdraw your winnings</p>
+            <div class="transaction-buttons">
+                <button class="transaction-btn deposit-btn" onclick="openDepositModal()">Deposit Funds</button>
+                <button class="transaction-btn withdraw-btn" onclick="openWithdrawModal()">Withdraw Funds</button>
             </div>
         </div>
 
@@ -421,10 +591,10 @@
                 <h3>Earn Bits</h3>
                 <p>Discover ways to earn rewards</p>
             </a>
-            <div class="action-card" onclick="showTransactionInfo()">
-                <div class="action-icon">🏦</div>
-                <h3>Transactions</h3>
-                <p>Deposit & Withdraw funds</p>
+            <div class="action-card" onclick="showTransactionHistory()">
+                <div class="action-icon">📊</div>
+                <h3>Transaction History</h3>
+                <p>View your deposit & withdrawal history</p>
             </div>
             <div class="action-card">
                 <div class="action-icon">🎁</div>
@@ -481,7 +651,6 @@
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     
     <script>
         const firebaseConfig = {
@@ -499,7 +668,15 @@
             firebase.initializeApp(firebaseConfig);
         }
         const auth = firebase.auth();
-        const db = firebase.firestore();
+
+        // User data storage (using localStorage as fallback)
+        let userData = {
+            balance: 0,
+            totalWins: 0,
+            playerLevel: 1,
+            userId: '',
+            transactions: []
+        };
 
         // Show loading screen initially
         const loadingScreen = document.getElementById('loadingScreen');
@@ -516,12 +693,10 @@
             if (user) {
                 // User is logged in - show dashboard
                 document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
                 
-                // Generate or get user ID
-                await generateUserId(user);
-                
-                // Get user balance
-                await getUserBalance(user.uid);
+                // Generate or get user data
+                await initializeUserData(user);
                 
                 loadingScreen.style.display = 'none';
                 navbar.style.display = 'flex';
@@ -533,36 +708,41 @@
             }
         });
 
-        // Generate unique user ID
-        async function generateUserId(user) {
-            const userId = 'XB' + user.uid.substring(0, 8).toUpperCase();
-            document.getElementById('userIdDisplay').textContent = userId;
+        // Initialize user data
+        async function initializeUserData(user) {
+            const storageKey = `xbet_user_${user.uid}`;
+            const savedData = localStorage.getItem(storageKey);
             
-            // Save user data to Firestore
-            try {
-                await db.collection('users').doc(user.uid).set({
-                    email: user.email,
-                    userId: userId,
-                    balance: 0,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-            } catch (error) {
-                console.error('Error saving user data:', error);
+            if (savedData) {
+                userData = JSON.parse(savedData);
+            } else {
+                // Create new user data
+                userData.userId = 'XB' + user.uid.substring(0, 8).toUpperCase();
+                userData.balance = 0;
+                userData.totalWins = 0;
+                userData.playerLevel = 1;
+                userData.transactions = [];
+                saveUserData(user);
             }
+            
+            updateUI();
         }
 
-        // Get user balance from Firestore
-        async function getUserBalance(uid) {
-            try {
-                const doc = await db.collection('users').doc(uid).get();
-                if (doc.exists) {
-                    const userData = doc.data();
-                    document.getElementById('userBalance').textContent = '$' + (userData.balance || 0).toFixed(2);
-                }
-            } catch (error) {
-                console.error('Error getting user balance:', error);
-            }
+        // Save user data to localStorage
+        function saveUserData(user) {
+            const storageKey = `xbet_user_${user.uid}`;
+            localStorage.setItem(storageKey, JSON.stringify(userData));
+        }
+
+        // Update UI with user data
+        function updateUI() {
+            document.getElementById('userIdDisplay').textContent = userData.userId;
+            document.getElementById('modalUserId').textContent = userData.userId;
+            document.getElementById('withdrawUserId').textContent = userData.userId;
+            document.getElementById('userBalance').textContent = '$' + userData.balance.toFixed(2);
+            document.getElementById('headerBalance').textContent = '$' + userData.balance.toFixed(2);
+            document.getElementById('totalWins').textContent = '$' + userData.totalWins.toFixed(2);
+            document.getElementById('playerLevel').textContent = userData.playerLevel;
         }
 
         // Copy User ID to clipboard
@@ -585,10 +765,30 @@
             }, 3000);
         }
 
-        // Show transaction information
-        function showTransactionInfo() {
-            const userId = document.getElementById('userIdDisplay').textContent;
-            alert(`💳 Transaction Information:\n\nYour User ID: ${userId}\n\nFor deposits/withdrawals:\n1. Contact admin with your User ID\n2. Provide transaction details\n3. Wait for confirmation\n4. Check your balance updates\n\nAdmin Contact: support@xbet.com`);
+        // Modal functions
+        function openDepositModal() {
+            document.getElementById('depositModal').style.display = 'flex';
+        }
+
+        function openWithdrawModal() {
+            document.getElementById('withdrawModal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Show transaction history
+        function showTransactionHistory() {
+            if (userData.transactions.length === 0) {
+                alert('No transactions yet. Make your first deposit to start playing!');
+            } else {
+                let history = '📊 Transaction History:\n\n';
+                userData.transactions.forEach((transaction, index) => {
+                    history += `${index + 1}. ${transaction.type.toUpperCase()}: $${transaction.amount} (${transaction.date})\n`;
+                });
+                alert(history);
+            }
         }
 
         // Safety timeout - if auth check takes too long
@@ -607,6 +807,13 @@
                 console.error('Logout error:', error);
                 window.location.href = 'index.html';
             });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
         }
     </script>
 </body>
