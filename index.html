@@ -3,614 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-Bet - Iraqi Dinar Gaming</title>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
+    <title>X-BET - Welcome</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
-        
-        /* Navigation */
-        nav { background: rgba(255,255,255,0.1); padding: 15px 0; margin-bottom: 20px; border-radius: 10px; }
-        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: center; gap: 30px; }
-        nav a { color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; background: rgba(255,255,255,0.2); transition: all 0.3s; }
-        nav a:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
-        
-        /* Auth Styles */
-        .auth-container { text-align: center; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); max-width: 400px; margin: 50px auto; }
-        .auth-container h1 { color: #333; margin-bottom: 10px; font-size: 2.5em; }
-        .auth-container p { color: #666; margin-bottom: 30px; font-size: 1.1em; }
-        
-        /* Login Styles */
-        .login-options { display: flex; flex-direction: column; gap: 15px; }
-        
-        .btn { padding: 14px 28px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-        .btn-google { background: #db4437; color: white; }
-        .btn-google:hover { background: #c23321; transform: translateY(-2px); }
-        .btn-simple { background: #667eea; color: white; width: 100%; }
-        .btn-simple:hover { background: #5a6fd8; transform: translateY(-2px); }
-        
-        .simple-login { display: flex; flex-direction: column; gap: 12px; }
-        .simple-login input { padding: 14px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
-        .simple-login input:focus { border-color: #667eea; outline: none; }
-        
-        .divider { text-align: center; position: relative; margin: 20px 0; }
-        .divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #ddd; }
-        .divider span { background: white; padding: 0 15px; color: #666; }
-        
-        /* User Profile */
-        .user-profile { display: flex; align-items: center; gap: 15px; background: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); margin-bottom: 20px; flex-wrap: wrap; }
-        .avatar { width: 45px; height: 45px; border-radius: 50%; border: 3px solid #667eea; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .balance { font-weight: bold; color: #27ae60; margin-left: auto; }
-        .btn-logout { background: #e74c3c; color: white; padding: 8px 16px; font-size: 14px; border: none; border-radius: 5px; cursor: pointer; }
-        .btn-logout:hover { background: #c0392b; }
-        
-        /* Ads & Announcements */
-        .ads-section { background: rgba(255,255,255,0.9); padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; }
-        .announcement { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 8px; margin: 10px 0; }
-        
-        /* Quick Games Preview */
-        .games-preview { background: white; padding: 25px; border-radius: 12px; margin: 20px 0; }
-        .games-preview h2 { color: #333; margin-bottom: 15px; text-align: center; }
-        .preview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .preview-game { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }
-        .preview-game h4 { color: #333; margin-bottom: 10px; }
-        
-        /* User Profile Section */
-        .user-profile-section {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            margin-top: 30px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
 
-        .user-profile-section h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ecf0f1;
-            padding-bottom: 10px;
-        }
-
-        .profile-card {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        .profile-info {
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-        }
-
-        .profile-field {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }
-
-        .profile-field label {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .user-id {
-            font-family: monospace;
-            background: #2c3e50;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        .btn-copy {
-            background: #3498db;
-            color: white;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .btn-copy:hover {
-            background: #2980b9;
-        }
-
-        .profile-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-        }
-
-        .stat {
-            background: #3498db;
-            color: white;
+            justify-content: center;
             padding: 20px;
-            border-radius: 8px;
-            text-align: center;
         }
 
-        .stat h3 {
-            font-size: 12px;
-            margin-bottom: 8px;
+        .logo {
+            font-size: 4rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .tagline {
+            color: white;
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
             opacity: 0.9;
         }
 
-        .stat p {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin: 0;
-        }
-
-        /* Zero Balance Warning */
-        .warning-message {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            color: #856404;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
+        .auth-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
             text-align: center;
-            display: none;
         }
 
-        .warning-message h3 {
-            color: #856404;
-            margin-bottom: 10px;
+        .auth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
 
-        .warning-message p {
-            margin-bottom: 8px;
-        }
-
-        /* Toggle between login and register */
-        .auth-toggle {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .auth-toggle button {
-            background: none;
+        .auth-btn {
+            padding: 1rem;
             border: none;
-            color: #667eea;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
             cursor: pointer;
-            text-decoration: underline;
+            transition: all 0.3s ease;
         }
 
-        .auth-toggle button:hover {
-            color: #5a6fd8;
-        }
-
-        /* Play Now Button */
-        .play-now-btn {
-            background: #e67e22;
+        .login-btn {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
             color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            margin: 20px auto;
-            display: block;
-            transition: all 0.3s;
-            text-decoration: none;
-            text-align: center;
-            width: 200px;
         }
 
-        .play-now-btn:hover {
-            background: #d35400;
+        .signup-btn {
+            background: white;
+            color: #1a2a6c;
+            border: 2px solid #1a2a6c;
+        }
+
+        .auth-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        .error-message { 
-            background: #e74c3c; 
-            color: white; 
-            padding: 10px; 
-            border-radius: 5px; 
-            margin: 10px 0; 
-            display: none; 
+        .social-links {
+            margin-top: 3rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .social-icon {
+            color: white;
+            font-size: 1.5rem;
+            text-decoration: none;
+            opacity: 0.7;
+        }
+
+        .copyright {
+            color: white;
+            text-align: center;
+            margin-top: 2rem;
+            opacity: 0.7;
         }
     </style>
 </head>
 <body>
-    <!-- Navigation Menu -->
-    <nav>
-        <div class="nav-container">
-            <a href="index.html">Home</a>
-            <a href="games.html">Play Games</a>
-            <a href="login.html">Login</a>
-            <a href="signup.html">Sign Up</a>
-        </div>
-    </nav>
+    <div class="logo">X-BET</div>
+    <div class="tagline">Play Smart • Win Big • Zero Cost Gaming</div>
 
-    <!-- Ads & Announcements Section -->
-    <div class="ads-section">
-        <h3>🎯 Special Offers</h3>
-        <div class="announcement">
-            <strong>🔥 New Game Added!</strong> Try our exciting Number Race with 5x multipliers!
-        </div>
-        <div class="announcement">
-            <strong>💰 Welcome Bonus!</strong> New users get special starting bonuses!
-        </div>
-        <p>Advertisement Space - Contact for ads</p>
-    </div>
-
-    <div id="app">
-        <header>
-            <div id="auth-section"></div>
-        </header>
+    <div class="auth-container">
+        <h2>Welcome to X-BET</h2>
+        <p style="margin: 1rem 0; color: #666;">Join now to start playing</p>
         
-        <main id="main-content" style="display: none;">
-            <!-- Quick Games Preview -->
-            <div class="games-preview">
-                <h2>🎮 Quick Play</h2>
-                <div class="preview-grid">
-                    <div class="preview-game">
-                        <h4>Coin Flip</h4>
-                        <p>Double your money!</p>
-                    </div>
-                    <div class="preview-game">
-                        <h4>Number Guess</h4>
-                        <p>Win 5x your bet!</p>
-                    </div>
-                    <div class="preview-game">
-                        <h4>Dice Roll</h4>
-                        <p>3x multiplier!</p>
-                    </div>
-                </div>
-                <a href="games.html" class="play-now-btn">🎯 Play All Games</a>
-            </div>
-            
-            <!-- Zero Balance Warning -->
-            <div id="zero-balance-warning" class="warning-message">
-                <h3>💰 Zero Balance Detected</h3>
-                <p>You need IQD coins to play games. Please contact an admin to purchase coins.</p>
-                <p><strong>Your User ID: <span id="warning-user-id"></span></strong></p>
-                <p>Share this ID with admin to get coins</p>
-                <button onclick="copyUserId()" class="btn-copy">Copy My User ID</button>
-            </div>
-            
-            <!-- User Profile Section -->
-            <div class="user-profile-section">
-                <h2>👤 Your Profile</h2>
-                <div class="profile-card">
-                    <div class="profile-info">
-                        <div class="profile-field">
-                            <label>User ID:</label>
-                            <span id="user-id-display" class="user-id"></span>
-                            <button onclick="copyUserId()" class="btn-copy">Copy ID</button>
-                        </div>
-                        <div class="profile-field">
-                            <label>Display Name:</label>
-                            <span id="user-name-display"></span>
-                        </div>
-                        <div class="profile-field">
-                            <label>Email:</label>
-                            <span id="user-email-display"></span>
-                        </div>
-                        <div class="profile-field">
-                            <label>Member Since:</label>
-                            <span id="user-join-date"></span>
-                        </div>
-                    </div>
-                    <div class="profile-stats">
-                        <div class="stat">
-                            <h3>Total Bets</h3>
-                            <p id="total-bets">0</p>
-                        </div>
-                        <div class="stat">
-                            <h3>Games Played</h3>
-                            <p id="games-played">0</p>
-                        </div>
-                        <div class="stat">
-                            <h3>Win Rate</h3>
-                            <p id="win-rate">0%</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+        <div class="auth-buttons">
+            <button class="auth-btn login-btn" onclick="window.location.href='login.html'">
+                Login with Email
+            </button>
+            <button class="auth-btn signup-btn" onclick="window.location.href='signup.html'">
+                Create New Account
+            </button>
+        </div>
     </div>
 
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
-            authDomain: "x-bet-prod-jd.firebaseapp.com",
-            projectId: "x-bet-prod-jd",
-            storageBucket: "x-bet-prod-jd.firebasestorage.app",
-            messagingSenderId: "499334334535",
-            appId: "1:499334334535:web:bebc1bf817e24d9e3c4962",
-            measurementId: "G-PTV4XMYQ6P"
-        };
+    <div class="social-links">
+        <a href="#" class="social-icon">📘</a>
+        <a href="#" class="social-icon">📷</a>
+        <a href="#" class="social-icon">🐦</a>
+        <a href="#" class="social-icon">💬</a>
+    </div>
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        let isRegisterMode = false;
-
-        // Auth State Listener
-        auth.onAuthStateChanged(async (user) => {
-            const authSection = document.getElementById('auth-section');
-            const mainContent = document.getElementById('main-content');
-            
-            if (user) {
-                // User is signed in
-                let userData = await getUserData(user.uid);
-                if (!userData) {
-                    await createUser(user.uid, {
-                        displayName: user.displayName || 'User',
-                        email: user.email || 'no-email@xbet.com',
-                        photoURL: user.photoURL || '',
-                        memberSince: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    userData = await getUserData(user.uid);
-                }
-                
-                // Generate avatar from first letter of name
-                const firstLetter = (user.displayName || 'U').charAt(0).toUpperCase();
-                
-                authSection.innerHTML = `
-                    <div class="user-profile">
-                        <div class="avatar">${firstLetter}</div>
-                        <span>${user.displayName || 'User'}</span>
-                        <div class="balance">Balance: <span id="live-balance">${userData.balance}</span> د.ع</div>
-                        <button onclick="logout()" class="btn-logout">Logout</button>
-                    </div>
-                `;
-                
-                mainContent.style.display = 'block';
-                setupRealTimeBalance(user.uid);
-                displayUserProfile(user, userData);
-                
-            } else {
-                // User is signed out
-                authSection.innerHTML = `
-                    <div class="auth-container">
-                        <h1>X-Bet 🎯</h1>
-                        <p>Iraqi Dinar Gaming Platform</p>
-                        
-                        <div class="error-message" id="auth-error" style="display: none;"></div>
-                        
-                        <div class="login-options">
-                            <button onclick="signInWithGoogle()" class="btn btn-google">
-                                📧 Continue with Google
-                            </button>
-                            
-                            <div class="divider">
-                                <span>or</span>
-                            </div>
-                            
-                            <div id="simple-auth-form" class="simple-login">
-                                ${isRegisterMode ? `
-                                    <input type="text" id="first-name" placeholder="First Name" required>
-                                    <input type="text" id="last-name" placeholder="Last Name" required>
-                                    <input type="password" id="register-password" placeholder="Password (min 6 chars)" required>
-                                    <button onclick="registerWithName()" class="btn btn-simple">Create Account</button>
-                                ` : `
-                                    <input type="text" id="login-name" placeholder="Your Username" required>
-                                    <input type="password" id="login-password" placeholder="Your Password" required>
-                                    <button onclick="loginWithName()" class="btn btn-simple">Sign In</button>
-                                `}
-                            </div>
-                            
-                            <div class="auth-toggle">
-                                ${isRegisterMode ? 
-                                    'Already have an account? <button onclick="toggleAuthMode()">Sign In</button>' : 
-                                    'No account? <button onclick="toggleAuthMode()">Create One</button>'
-                                }
-                            </div>
-                        </div>
-                    </div>
-                `;
-                mainContent.style.display = 'none';
-            }
-        });
-
-        function showAuthError(message) {
-            const errorElement = document.getElementById('auth-error');
-            if (errorElement) {
-                errorElement.textContent = message;
-                errorElement.style.display = 'block';
-            }
-        }
-
-        function hideAuthError() {
-            const errorElement = document.getElementById('auth-error');
-            if (errorElement) {
-                errorElement.style.display = 'none';
-            }
-        }
-
-        // Toggle between login and register
-        function toggleAuthMode() {
-            isRegisterMode = !isRegisterMode;
-            // Trigger auth state change to re-render
-            auth.onAuthStateChanged((user) => {});
-        }
-
-        // Simple Name-Based Authentication - FIXED VERSION
-        function generateEmailFromName(name) {
-            const cleanName = name.toLowerCase().replace(/\s+/g, '');
-            return `${cleanName}@xbet.local`;
-        }
-
-        function registerWithName() {
-            const firstName = document.getElementById('first-name').value;
-            const lastName = document.getElementById('last-name').value;
-            const password = document.getElementById('register-password').value;
-            
-            if (!firstName || !lastName || !password) {
-                showAuthError('Please fill all fields');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showAuthError('Password must be at least 6 characters');
-                return;
-            }
-            
-            hideAuthError();
-            const name = `${firstName} ${lastName}`;
-            const email = generateEmailFromName(name);
-            const displayName = name;
-            
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Update profile with display name
-                    return userCredential.user.updateProfile({
-                        displayName: displayName
-                    });
-                })
-                .then(() => {
-                    // Auto login after creation
-                    return auth.signInWithEmailAndPassword(email, password);
-                })
-                .catch(error => {
-                    console.error('Registration error:', error);
-                    if (error.code === 'auth/email-already-in-use') {
-                        showAuthError('Account already exists. Please sign in instead.');
-                    } else {
-                        showAuthError('Error: ' + error.message);
-                    }
-                });
-        }
-
-        function loginWithName() {
-            const name = document.getElementById('login-name').value;
-            const password = document.getElementById('login-password').value;
-            
-            if (!name || !password) {
-                showAuthError('Please enter both username and password');
-                return;
-            }
-            
-            hideAuthError();
-            const email = generateEmailFromName(name);
-            
-            auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    // Login successful
-                })
-                .catch(error => {
-                    console.error('Login error:', error);
-                    if (error.code === 'auth/user-not-found') {
-                        showAuthError('Account not found. Please create an account first.');
-                    } else if (error.code === 'auth/wrong-password') {
-                        showAuthError('Wrong password. Please try again.');
-                    } else if (error.code === 'auth/invalid-credential') {
-                        showAuthError('Invalid login credentials. Please check your username and password.');
-                    } else {
-                        showAuthError('Login Error: ' + error.message);
-                    }
-                });
-        }
-
-        // Google Auth
-        function signInWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => {
-                showAuthError('Google Sign-in Error: ' + error.message);
-            });
-        }
-
-        function logout() {
-            auth.signOut();
-        }
-
-        // Firestore Functions
-        async function getUserData(userId) {
-            const doc = await db.collection('users').doc(userId).get();
-            return doc.exists ? doc.data() : null;
-        }
-
-        async function createUser(userId, userData) {
-            await db.collection('users').doc(userId).set({
-                ...userData,
-                balance: 0, // ZERO balance start
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                totalBets: 0,
-                gamesPlayed: 0,
-                wins: 0,
-                losses: 0
-            });
-        }
-
-        // Real-time balance
-        function setupRealTimeBalance(userId) {
-            db.collection('users').doc(userId).onSnapshot((doc) => {
-                const userData = doc.data();
-                const balanceElement = document.getElementById('live-balance');
-                if (balanceElement && userData) {
-                    balanceElement.textContent = userData.balance;
-                    
-                    // Update profile display with latest data
-                    const user = auth.currentUser;
-                    if (user) {
-                        displayUserProfile(user, userData);
-                    }
-                }
-            });
-        }
-
-        // User Profile Functions
-        function displayUserProfile(user, userData) {
-            document.getElementById('user-id-display').textContent = user.uid;
-            document.getElementById('user-name-display').textContent = user.displayName || 'Not set';
-            document.getElementById('user-email-display').textContent = user.email || 'No email';
-            document.getElementById('user-join-date').textContent = userData.createdAt ? 
-                new Date(userData.createdAt.toDate()).toLocaleDateString() : 'Recently';
-            
-            // Update stats
-            document.getElementById('total-bets').textContent = userData.totalBets || 0;
-            document.getElementById('games-played').textContent = userData.gamesPlayed || 0;
-            
-            const wins = userData.wins || 0;
-            const losses = userData.losses || 0;
-            const totalGames = wins + losses;
-            const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
-            document.getElementById('win-rate').textContent = winRate + '%';
-            
-            // Show warning if zero balance
-            const warningElement = document.getElementById('zero-balance-warning');
-            if (userData.balance === 0) {
-                warningElement.style.display = 'block';
-                document.getElementById('warning-user-id').textContent = user.uid;
-            } else {
-                warningElement.style.display = 'none';
-            }
-        }
-
-        function copyUserId() {
-            const userId = document.getElementById('user-id-display').textContent;
-            navigator.clipboard.writeText(userId).then(() => {
-                alert('User ID copied to clipboard! Share this with admin to get coins.');
-            });
-        }
-
-        // Enter key support
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                if (isRegisterMode) {
-                    registerWithName();
-                } else {
-                    loginWithName();
-                }
-            }
-        });
-    </script>
+    <div class="copyright">
+        &copy; 2024 Crazy X Bet. All rights reserved.
+    </div>
 </body>
 </html>
