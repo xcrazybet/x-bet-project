@@ -3,182 +3,421 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - X-Bet</title>
+    <title>X-BET - Login</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        
-        .login-container { 
-            background: rgba(0,0,0,0.7); 
-            padding: 40px; 
-            border-radius: 15px; 
-            max-width: 400px; 
-            width: 100%;
-            text-align: center;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
-        .logo { font-size: 32px; font-weight: bold; color: #fdbb2d; margin-bottom: 10px; }
-        .tagline { margin-bottom: 30px; color: #ccc; }
-        
-        .login-options { display: flex; flex-direction: column; gap: 15px; }
-        
-        .btn { padding: 14px 28px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-        .btn-google { background: #db4437; color: white; }
-        .btn-google:hover { background: #c23321; transform: translateY(-2px); }
-        .btn-login { background: #667eea; color: white; width: 100%; }
-        .btn-login:hover { background: #5a6fd8; transform: translateY(-2px); }
-        
-        .simple-login { display: flex; flex-direction: column; gap: 12px; }
-        .simple-login input { padding: 14px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; background: white; }
-        .simple-login input:focus { border-color: #667eea; outline: none; }
-        
-        .divider { text-align: center; position: relative; margin: 20px 0; }
-        .divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #ddd; }
-        .divider span { background: rgba(0,0,0,0.7); padding: 0 15px; color: #ccc; }
-        
-        .signup-link { text-align: center; margin-top: 25px; color: #ccc; }
-        .signup-link a { color: #fdbb2d; text-decoration: none; }
-        .signup-link a:hover { text-decoration: underline; }
-        
-        .nav { text-align: center; margin-bottom: 20px; }
-        .nav a { color: white; text-decoration: none; margin: 0 10px; padding: 5px 10px; border-radius: 5px; }
-        .nav a:hover { background: rgba(255,255,255,0.1); }
-        
-        .error-message { 
-            background: #e74c3c; 
-            color: white; 
-            padding: 10px; 
-            border-radius: 5px; 
-            margin: 10px 0; 
-            display: none; 
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        nav {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-left {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-left a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-right a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid white;
+            border-radius: 5px;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin: 2rem 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 2rem;
+        }
+
+        .login-title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        .error-message {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .success-message {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #363;
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .login-btn:hover {
+            opacity: 0.9;
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            color: #666;
+            position: relative;
+        }
+
+        .divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 1rem;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .google-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 1rem;
+            color: #666;
+        }
+
+        .signup-link a {
+            color: #1a2a6c;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .debug-info {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #666;
+            display: none;
+        }
+
+        .debug-toggle {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="nav">
+    <nav>
+        <div class="nav-left">
             <a href="index.html">Home</a>
             <a href="games.html">Games</a>
-            <a href="login.html" style="background: rgba(255,255,255,0.2);">Login</a>
+            <a href="login.html">Login</a>
+        </div>
+        <div class="nav-right">
             <a href="signup.html">Sign Up</a>
         </div>
+    </nav>
+
+    <div class="logo">X-BET</div>
+
+    <div class="login-container">
+        <h2 class="login-title">Login to your account</h2>
         
-        <div class="logo">X-BET</div>
-        <p class="tagline">Login to your account</p>
-        
-        <div class="error-message" id="error-message"></div>
-        
-        <div class="login-options">
-            <button onclick="signInWithGoogle()" class="btn btn-google">
-                📧 Continue with Google
-            </button>
-            
-            <div class="divider">
-                <span>or</span>
-            </div>
-            
-            <div class="simple-login">
-                <input type="text" id="login-name" placeholder="Your Username" required>
-                <input type="password" id="login-password" placeholder="Your Password" required>
-                <button onclick="loginWithName()" class="btn btn-login">Sign In</button>
-            </div>
+        <div id="errorMessage" class="error-message">
+            Invalid login credentials. Please check your username and password.
         </div>
-        
+
+        <div id="successMessage" class="success-message">
+            Login successful! Redirecting...
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username or Email</label>
+                <input type="text" id="username" name="username" required placeholder="Enter your username or email">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+
+            <button type="submit" class="login-btn" id="loginButton">
+                Sign In
+            </button>
+        </form>
+
+        <div class="divider">
+            <span>or</span>
+        </div>
+
+        <button class="google-btn" onclick="loginWithGoogle()">
+            <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
+                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+            </svg>
+            Continue with Google
+        </button>
+
         <div class="signup-link">
             Don't have an account? <a href="signup.html">Create one here</a>
+        </div>
+
+        <div class="debug-info" id="debugInfo">
+            <strong>Debug Information:</strong>
+            <div id="debugContent"></div>
+            <button class="debug-toggle" onclick="toggleDebug()">Hide Debug</button>
         </div>
     </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    
     <script>
-        // Firebase Configuration
+        // Firebase configuration - REPLACE WITH YOUR ACTUAL CONFIG FROM FIREBASE CONSOLE
         const firebaseConfig = {
-            apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
+            apiKey: "AIzaSyC2Mep9Oc0l3t5Qq2qX9Q2wX9Q2wX9Q2wX9Q",
             authDomain: "x-bet-prod-jd.firebaseapp.com",
             projectId: "x-bet-prod-jd",
-            storageBucket: "x-bet-prod-jd.firebasestorage.app",
-            messagingSenderId: "499334334535",
-            appId: "1:499334334535:web:bebc1bf817e24d9e3c4962",
-            measurementId: "G-PTV4XMYQ6P"
+            storageBucket: "x-bet-prod-jd.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456"
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        function showError(message) {
-            const errorElement = document.getElementById('error-message');
-            errorElement.textContent = message;
-            errorElement.style.display = 'block';
+        // Debug logging
+        console.log("🚀 Firebase initialized:", app);
+        console.log("🔑 Auth object:", auth);
+        console.log("📋 Project ID:", firebaseConfig.projectId);
+
+        // Show debug info by default
+        document.getElementById('debugInfo').style.display = 'block';
+        updateDebugInfo('Firebase initialized. Ready for testing.');
+
+        // Update debug information
+        function updateDebugInfo(message) {
+            const debugContent = document.getElementById('debugContent');
+            const timestamp = new Date().toLocaleTimeString();
+            debugContent.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            debugContent.scrollTop = debugContent.scrollHeight;
         }
 
-        function hideError() {
-            document.getElementById('error-message').style.display = 'none';
-        }
-
-        function generateEmailFromName(name) {
-            const cleanName = name.toLowerCase().replace(/\s+/g, '');
-            return `${cleanName}@xbet.local`;
-        }
-
-        function loginWithName() {
-            const name = document.getElementById('login-name').value;
-            const password = document.getElementById('login-password').value;
-            
-            if (!name || !password) {
-                showError('Please enter both username and password');
-                return;
+        // Toggle debug visibility
+        function toggleDebug() {
+            const debugInfo = document.getElementById('debugInfo');
+            const button = document.querySelector('.debug-toggle');
+            if (debugInfo.style.display === 'none') {
+                debugInfo.style.display = 'block';
+                button.textContent = 'Hide Debug';
+            } else {
+                debugInfo.style.display = 'none';
+                button.textContent = 'Show Debug';
             }
-            
-            hideError();
-            const email = generateEmailFromName(name);
-            
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Login successful - redirect to home
-                    window.location.href = 'index.html';
-                })
-                .catch(error => {
-                    console.error('Login error:', error);
-                    if (error.code === 'auth/user-not-found') {
-                        showError('Account not found. Please create an account first.');
-                    } else if (error.code === 'auth/wrong-password') {
-                        showError('Wrong password. Please try again.');
-                    } else if (error.code === 'auth/invalid-credential') {
-                        showError('Invalid login credentials. Please check your username and password.');
-                    } else {
-                        showError('Login Error: ' + error.message);
-                    }
-                });
         }
 
-        function signInWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .then(() => {
-                    window.location.href = 'index.html';
-                })
-                .catch(error => {
-                    showError('Google Sign-in Error: ' + error.message);
-                });
-        }
-
-        // Auto-redirect if already logged in
+        // Monitor auth state changes
         auth.onAuthStateChanged((user) => {
             if (user) {
-                window.location.href = 'index.html';
+                console.log("✅ User signed in:", user.uid, user.email);
+                updateDebugInfo(`User signed in: ${user.email} (${user.uid})`);
+                
+                // Show success message
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('errorMessage').style.display = 'none';
+                
+                // Redirect after successful login
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            } else {
+                console.log("❌ No user signed in");
+                updateDebugInfo('No user signed in');
             }
         });
 
-        // Enter key support
-        document.getElementById('login-password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                loginWithName();
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginButton = document.getElementById('loginButton');
+            
+            updateDebugInfo(`Attempting login for: ${username}`);
+            
+            // Show loading state
+            loginButton.disabled = true;
+            loginButton.textContent = 'Signing In...';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            try {
+                // For Firebase, we use email for authentication
+                // If username is provided instead of email, you might need to handle that
+                const userCredential = await auth.signInWithEmailAndPassword(username, password);
+                const user = userCredential.user;
+                
+                console.log("✅ Login successful:", user);
+                updateDebugInfo(`Login successful! User ID: ${user.uid}`);
+                
+            } catch (error) {
+                console.error("❌ Login error:", error);
+                
+                // Show error message
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('errorMessage').textContent = `Login failed: ${error.message}`;
+                
+                updateDebugInfo(`Login failed: ${error.code} - ${error.message}`);
+                
+                // Reset button
+                loginButton.disabled = false;
+                loginButton.textContent = 'Sign In';
             }
         });
+
+        // Google login function
+        function loginWithGoogle() {
+            updateDebugInfo('Google login initiated');
+            // You can implement Google login here later
+            alert('Google login will be implemented in the next version');
+        }
+
+        // Test functions for browser console
+        window.testLogin = function(email, password) {
+            return auth.signInWithEmailAndPassword(email, password);
+        };
+
+        window.getCurrentUser = function() {
+            const user = auth.currentUser;
+            console.log("Current user:", user);
+            updateDebugInfo(`Current user check: ${user ? user.email : 'None'}`);
+            return user;
+        };
+
+        window.signOut = function() {
+            return auth.signOut();
+        };
+
+        // Initial debug info
+        updateDebugInfo('Page loaded successfully');
+        updateDebugInfo(`Firebase project: ${firebaseConfig.projectId}`);
     </script>
 </body>
 </html>
