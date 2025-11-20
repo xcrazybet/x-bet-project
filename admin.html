@@ -3,567 +3,416 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-Bet - Iraqi Dinar Gaming</title>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
+    <title>X-BET - Main Manager</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
-        
-        /* Navigation */
-        nav { background: rgba(255,255,255,0.1); padding: 15px 0; margin-bottom: 20px; border-radius: 10px; }
-        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: center; gap: 30px; }
-        nav a { color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; background: rgba(255,255,255,0.2); transition: all 0.3s; }
-        nav a:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
-        
-        /* Auth Styles */
-        .auth-container { text-align: center; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); max-width: 400px; margin: 50px auto; }
-        .auth-container h1 { color: #333; margin-bottom: 10px; font-size: 2.5em; }
-        .auth-container p { color: #666; margin-bottom: 30px; font-size: 1.1em; }
-        
-        /* Login Styles */
-        .login-options { display: flex; flex-direction: column; gap: 15px; }
-        
-        .btn { padding: 14px 28px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-        .btn-google { background: #db4437; color: white; }
-        .btn-google:hover { background: #c23321; transform: translateY(-2px); }
-        .btn-simple { background: #667eea; color: white; width: 100%; }
-        .btn-simple:hover { background: #5a6fd8; transform: translateY(-2px); }
-        
-        .simple-login { display: flex; flex-direction: column; gap: 12px; }
-        .simple-login input { padding: 14px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
-        .simple-login input:focus { border-color: #667eea; outline: none; }
-        
-        .divider { text-align: center; position: relative; margin: 20px 0; }
-        .divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #ddd; }
-        .divider span { background: white; padding: 0 15px; color: #666; }
-        
-        /* User Profile */
-        .user-profile { display: flex; align-items: center; gap: 15px; background: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); margin-bottom: 20px; flex-wrap: wrap; }
-        .avatar { width: 45px; height: 45px; border-radius: 50%; border: 3px solid #667eea; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .balance { font-weight: bold; color: #27ae60; margin-left: auto; }
-        .btn-logout { background: #e74c3c; color: white; padding: 8px 16px; font-size: 14px; border: none; border-radius: 5px; cursor: pointer; }
-        .btn-logout:hover { background: #c0392b; }
-        
-        /* Ads & Announcements */
-        .ads-section { background: rgba(255,255,255,0.9); padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; }
-        .announcement { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 8px; margin: 10px 0; }
-        
-        /* Quick Games Preview */
-        .games-preview { background: white; padding: 25px; border-radius: 12px; margin: 20px 0; }
-        .games-preview h2 { color: #333; margin-bottom: 15px; text-align: center; }
-        .preview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .preview-game { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }
-        .preview-game h4 { color: #333; margin-bottom: 10px; }
-        
-        /* User Profile Section */
-        .user-profile-section {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            margin-top: 30px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-        }
-
-        .user-profile-section h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ecf0f1;
-            padding-bottom: 10px;
-        }
-
-        .profile-card {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        .profile-info {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .profile-field {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }
-
-        .profile-field label {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .user-id {
-            font-family: monospace;
-            background: #2c3e50;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        .btn-copy {
-            background: #3498db;
-            color: white;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .btn-copy:hover {
-            background: #2980b9;
-        }
-
-        .profile-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-        }
-
-        .stat {
-            background: #3498db;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .stat h3 {
-            font-size: 12px;
-            margin-bottom: 8px;
-            opacity: 0.9;
-        }
-
-        .stat p {
-            font-size: 1.5em;
-            font-weight: bold;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Zero Balance Warning */
-        .warning-message {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            color: #856404;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            text-align: center;
-            display: none;
-        }
-
-        .warning-message h3 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-
-        .warning-message p {
-            margin-bottom: 8px;
-        }
-
-        /* Toggle between login and register */
-        .auth-toggle {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .auth-toggle button {
-            background: none;
-            border: none;
-            color: #667eea;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .auth-toggle button:hover {
-            color: #5a6fd8;
-        }
-
-        /* Play Now Button */
-        .play-now-btn {
-            background: #e67e22;
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
             color: white;
-            padding: 15px 30px;
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-title {
+            font-size: 2.5rem;
+            color: #ffd700;
+            margin-bottom: 0.5rem;
+        }
+
+        .admin-balance {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 1rem 0;
+        }
+
+        .admin-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .action-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .action-title {
+            color: #ffd700;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ffd700;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .admin-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ffd700);
+            color: black;
             border: none;
-            border-radius: 8px;
-            font-size: 18px;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
-            margin: 20px auto;
-            display: block;
-            transition: all 0.3s;
+            width: 100%;
+            margin-top: 1rem;
+            transition: transform 0.3s ease;
         }
 
-        .play-now-btn:hover {
-            background: #d35400;
-            transform: translateY(-2px);
+        .admin-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .transaction-log {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid #ffd700;
+        }
+
+        .back-btn {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            text-decoration: none;
+            display: inline-block;
         }
     </style>
 </head>
 <body>
-    <!-- Navigation Menu -->
-    <nav>
-        <div class="nav-container">
-            <a href="index.html">Home</a>
-            <a href="games.html">Play Games</a>
-            <a href="signup.html">Sign Up</a>
-        </div>
-    </nav>
-
-    <!-- Ads & Announcements Section -->
-    <div class="ads-section">
-        <h3>🎯 Special Offers</h3>
-        <div class="announcement">
-            <strong>🔥 New Game Added!</strong> Try our exciting Number Race with 5x multipliers!
-        </div>
-        <div class="announcement">
-            <strong>💰 Welcome Bonus!</strong> New users get special starting bonuses!
-        </div>
-        <p>Advertisement Space - Contact for ads</p>
-    </div>
-
-    <div id="app">
-        <header>
-            <div id="auth-section"></div>
-        </header>
+    <div class="admin-container">
+        <a href="index.html" class="back-btn">← Back to Site</a>
         
-        <main id="main-content" style="display: none;">
-            <!-- Quick Games Preview -->
-            <div class="games-preview">
-                <h2>🎮 Quick Play</h2>
-                <div class="preview-grid">
-                    <div class="preview-game">
-                        <h4>Coin Flip</h4>
-                        <p>Double your money!</p>
-                    </div>
-                    <div class="preview-game">
-                        <h4>Number Guess</h4>
-                        <p>Win 5x your bet!</p>
-                    </div>
-                    <div class="preview-game">
-                        <h4>Dice Roll</h4>
-                        <p>3x multiplier!</p>
-                    </div>
+        <div class="admin-header">
+            <h1 class="admin-title">🏦 Main Manager Panel</h1>
+            <p>Manage all financial transactions and distributions</p>
+            <div class="admin-balance" id="adminBalance">$14,000,000.00</div>
+        </div>
+
+        <div class="admin-actions">
+            <!-- Fund Distributor -->
+            <div class="action-card">
+                <h3 class="action-title">💰 Fund Distributor</h3>
+                <div class="input-group">
+                    <label>Distributor ID</label>
+                    <input type="text" id="distributorId" placeholder="Enter Distributor ID">
                 </div>
-                <a href="games.html" class="play-now-btn">🎯 Play All Games Now</a>
-            </div>
-            
-            <!-- Zero Balance Warning -->
-            <div id="zero-balance-warning" class="warning-message">
-                <h3>💰 Zero Balance Detected</h3>
-                <p>You need IQD coins to play games. Please contact an admin to purchase coins.</p>
-                <p><strong>Your User ID: <span id="warning-user-id"></span></strong></p>
-                <p>Share this ID with admin to get coins</p>
-                <button onclick="copyUserId()" class="btn-copy">Copy My User ID</button>
-            </div>
-            
-            <!-- User Profile Section -->
-            <div class="user-profile-section">
-                <h2>👤 Your Profile</h2>
-                <div class="profile-card">
-                    <div class="profile-info">
-                        <div class="profile-field">
-                            <label>User ID:</label>
-                            <span id="user-id-display" class="user-id"></span>
-                            <button onclick="copyUserId()" class="btn-copy">Copy ID</button>
-                        </div>
-                        <div class="profile-field">
-                            <label>Display Name:</label>
-                            <span id="user-name-display"></span>
-                        </div>
-                        <div class="profile-field">
-                            <label>Email:</label>
-                            <span id="user-email-display"></span>
-                        </div>
-                        <div class="profile-field">
-                            <label>Member Since:</label>
-                            <span id="user-join-date"></span>
-                        </div>
-                    </div>
-                    <div class="profile-stats">
-                        <div class="stat">
-                            <h3>Total Bets</h3>
-                            <p id="total-bets">0</p>
-                        </div>
-                        <div class="stat">
-                            <h3>Games Played</h3>
-                            <p id="games-played">0</p>
-                        </div>
-                        <div class="stat">
-                            <h3>Win Rate</h3>
-                            <p id="win-rate">0%</p>
-                        </div>
-                    </div>
+                <div class="input-group">
+                    <label>Amount ($)</label>
+                    <input type="number" id="fundAmount" placeholder="Enter amount" min="1" step="0.01">
                 </div>
+                <button class="admin-btn" onclick="fundDistributor()">Transfer to Distributor</button>
             </div>
-        </main>
+
+            <!-- Direct User Deposit -->
+            <div class="action-card">
+                <h3 class="action-title">💳 Direct User Deposit</h3>
+                <div class="input-group">
+                    <label>User ID</label>
+                    <input type="text" id="depositUserId" placeholder="Enter User ID (e.g., XB1A2B3C4)">
+                </div>
+                <div class="input-group">
+                    <label>Amount ($)</label>
+                    <input type="number" id="depositUserAmount" placeholder="Enter amount" min="1" step="0.01">
+                </div>
+                <button class="admin-btn" onclick="depositToUser()">Deposit to User</button>
+            </div>
+
+            <!-- Process User Withdrawal -->
+            <div class="action-card">
+                <h3 class="action-title">🏧 Process User Withdrawal</h3>
+                <div class="input-group">
+                    <label>User ID</label>
+                    <input type="text" id="withdrawUserId" placeholder="Enter User ID">
+                </div>
+                <div class="input-group">
+                    <label>Amount ($)</label>
+                    <input type="number" id="withdrawUserAmount" placeholder="Enter amount" min="1" step="0.01">
+                </div>
+                <button class="admin-btn" onclick="processUserWithdrawal()">Process Withdrawal</button>
+            </div>
+        </div>
+
+        <!-- Transaction Log -->
+        <div class="transaction-log">
+            <h3 class="action-title">📊 Transaction Log</h3>
+            <div id="transactionLog">
+                <!-- Transactions will appear here -->
+            </div>
+        </div>
     </div>
 
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
-            authDomain: "x-bet-prod-jd.firebaseapp.com",
-            projectId: "x-bet-prod-jd",
-            storageBucket: "x-bet-prod-jd.firebasestorage.app",
-            messagingSenderId: "499334334535",
-            appId: "1:499334334535:web:bebc1bf817e24d9e3c4962",
-            measurementId: "G-PTV4XMYQ6P"
+        // Admin data
+        let adminData = {
+            balance: 14000000,
+            transactions: []
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        // Initialize admin data
+        function initializeAdminData() {
+            const savedData = localStorage.getItem('xbet_main_admin');
+            if (savedData) {
+                adminData = JSON.parse(savedData);
+            }
+            updateAdminUI();
+        }
 
-        let isRegisterMode = false;
+        // Update admin UI
+        function updateAdminUI() {
+            document.getElementById('adminBalance').textContent = '$' + adminData.balance.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            updateTransactionLog();
+        }
 
-        // Auth State Listener
-        auth.onAuthStateChanged(async (user) => {
-            const authSection = document.getElementById('auth-section');
-            const mainContent = document.getElementById('main-content');
+        // Fund distributor
+        function fundDistributor() {
+            const distributorId = document.getElementById('distributorId').value.trim();
+            const amount = parseFloat(document.getElementById('fundAmount').value);
+
+            if (!distributorId || !amount || amount <= 0) {
+                alert('Please enter valid distributor ID and amount');
+                return;
+            }
+
+            if (amount > adminData.balance) {
+                alert('Insufficient balance');
+                return;
+            }
+
+            // Update distributor balance (simulated)
+            updateDistributorBalance(distributorId, amount);
             
-            if (user) {
-                // User is signed in
-                let userData = await getUserData(user.uid);
-                if (!userData) {
-                    await createUser(user.uid, {
-                        displayName: user.displayName || 'User',
-                        email: user.email || 'no-email@xbet.com',
-                        photoURL: user.photoURL || '',
-                        memberSince: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    userData = await getUserData(user.uid);
+            // Update admin balance
+            adminData.balance -= amount;
+            adminData.transactions.push({
+                type: 'fund_distributor',
+                to: distributorId,
+                amount: amount,
+                date: new Date().toLocaleString(),
+                id: generateTransactionId()
+            });
+
+            saveAdminData();
+            updateAdminUI();
+            alert(`Successfully transferred $${amount} to distributor ${distributorId}`);
+            
+            // Clear inputs
+            document.getElementById('distributorId').value = '';
+            document.getElementById('fundAmount').value = '';
+        }
+
+        // Deposit to user
+        function depositToUser() {
+            const userId = document.getElementById('depositUserId').value.trim().toUpperCase();
+            const amount = parseFloat(document.getElementById('depositUserAmount').value);
+
+            if (!userId || !userId.startsWith('XB') || userId.length !== 10) {
+                alert('Please enter a valid User ID (format: XB1A2B3C4)');
+                return;
+            }
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            if (amount > adminData.balance) {
+                alert('Insufficient balance');
+                return;
+            }
+
+            // Update user balance (simulated)
+            updateUserBalance(userId, amount);
+            
+            // Update admin balance
+            adminData.balance -= amount;
+            adminData.transactions.push({
+                type: 'user_deposit',
+                to: userId,
+                amount: amount,
+                date: new Date().toLocaleString(),
+                id: generateTransactionId()
+            });
+
+            saveAdminData();
+            updateAdminUI();
+            alert(`Successfully deposited $${amount} to user ${userId}`);
+            
+            // Clear inputs
+            document.getElementById('depositUserId').value = '';
+            document.getElementById('depositUserAmount').value = '';
+        }
+
+        // Process user withdrawal
+        function processUserWithdrawal() {
+            const userId = document.getElementById('withdrawUserId').value.trim().toUpperCase();
+            const amount = parseFloat(document.getElementById('withdrawUserAmount').value);
+
+            if (!userId || !userId.startsWith('XB') || userId.length !== 10) {
+                alert('Please enter a valid User ID');
+                return;
+            }
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            // Check if user has sufficient balance (simulated)
+            const userBalance = getUserBalance(userId);
+            if (userBalance < amount) {
+                alert(`User ${userId} has insufficient balance (Current: $${userBalance})`);
+                return;
+            }
+
+            // Update user balance (simulated)
+            updateUserBalance(userId, -amount);
+            
+            // Update admin balance
+            adminData.balance += amount;
+            adminData.transactions.push({
+                type: 'user_withdrawal',
+                from: userId,
+                amount: amount,
+                date: new Date().toLocaleString(),
+                id: generateTransactionId()
+            });
+
+            saveAdminData();
+            updateAdminUI();
+            alert(`Successfully processed withdrawal of $${amount} from user ${userId}`);
+            
+            // Clear inputs
+            document.getElementById('withdrawUserId').value = '';
+            document.getElementById('withdrawUserAmount').value = '';
+        }
+
+        // Simulated functions for user/distributor balance management
+        function updateDistributorBalance(distributorId, amount) {
+            // In real implementation, this would update Firestore
+            console.log(`Updating distributor ${distributorId} balance by $${amount}`);
+        }
+
+        function updateUserBalance(userId, amount) {
+            // Update user balance in localStorage (simulated)
+            const userKey = Object.keys(localStorage).find(key => key.startsWith('xbet_user_'));
+            if (userKey) {
+                const userData = JSON.parse(localStorage.getItem(userKey));
+                if (userData.userId === userId) {
+                    userData.balance += amount;
+                    localStorage.setItem(userKey, JSON.stringify(userData));
                 }
-                
-                // Generate avatar from first letter of name
-                const firstLetter = (user.displayName || 'U').charAt(0).toUpperCase();
-                
-                authSection.innerHTML = `
-                    <div class="user-profile">
-                        <div class="avatar">${firstLetter}</div>
-                        <span>${user.displayName || 'User'}</span>
-                        <div class="balance">Balance: <span id="live-balance">${userData.balance}</span> د.ع</div>
-                        <button onclick="logout()" class="btn-logout">Logout</button>
-                    </div>
-                `;
-                
-                mainContent.style.display = 'block';
-                setupRealTimeBalance(user.uid);
-                displayUserProfile(user, userData);
-                
+            }
+        }
+
+        function getUserBalance(userId) {
+            // Get user balance from localStorage (simulated)
+            const userKey = Object.keys(localStorage).find(key => key.startsWith('xbet_user_'));
+            if (userKey) {
+                const userData = JSON.parse(localStorage.getItem(userKey));
+                if (userData.userId === userId) {
+                    return userData.balance;
+                }
+            }
+            return 0;
+        }
+
+        function generateTransactionId() {
+            return 'ADM' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
+        }
+
+        function updateTransactionLog() {
+            const logContainer = document.getElementById('transactionLog');
+            if (adminData.transactions.length === 0) {
+                logContainer.innerHTML = '<p style="text-align: center; color: #ccc;">No transactions yet.</p>';
             } else {
-                // User is signed out
-                authSection.innerHTML = `
-                    <div class="auth-container">
-                        <h1>X-Bet 🎯</h1>
-                        <p>Iraqi Dinar Gaming Platform</p>
-                        
-                        <div class="login-options">
-                            <button onclick="signInWithGoogle()" class="btn btn-google">
-                                📧 Continue with Google
-                            </button>
-                            
-                            <div class="divider">
-                                <span>or</span>
+                let html = '';
+                adminData.transactions.slice(-10).reverse().forEach(transaction => {
+                    const typeColor = transaction.type.includes('deposit') ? '#4CAF50' : 
+                                   transaction.type.includes('withdrawal') ? '#ff6b6b' : '#ffd700';
+                    const typeIcon = transaction.type.includes('deposit') ? '⬇️' : 
+                                   transaction.type.includes('withdrawal') ? '⬆️' : '🔄';
+                    html += `
+                        <div class="log-entry">
+                            <div style="display: flex; justify-content: between; align-items: center;">
+                                <span style="color: ${typeColor}; font-weight: bold;">${typeIcon} ${transaction.type.replace('_', ' ').toUpperCase()}</span>
+                                <span style="font-weight: bold;">$${transaction.amount}</span>
                             </div>
-                            
-                            <div id="simple-auth-form" class="simple-login">
-                                ${isRegisterMode ? `
-                                    <input type="text" id="first-name" placeholder="First Name" required>
-                                    <input type="text" id="last-name" placeholder="Last Name" required>
-                                    <input type="password" id="register-password" placeholder="Password (min 6 chars)" required>
-                                    <button onclick="registerWithName()" class="btn btn-simple">Create Account</button>
-                                ` : `
-                                    <input type="text" id="login-name" placeholder="Your Name" required>
-                                    <input type="password" id="login-password" placeholder="Your Password" required>
-                                    <button onclick="loginWithName()" class="btn btn-simple">Sign In</button>
-                                `}
+                            <div style="font-size: 0.8rem; color: #ccc; margin-top: 0.25rem;">
+                                ${transaction.date} • ${transaction.to || transaction.from || 'N/A'}
                             </div>
-                            
-                            <div class="auth-toggle">
-                                ${isRegisterMode ? 
-                                    'Already have an account? <button onclick="toggleAuthMode()">Sign In</button>' : 
-                                    'No account? <button onclick="toggleAuthMode()">Create One</button>'
-                                }
-                            </div>
+                            <div style="font-size: 0.7rem; color: #999;">ID: ${transaction.id}</div>
                         </div>
-                    </div>
-                `;
-                mainContent.style.display = 'none';
-            }
-        });
-
-        // Toggle between login and register
-        function toggleAuthMode() {
-            isRegisterMode = !isRegisterMode;
-            // Trigger auth state change to re-render
-            auth.onAuthStateChanged((user) => {});
-        }
-
-        // Simple Name-Based Authentication
-        function generateEmailFromName(firstName, lastName) {
-            const cleanFirstName = firstName.toLowerCase().replace(/\s+/g, '');
-            const cleanLastName = lastName.toLowerCase().replace(/\s+/g, '');
-            return `${cleanFirstName}.${cleanLastName}@xbet.local`;
-        }
-
-        function registerWithName() {
-            const firstName = document.getElementById('first-name').value;
-            const lastName = document.getElementById('last-name').value;
-            const password = document.getElementById('register-password').value;
-            
-            if (!firstName || !lastName || !password) {
-                alert('Please fill all fields');
-                return;
-            }
-            
-            if (password.length < 6) {
-                alert('Password must be at least 6 characters');
-                return;
-            }
-            
-            const email = generateEmailFromName(firstName, lastName);
-            const displayName = `${firstName} ${lastName}`;
-            
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Update profile with display name
-                    return userCredential.user.updateProfile({
-                        displayName: displayName
-                    });
-                })
-                .then(() => {
-                    alert(`Account created successfully!\nWelcome ${displayName}`);
-                })
-                .catch(error => {
-                    if (error.code === 'auth/email-already-in-use') {
-                        // Auto login if account exists
-                        loginWithName();
-                    } else {
-                        alert('Error creating account: ' + error.message);
-                    }
+                    `;
                 });
-        }
-
-        function loginWithName() {
-            const name = document.getElementById('login-name').value;
-            const password = document.getElementById('login-password').value;
-            
-            if (!name || !password) {
-                alert('Please enter both name and password');
-                return;
-            }
-            
-            // Try to generate email from name
-            const nameParts = name.split(' ');
-            const firstName = nameParts[0] || 'User';
-            const lastName = nameParts.slice(1).join(' ') || 'Account';
-            const email = generateEmailFromName(firstName, lastName);
-            
-            auth.signInWithEmailAndPassword(email, password)
-                .catch(error => {
-                    if (error.code === 'auth/user-not-found') {
-                        alert('Account not found. Please create an account first.');
-                        toggleAuthMode();
-                    } else {
-                        alert('Sign-in Error: ' + error.message);
-                    }
-                });
-        }
-
-        // Google Auth
-        function signInWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => {
-                alert('Google Sign-in Error: ' + error.message);
-            });
-        }
-
-        function logout() {
-            auth.signOut();
-        }
-
-        // Firestore Functions
-        async function getUserData(userId) {
-            const doc = await db.collection('users').doc(userId).get();
-            return doc.exists ? doc.data() : null;
-        }
-
-        async function createUser(userId, userData) {
-            await db.collection('users').doc(userId).set({
-                ...userData,
-                balance: 0, // ZERO balance start
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                totalBets: 0,
-                gamesPlayed: 0,
-                wins: 0,
-                losses: 0
-            });
-        }
-
-        // Real-time balance
-        function setupRealTimeBalance(userId) {
-            db.collection('users').doc(userId).onSnapshot((doc) => {
-                const userData = doc.data();
-                const balanceElement = document.getElementById('live-balance');
-                if (balanceElement && userData) {
-                    balanceElement.textContent = userData.balance;
-                    
-                    // Update profile display with latest data
-                    const user = auth.currentUser;
-                    if (user) {
-                        displayUserProfile(user, userData);
-                    }
-                }
-            });
-        }
-
-        // User Profile Functions
-        function displayUserProfile(user, userData) {
-            document.getElementById('user-id-display').textContent = user.uid;
-            document.getElementById('user-name-display').textContent = user.displayName || 'Not set';
-            document.getElementById('user-email-display').textContent = user.email || 'No email';
-            document.getElementById('user-join-date').textContent = userData.createdAt ? 
-                new Date(userData.createdAt.toDate()).toLocaleDateString() : 'Recently';
-            
-            // Update stats
-            document.getElementById('total-bets').textContent = userData.totalBets || 0;
-            document.getElementById('games-played').textContent = userData.gamesPlayed || 0;
-            
-            const wins = userData.wins || 0;
-            const losses = userData.losses || 0;
-            const totalGames = wins + losses;
-            const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
-            document.getElementById('win-rate').textContent = winRate + '%';
-            
-            // Show warning if zero balance
-            const warningElement = document.getElementById('zero-balance-warning');
-            if (userData.balance === 0) {
-                warningElement.style.display = 'block';
-                document.getElementById('warning-user-id').textContent = user.uid;
-            } else {
-                warningElement.style.display = 'none';
+                logContainer.innerHTML = html;
             }
         }
 
-        function copyUserId() {
-            const userId = document.getElementById('user-id-display').textContent;
-            navigator.clipboard.writeText(userId).then(() => {
-                alert('User ID copied to clipboard! Share this with admin to get coins.');
-            });
+        function saveAdminData() {
+            localStorage.setItem('xbet_main_admin', JSON.stringify(adminData));
         }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initializeAdminData);
     </script>
 </body>
 </html>
