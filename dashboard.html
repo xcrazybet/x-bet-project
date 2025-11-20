@@ -132,6 +132,46 @@
             color: #ffd700;
         }
 
+        /* User ID Section */
+        .user-id-section {
+            background: linear-gradient(135deg, #ff6b6b, #ffd700);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .user-id-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .user-id {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-family: monospace;
+        }
+
+        .copy-btn {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
         /* Balance Cards */
         .balance-section {
             display: grid;
@@ -283,6 +323,26 @@
         .copyright {
             opacity: 0.7;
         }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1001;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -291,6 +351,9 @@
         <div class="loading-spinner"></div>
         <p>Checking authentication...</p>
     </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
 
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
@@ -316,11 +379,22 @@
             <p>Ready to play and win amazing rewards? Choose your game and start your journey!</p>
         </div>
 
+        <!-- User ID Section -->
+        <div class="user-id-section">
+            <h3>💰 Your Unique User ID</h3>
+            <p>Use this ID for all transactions with admins</p>
+            <div class="user-id-display">
+                <span class="user-id" id="userIdDisplay">Loading...</span>
+                <button class="copy-btn" onclick="copyUserId()">Copy ID</button>
+            </div>
+            <small>Share this ID with admins for deposits and withdrawals</small>
+        </div>
+
         <!-- Balance Section -->
         <div class="balance-section">
             <div class="balance-card">
                 <h3>💰 Available Balance</h3>
-                <div class="balance-amount">$0.00</div>
+                <div class="balance-amount" id="userBalance">$0.00</div>
                 <p>Start playing to increase your balance!</p>
             </div>
             <div class="balance-card">
@@ -347,10 +421,10 @@
                 <h3>Earn Bits</h3>
                 <p>Discover ways to earn rewards</p>
             </a>
-            <div class="action-card">
-                <div class="action-icon">🏆</div>
-                <h3>Tournaments</h3>
-                <p>Compete for big prizes</p>
+            <div class="action-card" onclick="showTransactionInfo()">
+                <div class="action-icon">🏦</div>
+                <h3>Transactions</h3>
+                <p>Deposit & Withdraw funds</p>
             </div>
             <div class="action-card">
                 <div class="action-icon">🎁</div>
@@ -407,6 +481,7 @@
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     
     <script>
         const firebaseConfig = {
@@ -424,6 +499,7 @@
             firebase.initializeApp(firebaseConfig);
         }
         const auth = firebase.auth();
+        const db = firebase.firestore();
 
         // Show loading screen initially
         const loadingScreen = document.getElementById('loadingScreen');
@@ -434,12 +510,19 @@
         // Check authentication with timeout
         let authChecked = false;
 
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(async (user) => {
             authChecked = true;
             
             if (user) {
                 // User is logged in - show dashboard
                 document.getElementById('userEmail').textContent = user.email;
+                
+                // Generate or get user ID
+                await generateUserId(user);
+                
+                // Get user balance
+                await getUserBalance(user.uid);
+                
                 loadingScreen.style.display = 'none';
                 navbar.style.display = 'flex';
                 dashboardContent.style.display = 'block';
@@ -449,6 +532,64 @@
                 window.location.href = 'index.html';
             }
         });
+
+        // Generate unique user ID
+        async function generateUserId(user) {
+            const userId = 'XB' + user.uid.substring(0, 8).toUpperCase();
+            document.getElementById('userIdDisplay').textContent = userId;
+            
+            // Save user data to Firestore
+            try {
+                await db.collection('users').doc(user.uid).set({
+                    email: user.email,
+                    userId: userId,
+                    balance: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            } catch (error) {
+                console.error('Error saving user data:', error);
+            }
+        }
+
+        // Get user balance from Firestore
+        async function getUserBalance(uid) {
+            try {
+                const doc = await db.collection('users').doc(uid).get();
+                if (doc.exists) {
+                    const userData = doc.data();
+                    document.getElementById('userBalance').textContent = '$' + (userData.balance || 0).toFixed(2);
+                }
+            } catch (error) {
+                console.error('Error getting user balance:', error);
+            }
+        }
+
+        // Copy User ID to clipboard
+        function copyUserId() {
+            const userId = document.getElementById('userIdDisplay').textContent;
+            navigator.clipboard.writeText(userId).then(() => {
+                showToast('User ID copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Show transaction information
+        function showTransactionInfo() {
+            const userId = document.getElementById('userIdDisplay').textContent;
+            alert(`💳 Transaction Information:\n\nYour User ID: ${userId}\n\nFor deposits/withdrawals:\n1. Contact admin with your User ID\n2. Provide transaction details\n3. Wait for confirmation\n4. Check your balance updates\n\nAdmin Contact: support@xbet.com`);
+        }
 
         // Safety timeout - if auth check takes too long
         setTimeout(() => {
