@@ -3,136 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET - Welcome</title>
+    <title>X-BET - Premium Gaming Platform</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
             min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem 2rem;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #ffd700;
         }
 
         .logo {
-            font-size: 4rem;
+            font-size: 2rem;
             font-weight: bold;
-            color: white;
-            text-align: center;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            color: #ffd700;
         }
 
-        .tagline {
-            color: white;
-            text-align: center;
-            margin-bottom: 3rem;
-            font-size: 1.2rem;
-            opacity: 0.9;
+        .nav-links {
+            display: flex;
+            gap: 2rem;
         }
 
-        .auth-container {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
         }
 
         .auth-buttons {
             display: flex;
-            flex-direction: column;
             gap: 1rem;
         }
 
         .auth-btn {
-            padding: 1rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
+            padding: 0.5rem 1.5rem;
+            border: 2px solid #ffd700;
+            border-radius: 25px;
+            background: transparent;
+            color: #ffd700;
             cursor: pointer;
             transition: all 0.3s ease;
-        }
-
-        .login-btn {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-            color: white;
-        }
-
-        .signup-btn {
-            background: white;
-            color: #1a2a6c;
-            border: 2px solid #1a2a6c;
+            font-weight: bold;
         }
 
         .auth-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            background: #ffd700;
+            color: #000;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 6rem 2rem;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7));
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, #ff6b6b, #ffd700);
+            color: black;
+            padding: 1rem 3rem;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+
+        /* Features */
+        .features {
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 2px solid #ffd700;
         }
 
         .social-links {
-            margin-top: 3rem;
             display: flex;
-            gap: 1rem;
             justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
         .social-icon {
-            color: white;
+            color: #ffd700;
             font-size: 1.5rem;
             text-decoration: none;
-            opacity: 0.7;
+            transition: transform 0.3s ease;
+        }
+
+        .social-icon:hover {
+            transform: scale(1.2);
         }
 
         .copyright {
-            color: white;
-            text-align: center;
-            margin-top: 2rem;
             opacity: 0.7;
+            margin-top: 1rem;
         }
     </style>
 </head>
 <body>
-    <div class="logo">X-BET</div>
-    <div class="tagline">Play Smart • Win Big • Zero Cost Gaming</div>
-
-    <div class="auth-container">
-        <h2>Welcome to X-BET</h2>
-        <p style="margin: 1rem 0; color: #666;">Join now to start playing</p>
-        
-        <div class="auth-buttons">
-            <button class="auth-btn login-btn" onclick="window.location.href='login.html'">
-                Login with Email
-            </button>
-            <button class="auth-btn signup-btn" onclick="window.location.href='signup.html'">
-                Create New Account
-            </button>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">X-BET</div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#games">Games</a>
+            <a href="#about">About</a>
         </div>
-    </div>
+        <div class="auth-buttons">
+            <button class="auth-btn" onclick="window.location.href='login.html'">Login</button>
+            <button class="auth-btn" onclick="window.location.href='signup.html'">Sign Up</button>
+        </div>
+    </nav>
 
-    <div class="social-links">
-        <a href="#" class="social-icon">📘</a>
-        <a href="#" class="social-icon">📷</a>
-        <a href="#" class="social-icon">🐦</a>
-        <a href="#" class="social-icon">💬</a>
-    </div>
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <h1>X-BET Gaming Platform</h1>
+        <p>Experience the thrill of premium gaming with real rewards</p>
+        <button class="cta-button" onclick="window.location.href='signup.html'">Start Playing Now</button>
+    </section>
 
-    <div class="copyright">
-        &copy; 2024 Crazy X Bet. All rights reserved.
-    </div>
+    <!-- Features -->
+    <section class="features" id="features">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎮</div>
+                <h3>Premium Games</h3>
+                <p>Exciting collection of skill-based games</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3>Instant Rewards</h3>
+                <p>Win real prizes and bonuses</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>Secure Platform</h3>
+                <p>Your data and funds are protected</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌍</div>
+                <h3>Global Community</h3>
+                <p>Join players worldwide</p>
+            </div>
+        </div>
+    </section>
 
-    <!-- Firebase for auto-redirect if already logged in -->
+    <!-- Footer -->
+    <footer>
+        <div class="social-links">
+            <a href="#" class="social-icon">📘</a>
+            <a href="#" class="social-icon">📷</a>
+            <a href="#" class="social-icon">🐦</a>
+            <a href="#" class="social-icon">💬</a>
+        </div>
+        <div class="copyright">
+            &copy; 2024 Crazy X Bet. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Auto-redirect if logged in -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script>
