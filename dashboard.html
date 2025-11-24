@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET - Dashboard</title>
+    <title>X-BET - User Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -119,7 +119,7 @@
             font-weight: bold;
         }
 
-        .form-group input, .form-group select {
+        .form-group input {
             width: 100%;
             padding: 10px;
             border: 2px solid #ddd;
@@ -127,7 +127,7 @@
             font-size: 14px;
         }
 
-        .form-group input:focus, .form-group select:focus {
+        .form-group input:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -141,24 +141,6 @@
             transition: all 0.3s;
         }
 
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5a6fd8;
-        }
-
-        .btn-success {
-            background: #2ecc71;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #27ae60;
-        }
-
         .btn-warning {
             background: #f39c12;
             color: white;
@@ -166,6 +148,15 @@
 
         .btn-warning:hover {
             background: #e67e22;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
         }
 
         .transaction-history {
@@ -228,11 +219,11 @@
             border: 1px solid #f5c6cb;
         }
 
-        .admin-only {
-            border-left: 4px solid #e74c3c;
-        }
-
-        .user-only {
+        .contact-admin {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
             border-left: 4px solid #3498db;
         }
     </style>
@@ -240,11 +231,10 @@
 <body>
     <nav class="navbar">
         <div class="logo">
-            <h1>X-<span>BET</span> Dashboard</h1>
+            <h1>X-<span>BET</span> User Dashboard</h1>
         </div>
         <div class="user-info">
             <span>Welcome, <span id="currentUser">User</span></span>
-            <span id="userRole">(User)</span>
             <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
     </nav>
@@ -253,7 +243,7 @@
         <!-- Balance Overview -->
         <div class="welcome-card">
             <h2>Account Overview</h2>
-            <p>Manage your funds and transaction requests</p>
+            <p>Manage your funds and withdrawal requests</p>
             
             <div class="stats-grid">
                 <div class="stat-card">
@@ -273,8 +263,8 @@
 
         <!-- User Actions -->
         <div class="actions-grid">
-            <!-- Withdrawal Request (User Only) -->
-            <div class="action-card user-only" id="userSection">
+            <!-- Withdrawal Request -->
+            <div class="action-card">
                 <h3>💰 Withdrawal Request</h3>
                 <p>Request withdrawal using transaction code. Admin will process it.</p>
                 
@@ -293,36 +283,6 @@
                 <div class="message" id="withdrawMessage"></div>
             </div>
 
-            <!-- Admin Controls (Admin Only) -->
-            <div class="action-card admin-only" id="adminSection" style="display: none;">
-                <h3>👑 Admin Controls</h3>
-                <p>Manage user deposits and withdrawals</p>
-                
-                <div class="form-group">
-                    <label for="selectedUser">Select User</label>
-                    <select id="selectedUser">
-                        <option value="">Select a user</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="adminAmount">Amount ($)</label>
-                    <input type="number" id="adminAmount" placeholder="Enter amount" min="1">
-                </div>
-                
-                <div class="form-group">
-                    <label for="adminTransactionCode">Transaction Code</label>
-                    <input type="text" id="adminTransactionCode" placeholder="Enter transaction code">
-                </div>
-                
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-success" onclick="processDeposit()">Process Deposit</button>
-                    <button class="btn btn-primary" onclick="processWithdrawal()">Process Withdrawal</button>
-                </div>
-                
-                <div class="message" id="adminMessage"></div>
-            </div>
-
             <!-- Transaction History -->
             <div class="action-card">
                 <h3>📋 Transaction History</h3>
@@ -330,27 +290,17 @@
                     <p>No transactions yet.</p>
                 </div>
             </div>
-        </div>
 
-        <!-- Pending Requests (Admin Only) -->
-        <div class="transaction-history" id="pendingSection" style="display: none;">
-            <h3>⏳ Pending Requests</h3>
-            <div class="transaction-table">
-                <table style="width: 100%;">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Type</th>
-                            <th>Amount</th>
-                            <th>Transaction Code</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pendingRequestsTable">
-                        <!-- Pending requests will be populated here -->
-                    </tbody>
-                </table>
+            <!-- Contact Admin -->
+            <div class="action-card">
+                <h3>📞 Contact Admin</h3>
+                <div class="contact-admin">
+                    <p><strong>For deposits or issues, contact administrators:</strong></p>
+                    <p>• Admin 1: admin1@xbet.com</p>
+                    <p>• Admin 2: admin2@xbet.com</p>
+                    <p>• Admin 3: admin3@xbet.com</p>
+                    <p><em>Only admins can process deposits and approve withdrawals</em></p>
+                </div>
             </div>
         </div>
     </div>
@@ -361,12 +311,8 @@
             balance: 1000.00,
             pendingWithdrawals: 0.00,
             totalProfit: 250.00,
-            transactions: [],
-            isAdmin: false
+            transactions: []
         };
-
-        // Pending requests storage
-        let pendingRequests = [];
 
         // Check if user is logged in
         function checkAuth() {
@@ -379,40 +325,26 @@
                 return false;
             }
             
-            // Set user role and display
-            userData.isAdmin = currentUser === 'admin';
             document.getElementById('currentUser').textContent = currentUser;
-            document.getElementById('userRole').textContent = userData.isAdmin ? '(Admin)' : '(User)';
-            
-            // Show/hide sections based on role
-            document.getElementById('adminSection').style.display = userData.isAdmin ? 'block' : 'none';
-            document.getElementById('userSection').style.display = userData.isAdmin ? 'none' : 'block';
-            document.getElementById('pendingSection').style.display = userData.isAdmin ? 'block' : 'none';
-            
-            // Load user data
             loadUserData();
-            
             return true;
         }
 
         // Load user data from localStorage
         function loadUserData() {
-            const savedData = localStorage.getItem('userData_' + localStorage.getItem('currentUser'));
+            const currentUser = localStorage.getItem('currentUser');
+            const savedData = localStorage.getItem('userData_' + currentUser);
+            
             if (savedData) {
                 Object.assign(userData, JSON.parse(savedData));
             }
             updateUI();
-            
-            // If admin, load user list and pending requests
-            if (userData.isAdmin) {
-                loadUserList();
-                loadPendingRequests();
-            }
         }
 
         // Save user data to localStorage
         function saveUserData() {
-            localStorage.setItem('userData_' + localStorage.getItem('currentUser'), JSON.stringify(userData));
+            const currentUser = localStorage.getItem('currentUser');
+            localStorage.setItem('userData_' + currentUser, JSON.stringify(userData));
             updateUI();
         }
 
@@ -421,8 +353,6 @@
             document.getElementById('currentBalance').textContent = '$' + userData.balance.toFixed(2);
             document.getElementById('pendingWithdrawals').textContent = '$' + userData.pendingWithdrawals.toFixed(2);
             document.getElementById('totalProfit').textContent = '$' + userData.totalProfit.toFixed(2);
-            
-            // Update transaction history
             updateTransactionHistory();
         }
 
@@ -453,7 +383,7 @@
             transactionList.innerHTML = html;
         }
 
-        // User: Request withdrawal
+        // Request withdrawal
         function requestWithdrawal() {
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const code = document.getElementById('transactionCode').value.trim();
@@ -509,214 +439,11 @@
             document.getElementById('transactionCode').value = '';
         }
 
-        // Admin: Load user list
-        function loadUserList() {
-            const users = ['user1', 'demo', 'test'];
-            const select = document.getElementById('selectedUser');
-            
-            select.innerHTML = '<option value="">Select a user</option>';
-            users.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user;
-                option.textContent = user;
-                select.appendChild(option);
-            });
-        }
-
-        // Admin: Process deposit
-        function processDeposit() {
-            const user = document.getElementById('selectedUser').value;
-            const amount = parseFloat(document.getElementById('adminAmount').value);
-            const code = document.getElementById('adminTransactionCode').value.trim();
-            const messageEl = document.getElementById('adminMessage');
-            
-            if (!user || !amount || amount <= 0 || !code) {
-                showMessage(messageEl, 'Please fill all fields correctly', 'error');
-                return;
-            }
-            
-            // Get user data
-            const userDataStr = localStorage.getItem('userData_' + user);
-            if (!userDataStr) {
-                showMessage(messageEl, 'User not found', 'error');
-                return;
-            }
-            
-            const targetUserData = JSON.parse(userDataStr);
-            
-            // Process deposit
-            targetUserData.balance += amount;
-            
-            // Add transaction
-            targetUserData.transactions.push({
-                type: 'Deposit',
-                amount: amount,
-                status: 'completed',
-                code: code,
-                date: new Date().toISOString()
-            });
-            
-            // Save target user data
-            localStorage.setItem('userData_' + user, JSON.stringify(targetUserData));
-            
-            showMessage(messageEl, `Deposited $${amount.toFixed(2)} to ${user}`, 'success');
-            clearAdminForm();
-        }
-
-        // Admin: Process withdrawal
-        function processWithdrawal() {
-            const user = document.getElementById('selectedUser').value;
-            const amount = parseFloat(document.getElementById('adminAmount').value);
-            const code = document.getElementById('adminTransactionCode').value.trim();
-            const messageEl = document.getElementById('adminMessage');
-            
-            if (!user || !amount || amount <= 0 || !code) {
-                showMessage(messageEl, 'Please fill all fields correctly', 'error');
-                return;
-            }
-            
-            // Get user data
-            const userDataStr = localStorage.getItem('userData_' + user);
-            if (!userDataStr) {
-                showMessage(messageEl, 'User not found', 'error');
-                return;
-            }
-            
-            const targetUserData = JSON.parse(userDataStr);
-            
-            // Check if user has enough balance
-            if (amount > targetUserData.balance) {
-                showMessage(messageEl, 'User has insufficient balance', 'error');
-                return;
-            }
-            
-            // Process withdrawal
-            targetUserData.balance -= amount;
-            
-            // Add transaction
-            targetUserData.transactions.push({
-                type: 'Withdrawal',
-                amount: amount,
-                status: 'completed',
-                code: code,
-                date: new Date().toISOString()
-            });
-            
-            // Save target user data
-            localStorage.setItem('userData_' + user, JSON.stringify(targetUserData));
-            
-            showMessage(messageEl, `Processed withdrawal of $${amount.toFixed(2)} for ${user}`, 'success');
-            clearAdminForm();
-        }
-
         // Save pending request
         function savePendingRequest(request) {
-            pendingRequests = JSON.parse(localStorage.getItem('pendingRequests') || '[]');
+            let pendingRequests = JSON.parse(localStorage.getItem('pendingRequests') || '[]');
             pendingRequests.push(request);
             localStorage.setItem('pendingRequests', JSON.stringify(pendingRequests));
-            
-            if (userData.isAdmin) {
-                loadPendingRequests();
-            }
-        }
-
-        // Load pending requests for admin
-        function loadPendingRequests() {
-            pendingRequests = JSON.parse(localStorage.getItem('pendingRequests') || '[]');
-            const table = document.getElementById('pendingRequestsTable');
-            
-            if (pendingRequests.length === 0) {
-                table.innerHTML = '<tr><td colspan="6" style="text-align: center;">No pending requests</td></tr>';
-                return;
-            }
-            
-            let html = '';
-            pendingRequests.forEach(request => {
-                if (request.status === 'pending') {
-                    html += `
-                        <tr>
-                            <td>${request.user}</td>
-                            <td>${request.type}</td>
-                            <td>$${request.amount.toFixed(2)}</td>
-                            <td>${request.code}</td>
-                            <td>${new Date(request.date).toLocaleDateString()}</td>
-                            <td>
-                                <button class="btn btn-success" onclick="approveRequest(${request.id})">Approve</button>
-                                <button class="btn btn-warning" onclick="rejectRequest(${request.id})">Reject</button>
-                            </td>
-                        </tr>
-                    `;
-                }
-            });
-            
-            table.innerHTML = html || '<tr><td colspan="6" style="text-align: center;">No pending requests</td></tr>';
-        }
-
-        // Admin: Approve request
-        function approveRequest(requestId) {
-            const request = pendingRequests.find(r => r.id === requestId);
-            if (!request) return;
-            
-            if (request.type === 'withdrawal') {
-                // Get user data
-                const userDataStr = localStorage.getItem('userData_' + request.user);
-                if (userDataStr) {
-                    const targetUserData = JSON.parse(userDataStr);
-                    
-                    // Update user transaction status
-                    const transaction = targetUserData.transactions.find(t => 
-                        t.code === request.code && t.status === 'pending'
-                    );
-                    
-                    if (transaction) {
-                        transaction.status = 'completed';
-                        // Balance was already deducted when request was made
-                        targetUserData.pendingWithdrawals -= request.amount;
-                        localStorage.setItem('userData_' + request.user, JSON.stringify(targetUserData));
-                    }
-                }
-            }
-            
-            // Update request status
-            request.status = 'completed';
-            localStorage.setItem('pendingRequests', JSON.stringify(pendingRequests));
-            
-            loadPendingRequests();
-        }
-
-        // Admin: Reject request
-        function rejectRequest(requestId) {
-            const request = pendingRequests.find(r => r.id === requestId);
-            if (!request) return;
-            
-            if (request.type === 'withdrawal') {
-                // Get user data
-                const userDataStr = localStorage.getItem('userData_' + request.user);
-                if (userDataStr) {
-                    const targetUserData = JSON.parse(userDataStr);
-                    
-                    // Return funds to user
-                    targetUserData.balance += request.amount;
-                    targetUserData.pendingWithdrawals -= request.amount;
-                    
-                    // Update transaction status
-                    const transaction = targetUserData.transactions.find(t => 
-                        t.code === request.code && t.status === 'pending'
-                    );
-                    
-                    if (transaction) {
-                        transaction.status = 'rejected';
-                    }
-                    
-                    localStorage.setItem('userData_' + request.user, JSON.stringify(targetUserData));
-                }
-            }
-            
-            // Update request status
-            request.status = 'rejected';
-            localStorage.setItem('pendingRequests', JSON.stringify(pendingRequests));
-            
-            loadPendingRequests();
         }
 
         // Utility functions
@@ -730,11 +457,6 @@
             }, 5000);
         }
 
-        function clearAdminForm() {
-            document.getElementById('adminAmount').value = '';
-            document.getElementById('adminTransactionCode').value = '';
-        }
-
         function logout() {
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('currentUser');
@@ -743,9 +465,7 @@
 
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
-            if (!checkAuth()) {
-                return;
-            }
+            if (!checkAuth()) return;
         });
     </script>
 </body>
