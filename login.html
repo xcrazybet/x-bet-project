@@ -140,40 +140,45 @@
     </div>
 
     <script>
-        // Private user accounts
+        // PRIVATE USER ACCOUNTS
         const validUsers = {
-            'user1': 'password1', 
-            'demo': 'demo123',
-            'test': 'test123',
-            'player1': 'player123'
+            'john_doe': 'Football2024!',
+            'sarah_w': 'Basketball$123',
+            'mike_t': 'TennisStar99!'
         };
 
-        // Private admin credentials
+        // PRIVATE ADMIN CREDENTIALS
         const adminCredentials = {
-            'admin': 'Admin123!',
-            'admin1': 'Admin1Secure!',
-            'admin2': 'Admin2Secure!',
-            'manager': 'Manager14M!'
+            'admin_master': 'MasterAdmin2024!',
+            'finance_manager': 'Finance14M$2024',
+            'support_admin': 'SupportAdmin789!'
         };
 
         // Initialize user data
         function initializeUserData() {
-            const users = ['user1', 'demo', 'test', 'player1'];
+            // Initialize regular users
+            const users = ['john_doe', 'sarah_w', 'mike_t'];
             users.forEach(user => {
                 if (!localStorage.getItem('userData_' + user)) {
                     const userData = {
-                        balance: 1000.00,
+                        balance: 1500.00,
                         pendingWithdrawals: 0.00,
-                        totalProfit: 250.00,
-                        transactions: [],
+                        totalProfit: 350.00,
+                        transactions: [{
+                            type: 'Welcome Bonus',
+                            amount: 50.00,
+                            status: 'completed',
+                            date: new Date().toISOString(),
+                            details: 'New account bonus'
+                        }],
                         bets: []
                     };
                     localStorage.setItem('userData_' + user, JSON.stringify(userData));
                 }
             });
 
-            // Initialize admin data with special manager balance
-            if (!localStorage.getItem('userData_manager')) {
+            // Initialize admin accounts with special manager balance
+            if (!localStorage.getItem('userData_finance_manager')) {
                 const managerData = {
                     balance: 14000000.00, // $14 Million
                     pendingWithdrawals: 0.00,
@@ -187,17 +192,17 @@
                     }],
                     bets: [],
                     isAdmin: true,
-                    role: 'Manager'
+                    role: 'Finance Manager'
                 };
-                localStorage.setItem('userData_manager', JSON.stringify(managerData));
+                localStorage.setItem('userData_finance_manager', JSON.stringify(managerData));
             }
 
             // Initialize other admins
-            const admins = ['admin', 'admin1', 'admin2'];
+            const admins = ['admin_master', 'support_admin'];
             admins.forEach(admin => {
                 if (!localStorage.getItem('userData_' + admin)) {
                     const adminData = {
-                        balance: 50000.00, // $50K for other admins
+                        balance: 50000.00,
                         pendingWithdrawals: 0.00,
                         totalProfit: 0.00,
                         transactions: [{
@@ -209,7 +214,7 @@
                         }],
                         bets: [],
                         isAdmin: true,
-                        role: admin === 'admin' ? 'Head Admin' : 'Administrator'
+                        role: admin === 'admin_master' ? 'Head Administrator' : 'Support Admin'
                     };
                     localStorage.setItem('userData_' + admin, JSON.stringify(adminData));
                 }
@@ -239,13 +244,11 @@
                 localStorage.setItem('currentAdmin', username);
                 localStorage.setItem('loginTime', new Date().toISOString());
                 
-                // Show success message
                 errorMessage.style.display = 'none';
                 loginBtn.textContent = 'Admin Access Granted!';
                 
-                // Redirect to admin dashboard
                 setTimeout(() => {
-                    window.location.href = 'admin-dashboard.html';
+                    window.location.href = 'admin.html';
                 }, 1000);
                 return;
             }
@@ -257,11 +260,9 @@
                 localStorage.setItem('currentUser', username);
                 localStorage.setItem('loginTime', new Date().toISOString());
                 
-                // Show success message
                 errorMessage.style.display = 'none';
                 loginBtn.textContent = 'Access Granted!';
                 
-                // Redirect to user dashboard
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 1000);
@@ -285,7 +286,7 @@
             if (isLoggedIn === 'true') {
                 window.location.href = 'dashboard.html';
             } else if (isAdminLoggedIn === 'true') {
-                window.location.href = 'admin-dashboard.html';
+                window.location.href = 'admin.html';
             }
         });
     </script>
