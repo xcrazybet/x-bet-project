@@ -1,1 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-BET - Contact</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #ffd700;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd700);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-email {
+            color: #ffd700;
+            font-size: 0.9rem;
+        }
+
+        .user-balance {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .logout-btn {
+            background: transparent;
+            color: #ffd700;
+            border: 2px solid #ffd700;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ffd700;
+            color: #000;
+        }
+
+        /* Contact Content */
+        .contact-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #ffd700;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .contact-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .contact-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .contact-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+
+        .contact-info {
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+        }
+
+        .contact-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ffd700);
+            color: black;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .contact-btn:hover {
+            transform: scale(1.1);
+            color: black;
+            text-decoration: none;
+        }
+
+        /* Support Form */
+        .support-form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-top: 4rem;
+            border-top: 2px solid #ffd700;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-icon {
+            color: #ffd700;
+            font-size: 1.5rem;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .social-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .copyright {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="dashboard.html" class="logo">X-BET</a>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="games.html">🎮 Games</a>
+            <a href="bits.html">💰 Bits</a>
+            <a href="contact.html" style="background: rgba(255, 215, 0, 0.2); color: #ffd700;">📞 Contact</a>
+            <a href="about.html">ℹ️ About</a>
+        </div>
+        <div class="user-section">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <span class="user-email" id="userEmail">user@example.com</span>
+                    <span class="user-balance" id="headerBalance">$0.00</span>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Contact Content -->
+    <div class="contact-container">
+        <h1 class="page-title">📞 Contact X-BET Support</h1>
+        
+        <div class="contact-grid">
+            <!-- Telegram Support -->
+            <div class="contact-card">
+                <div class="contact-icon">💬</div>
+                <h2 class="contact-title">Telegram Support</h2>
+                <p class="contact-info">24/7 instant support via Telegram. Get quick responses for any issues.</p>
+                <button class="contact-btn" onclick="contactTelegram()">Message on Telegram</button>
+            </div>
+
+            <!-- Email Support -->
+            <div class="contact-card">
+                <div class="contact-icon">📧</div>
+                <h2 class="contact-title">Email Support</h2>
+                <p class="contact-info">Send us an email for detailed inquiries and official communications.</p>
+                <button class="contact-btn" onclick="contactEmail()">Send Email</button>
+            </div>
+
+            <!-- WhatsApp Support -->
+            <div class="contact-card">
+                <div class="contact-icon">📱</div>
+                <h2 class="contact-title">WhatsApp Support</h2>
+                <p class="contact-info">Chat with our support team directly on WhatsApp for instant help.</p>
+                <button class="contact-btn" onclick="contactWhatsApp()">Chat on WhatsApp</button>
+            </div>
+        </div>
+
+        <!-- Support Form -->
+        <div class="support-form">
+            <h2 style="text-align: center; margin-bottom: 2rem; color: #ffd700;">📝 Contact Form</h2>
+            <form id="supportForm">
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" required placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <select id="subject" required>
+                        <option value="">Select subject</option>
+                        <option value="deposit">Deposit Issue</option>
+                        <option value="withdrawal">Withdrawal Issue</option>
+                        <option value="game">Game Problem</option>
+                        <option value="account">Account Issue</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" required placeholder="Describe your issue in detail..."></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="social-links">
+            <a href="#" class="social-icon">📘</a>
+            <a href="#" class="social-icon">📷</a>
+            <a href="#" class="social-icon">🐦</a>
+            <a href="#" class="social-icon">💬</a>
+        </div>
+        <div class="copyright">
+            &copy; 2024 Crazy X Bet. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="common-header.js"></script>
+    <script>
+        function contactTelegram() {
+            alert(`💬 Telegram Support:\n\n@XBetSupport\n\nOur support team is available 24/7 on Telegram for instant assistance with any issues.`);
+        }
+
+        function contactEmail() {
+            alert(`📧 Email Support:\n\nsupport@xbet.com\n\nFor detailed inquiries and official communications, please email us. We typically respond within 1-2 hours.`);
+        }
+
+        function contactWhatsApp() {
+            alert(`📱 WhatsApp Support:\n\n+1-555-XBET-SUPPORT\n\nChat directly with our support team on WhatsApp for quick resolution of your issues.`);
+        }
+
+        document.getElementById('supportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('✅ Message sent successfully!\n\nOur support team will contact you within 1 hour. Thank you for reaching out to X-BET support.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
