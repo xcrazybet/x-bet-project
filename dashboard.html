@@ -556,7 +556,7 @@
     <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-spinner"></div>
-        <p>Checking authentication...</p>
+        <p>Loading Dashboard...</p>
     </div>
 
     <!-- Toast Notification -->
@@ -751,6 +751,7 @@
         </div>
     </footer>
 
+    <script src="common-header.js"></script>
     <script>
         // User data storage with transaction code support
         let userData = {
@@ -1027,14 +1028,6 @@
 
         function generateTransactionId() {
             return 'TXN' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
-        }
-
-        // Logout function
-        function logout() {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('loginTime');
-            window.location.href = 'login.html';
         }
 
         // Close modal when clicking outside
