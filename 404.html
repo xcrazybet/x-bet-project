@@ -3,32 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page Not Found - X-BET</title>
+    <title>Page Not Found - X-BET Dashboard</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            font-family: Arial, sans-serif;
-            text-align: center;
             color: white;
         }
+
         .error-container {
-            background: rgba(255,255,255,0.1);
-            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 50px;
             border-radius: 20px;
+            text-align: center;
             backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
         }
-        h1 { font-size: 4rem; margin-bottom: 20px; }
-        a { color: white; text-decoration: none; font-weight: bold; }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+        }
+
+        .error-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .home-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .home-button:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .navigation-links {
+            margin-top: 30px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="error-container">
-        <h1>404</h1>
-        <p>Page not found. Return to <a href="/">dashboard</a>.</p>
+        <div class="error-code">404</div>
+        <h1 class="error-title">Oops! Page Not Found</h1>
+        <p class="error-message">
+            The page you're looking for doesn't exist or has been moved. 
+            Let's get you back to the dashboard.
+        </p>
+        
+        <a href="/" class="home-button">🏠 Go to Dashboard</a>
+        
+        <div class="navigation-links">
+            <p>Quick Links:</p>
+            <a href="/" class="nav-link">Dashboard</a> •
+            <a href="https://xorazy.bet.github.io/x-bet-project/dashboard.html" class="nav-link">Main Site</a>
+        </div>
     </div>
+
+    <script>
+        // Optional: Add some interactive features
+        console.log("404 Page - X-BET Dashboard");
+        
+        // You can add redirect after some time
+        // setTimeout(() => {
+        //     window.location.href = "/";
+        // }, 5000);
+    </script>
 </body>
 </html>
