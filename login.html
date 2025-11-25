@@ -168,7 +168,7 @@
         </form>
 
         <div class="register-link">
-            <p>Don't have an account? <a href="register.html">Register here</a></p>
+            <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
         </div>
 
         <div class="security-notice">
@@ -191,7 +191,7 @@
             'support_admin': 'SupportAdmin789!'
         };
 
-        // Initialize user data
+        // Initialize user data and load registered users
         function initializeUserData() {
             // Initialize regular users
             const users = ['john_doe', 'sarah_w', 'mike_t'];
@@ -215,7 +215,7 @@
                 }
             });
 
-            // Load registered users from localStorage
+            // Load registered users from localStorage (from signup page)
             const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
             Object.keys(registeredUsers).forEach(user => {
                 validUsers[user] = registeredUsers[user];
