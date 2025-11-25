@@ -97,6 +97,16 @@
             border-radius: 5px;
         }
 
+        .success-message {
+            color: #27ae60;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+            padding: 10px;
+            background: #d4edda;
+            border-radius: 5px;
+        }
+
         .security-notice {
             margin-top: 20px;
             padding: 12px;
@@ -106,6 +116,25 @@
             color: #8d6e00;
             border-left: 4px solid #ffc107;
             text-align: center;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4fd;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .register-link a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -132,7 +161,15 @@
             <div class="error-message" id="errorMessage">
                 Invalid username or password!
             </div>
+
+            <div class="success-message" id="successMessage">
+                Registration successful! Please login.
+            </div>
         </form>
+
+        <div class="register-link">
+            <p>Don't have an account? <a href="register.html">Register here</a></p>
+        </div>
 
         <div class="security-notice">
             🔒 Authorized Access Only - All activities are monitored
@@ -171,10 +208,17 @@
                             date: new Date().toISOString(),
                             details: 'New account bonus'
                         }],
-                        bets: []
+                        bets: [],
+                        registeredAt: new Date().toISOString()
                     };
                     localStorage.setItem('userData_' + user, JSON.stringify(userData));
                 }
+            });
+
+            // Load registered users from localStorage
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            Object.keys(registeredUsers).forEach(user => {
+                validUsers[user] = registeredUsers[user];
             });
 
             // Initialize admin accounts with special manager balance
@@ -192,7 +236,8 @@
                     }],
                     bets: [],
                     isAdmin: true,
-                    role: 'Finance Manager'
+                    role: 'Finance Manager',
+                    registeredAt: new Date().toISOString()
                 };
                 localStorage.setItem('userData_finance_manager', JSON.stringify(managerData));
             }
@@ -214,7 +259,8 @@
                         }],
                         bets: [],
                         isAdmin: true,
-                        role: admin === 'admin_master' ? 'Head Administrator' : 'Support Admin'
+                        role: admin === 'admin_master' ? 'Head Administrator' : 'Support Admin',
+                        registeredAt: new Date().toISOString()
                     };
                     localStorage.setItem('userData_' + admin, JSON.stringify(adminData));
                 }
@@ -228,6 +274,7 @@
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
             const loginBtn = document.getElementById('loginBtn');
 
             // Show loading state
@@ -237,6 +284,16 @@
             // Initialize data
             initializeUserData();
 
+            // Check for successful registration message
+            const registrationSuccess = localStorage.getItem('registrationSuccess');
+            if (registrationSuccess === 'true') {
+                successMessage.style.display = 'block';
+                localStorage.removeItem('registrationSuccess');
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            }
+
             // Check admin login first
             if (adminCredentials[username] && adminCredentials[username] === password) {
                 // Successful admin login
@@ -245,6 +302,7 @@
                 localStorage.setItem('loginTime', new Date().toISOString());
                 
                 errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
                 loginBtn.textContent = 'Admin Access Granted!';
                 
                 setTimeout(() => {
@@ -253,7 +311,7 @@
                 return;
             }
             
-            // Check user login
+            // Check user login - including newly registered users
             if (validUsers[username] && validUsers[username] === password) {
                 // Successful user login
                 localStorage.setItem('isLoggedIn', 'true');
@@ -261,6 +319,7 @@
                 localStorage.setItem('loginTime', new Date().toISOString());
                 
                 errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
                 loginBtn.textContent = 'Access Granted!';
                 
                 setTimeout(() => {
@@ -269,6 +328,7 @@
             } else {
                 // Failed login
                 errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
                 loginBtn.textContent = 'Login';
                 loginBtn.disabled = false;
                 
@@ -287,6 +347,13 @@
                 window.location.href = 'dashboard.html';
             } else if (isAdminLoggedIn === 'true') {
                 window.location.href = 'admin.html';
+            }
+
+            // Check for successful registration
+            const registrationSuccess = localStorage.getItem('registrationSuccess');
+            if (registrationSuccess === 'true') {
+                document.getElementById('successMessage').style.display = 'block';
+                localStorage.removeItem('registrationSuccess');
             }
         });
     </script>
