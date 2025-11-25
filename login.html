@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET - Secure Login</title>
+    <title>X-BET - Login</title>
     <style>
         * {
             margin: 0;
@@ -107,17 +107,6 @@
             border-radius: 5px;
         }
 
-        .security-notice {
-            margin-top: 20px;
-            padding: 12px;
-            background: #fff8e1;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #8d6e00;
-            border-left: 4px solid #ffc107;
-            text-align: center;
-        }
-
         .register-link {
             text-align: center;
             margin-top: 20px;
@@ -137,34 +126,19 @@
             text-decoration: underline;
         }
 
-        .demo-accounts {
+        .info-box {
             margin-top: 20px;
             padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
+            background: #fff8e1;
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
             font-size: 14px;
+            color: #8d6e00;
         }
 
-        .demo-accounts h3 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .demo-account {
-            margin: 5px 0;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .demo-account .badge {
-            background: #3498db;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
+        .info-box h4 {
+            margin-bottom: 8px;
+            color: #e67e22;
         }
     </style>
 </head>
@@ -172,21 +146,21 @@
     <div class="login-container">
         <div class="logo">
             <h1>X-<span>BET</span></h1>
-            <p>Secure Authentication Portal</p>
+            <p>Welcome to Gaming Platform</p>
         </div>
 
         <form id="loginForm">
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required placeholder="Enter username">
+                <input type="text" id="username" name="username" required placeholder="Enter your username">
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="Enter password">
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
             </div>
 
-            <button type="submit" class="login-btn" id="loginBtn">Login</button>
+            <button type="submit" class="login-btn" id="loginBtn">Login to Play</button>
             
             <div class="error-message" id="errorMessage">
                 Invalid username or password!
@@ -197,43 +171,20 @@
             </div>
         </form>
 
-        <div class="demo-accounts">
-            <h3>🎯 Demo User Accounts (Public):</h3>
-            <div class="demo-account">
-                <span class="badge">USER</span>
-                <span>john_doe / Football2024!</span>
-            </div>
-            <div class="demo-account">
-                <span class="badge">USER</span>
-                <span>sarah_w / Basketball$123</span>
-            </div>
-            <div class="demo-account">
-                <span class="badge">USER</span>
-                <span>mike_t / TennisStar99!</span>
-            </div>
-            <div style="margin-top: 10px; font-size: 12px; color: #e74c3c;">
-                🔒 Admin accounts are private
-            </div>
+        <div class="info-box">
+            <h4>💡 How to Start Playing:</h4>
+            <p>1. Sign up for free account</p>
+            <p>2. Contact admins to deposit money</p>
+            <p>3. Start betting and winning!</p>
         </div>
 
         <div class="register-link">
-            <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
-        </div>
-
-        <div class="security-notice">
-            🔒 Authorized Access Only - All activities are monitored
+            <p>New to X-BET? <a href="signup.html">Create free account</a></p>
         </div>
     </div>
 
     <script>
-        // PUBLIC USER ACCOUNTS (Visible to everyone)
-        const validUsers = {
-            'john_doe': 'Football2024!',
-            'sarah_w': 'Basketball$123',
-            'mike_t': 'TennisStar99!'
-        };
-
-        // PRIVATE ADMIN CREDENTIALS (Not shown to public)
+        // PRIVATE ADMIN CREDENTIALS (Not shown to users)
         const adminCredentials = {
             'admin_master': 'MasterAdmin2024!',
             'finance_manager': 'Finance14M$2024',
@@ -242,33 +193,8 @@
 
         // Initialize user data and load registered users
         function initializeUserData() {
-            // Initialize demo users
-            const users = ['john_doe', 'sarah_w', 'mike_t'];
-            users.forEach(user => {
-                if (!localStorage.getItem('userData_' + user)) {
-                    const userData = {
-                        balance: 1500.00,
-                        pendingWithdrawals: 0.00,
-                        totalProfit: 350.00,
-                        transactions: [{
-                            type: 'Welcome Bonus',
-                            amount: 50.00,
-                            status: 'completed',
-                            date: new Date().toISOString(),
-                            details: 'New account bonus'
-                        }],
-                        bets: [],
-                        registeredAt: new Date().toISOString()
-                    };
-                    localStorage.setItem('userData_' + user, JSON.stringify(userData));
-                }
-            });
-
-            // Load registered users from localStorage (from signup page)
+            // Load registered users from localStorage
             const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-            Object.keys(registeredUsers).forEach(user => {
-                validUsers[user] = registeredUsers[user];
-            });
 
             // Initialize admin accounts with special manager balance
             if (!localStorage.getItem('userData_finance_manager')) {
@@ -343,7 +269,7 @@
                 }, 5000);
             }
 
-            // Check admin login first (private - not shown to users)
+            // Check admin login first
             if (adminCredentials[username] && adminCredentials[username] === password) {
                 // Successful admin login
                 localStorage.setItem('isAdminLoggedIn', 'true');
@@ -360,8 +286,10 @@
                 return;
             }
             
-            // Check user login - including newly registered users
-            if (validUsers[username] && validUsers[username] === password) {
+            // Load registered users and check login
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            
+            if (registeredUsers[username] && registeredUsers[username] === password) {
                 // Successful user login
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('currentUser', username);
@@ -369,7 +297,7 @@
                 
                 errorMessage.style.display = 'none';
                 successMessage.style.display = 'none';
-                loginBtn.textContent = 'Access Granted!';
+                loginBtn.textContent = 'Login Successful!';
                 
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
@@ -378,7 +306,7 @@
                 // Failed login
                 errorMessage.style.display = 'block';
                 successMessage.style.display = 'none';
-                loginBtn.textContent = 'Login';
+                loginBtn.textContent = 'Login to Play';
                 loginBtn.disabled = false;
                 
                 setTimeout(() => {
@@ -405,20 +333,6 @@
                 localStorage.removeItem('registrationSuccess');
             }
         });
-
-        // Auto-fill for testing
-        function autoFillDemo(userIndex) {
-            const users = [
-                {user: 'john_doe', pass: 'Football2024!'},
-                {user: 'sarah_w', pass: 'Basketball$123'},
-                {user: 'mike_t', pass: 'TennisStar99!'}
-            ];
-            
-            if (userIndex >= 0 && userIndex < users.length) {
-                document.getElementById('username').value = users[userIndex].user;
-                document.getElementById('password').value = users[userIndex].pass;
-            }
-        }
     </script>
 </body>
 </html>
