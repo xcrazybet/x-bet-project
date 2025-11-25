@@ -131,15 +131,18 @@
             text-decoration: underline;
         }
 
-        .security-notice {
+        .info-box {
             margin-top: 20px;
-            padding: 12px;
-            background: #fff8e1;
+            padding: 15px;
+            background: #e8f4fd;
             border-radius: 8px;
-            font-size: 12px;
-            color: #8d6e00;
-            border-left: 4px solid #ffc107;
-            text-align: center;
+            border-left: 4px solid #3498db;
+            font-size: 14px;
+        }
+
+        .info-box h4 {
+            margin-bottom: 8px;
+            color: #2980b9;
         }
 
         .terms {
@@ -148,26 +151,13 @@
             color: #666;
             text-align: center;
         }
-
-        .demo-info {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e8f4fd;
-            border-radius: 8px;
-            font-size: 12px;
-        }
-
-        .demo-info h4 {
-            margin-bottom: 8px;
-            color: #3498db;
-        }
     </style>
 </head>
 <body>
     <div class="signup-container">
         <div class="logo">
             <h1>X-<span>BET</span></h1>
-            <p>Create Your Account</p>
+            <p>Create Your Free Account</p>
         </div>
 
         <form id="signupForm">
@@ -191,7 +181,7 @@
                 <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password">
             </div>
 
-            <button type="submit" class="signup-btn" id="signupBtn">Create Account</button>
+            <button type="submit" class="signup-btn" id="signupBtn">Create Free Account</button>
             
             <div class="message error-message" id="errorMessage">
                 Please fix the errors above.
@@ -202,11 +192,12 @@
             </div>
         </form>
 
-        <div class="demo-info">
-            <h4>💡 Quick Testing:</h4>
-            <p>Use demo accounts on login page for instant access:</p>
-            <p><strong>john_doe / Football2024!</strong></p>
-            <p><strong>sarah_w / Basketball$123</strong></p>
+        <div class="info-box">
+            <h4>🎮 Start Playing Today!</h4>
+            <p>• Free account registration</p>
+            <p>• Contact admins for money deposits</p>
+            <p>• Play games anytime, anywhere</p>
+            <p>• Instant withdrawals</p>
         </div>
 
         <div class="login-link">
@@ -214,20 +205,13 @@
         </div>
 
         <div class="terms">
-            By creating an account, you agree to our Terms of Service and Privacy Policy
-        </div>
-
-        <div class="security-notice">
-            🔒 Secure Registration - Your data is protected
+            By creating an account, you agree to our Terms of Service
         </div>
     </div>
 
     <script>
-        // Existing users (cannot be registered again)
-        const existingUsers = {
-            'john_doe': true,
-            'sarah_w': true,
-            'mike_t': true,
+        // Existing admin users (cannot be registered by public)
+        const adminUsers = {
             'admin_master': true,
             'finance_manager': true,
             'support_admin': true
@@ -236,7 +220,7 @@
         // Check if username already exists in localStorage
         function isUsernameTaken(username) {
             const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-            return registeredUsers.hasOwnProperty(username) || existingUsers[username];
+            return registeredUsers.hasOwnProperty(username) || adminUsers[username];
         }
 
         // Check if email already exists in localStorage
@@ -315,18 +299,18 @@
                 userEmails[username] = email;
                 localStorage.setItem('userEmails', JSON.stringify(userEmails));
 
-                // Create user data with initial balance
+                // Create user data with ZERO balance (admins will deposit money)
                 const userData = {
-                    balance: 1000.00,
+                    balance: 0.00, // Start with $0 - admins will deposit
                     pendingWithdrawals: 0.00,
                     totalProfit: 0.00,
                     email: email,
                     transactions: [{
-                        type: 'Welcome Bonus',
-                        amount: 50.00,
+                        type: 'Account Created',
+                        amount: 0.00,
                         status: 'completed',
                         date: new Date().toISOString(),
-                        details: 'New account bonus'
+                        details: 'Welcome to X-BET! Contact admins for deposits.'
                     }],
                     bets: [],
                     registeredAt: new Date().toISOString(),
