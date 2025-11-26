@@ -132,6 +132,7 @@
             padding: 2rem;
             border-radius: 15px;
             backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
         }
 
         .transaction-item {
@@ -140,11 +141,9 @@
             margin: 0.5rem 0;
             border-radius: 8px;
             border-left: 4px solid #ffd700;
-        }
-
-        .transaction-amount {
-            font-weight: bold;
-            color: #ffd700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .transaction-positive {
@@ -153,6 +152,25 @@
 
         .transaction-negative {
             border-left-color: #e74c3c;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .transaction-details {
+            flex-grow: 1;
+            margin-left: 1rem;
+        }
+
+        .transaction-code {
+            background: rgba(255,255,255,0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
         }
 
         .modal {
@@ -213,6 +231,12 @@
             width: 100%;
             margin-top: 1rem;
         }
+
+        .no-transactions {
+            text-align: center;
+            padding: 2rem;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
@@ -258,9 +282,9 @@
         </div>
 
         <div class="transactions-section">
-            <h2>Recent Transactions</h2>
-            <div id="transactionsList">
-                <!-- Transactions will be loaded here -->
+            <h2>📊 Recent Transactions</h2>
+            <div id="transactionsList" class="no-transactions">
+                Loading transactions...
             </div>
         </div>
     </div>
@@ -317,6 +341,14 @@
             window.location.href = 'login.html';
         }
 
+        // Generate unique transaction code
+        function generateTransactionCode(type) {
+            const timestamp = Date.now().toString(36);
+            const random = Math.random().toString(36).substr(2, 5);
+            const prefix = type === 'deposit' ? 'DEP' : type === 'withdrawal' ? 'WTH' : 'TRX';
+            return `${prefix}-${timestamp}-${random}`.toUpperCase();
+        }
+
         // Load user data
         function loadUserData() {
             const userData = JSON.parse(localStorage.getItem('userData_' + currentUser) || '{}');
@@ -327,21 +359,36 @@
             document.getElementById('pendingWithdrawals').textContent = '$' + (userData.pendingWithdrawals || 0).toFixed(2);
             
             // Load transactions
+            displayTransactions(userData.transactions || []);
+        }
+
+        // Display transactions with codes
+        function displayTransactions(transactions) {
             const transactionsList = document.getElementById('transactionsList');
-            const transactions = userData.transactions || [];
             
             if (transactions.length === 0) {
-                transactionsList.innerHTML = '<p>No transactions yet. Start by contacting admins for deposits!</p>';
-            } else {
-                transactionsList.innerHTML = transactions.slice(-10).reverse().map(transaction => `
-                    <div class="transaction-item ${transaction.amount >= 0 ? 'transaction-positive' : 'transaction-negative'}">
-                        <strong>${transaction.type}</strong>
-                        <div class="transaction-amount">${transaction.amount >= 0 ? '+' : ''}$${Math.abs(transaction.amount).toFixed(2)}</div>
-                        <small>${new Date(transaction.date).toLocaleDateString()} - ${transaction.status}</small>
-                        ${transaction.details ? `<p>${transaction.details}</p>` : ''}
-                    </div>
-                `).join('');
+                transactionsList.innerHTML = '<div class="no-transactions">No transactions yet. Start by contacting admins for deposits!</div>';
+                return;
             }
+
+            transactionsList.innerHTML = transactions.slice(-10).reverse().map(transaction => {
+                const isPositive = transaction.amount >= 0;
+                const transactionCode = transaction.code || generateTransactionCode(transaction.type.toLowerCase());
+                
+                return `
+                    <div class="transaction-item ${isPositive ? 'transaction-positive' : 'transaction-negative'}">
+                        <div class="transaction-details">
+                            <strong>${transaction.type}</strong>
+                            <div>${new Date(transaction.date).toLocaleDateString()} • ${transaction.status}</div>
+                            ${transaction.details ? `<div style="opacity: 0.8; margin-top: 0.25rem;">${transaction.details}</div>` : ''}
+                            <div class="transaction-code">Code: ${transactionCode}</div>
+                        </div>
+                        <div class="transaction-amount" style="color: ${isPositive ? '#2ecc71' : '#e74c3c'}">
+                            ${isPositive ? '+' : '-'}$${Math.abs(transaction.amount).toFixed(2)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         // Modal functions
@@ -364,6 +411,9 @@
             
             document.getElementById('withdrawModal').style.display = 'block';
             document.getElementById('withdrawAmount').max = balance;
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('paymentMethod').value = '';
+            document.getElementById('accountDetails').value = '';
         }
 
         function closeWithdrawModal() {
@@ -386,25 +436,32 @@
                 return;
             }
             
+            if (amount < 1) {
+                alert('Minimum withdrawal amount is $1!');
+                return;
+            }
+            
             // Update user data
             userData.balance = balance - amount;
             userData.pendingWithdrawals = (userData.pendingWithdrawals || 0) + amount;
             
-            // Add transaction
+            // Add transaction with code
             if (!userData.transactions) userData.transactions = [];
+            const transactionCode = generateTransactionCode('withdrawal');
             userData.transactions.push({
                 type: 'Withdrawal Request',
                 amount: -amount,
                 status: 'pending',
                 date: new Date().toISOString(),
                 details: `Method: ${paymentMethod}, Account: ${accountDetails}`,
+                code: transactionCode,
                 paymentMethod: paymentMethod,
                 accountDetails: accountDetails
             });
             
             localStorage.setItem('userData_' + currentUser, JSON.stringify(userData));
             
-            alert('Withdrawal request submitted! Admin will process it soon.');
+            alert(`Withdrawal request submitted!\nTransaction Code: ${transactionCode}\nAdmin will process it soon.`);
             closeWithdrawModal();
             loadUserData();
         });
