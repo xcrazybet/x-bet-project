@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET Admin - Real User Management</title>
+    <title>X-BET Admin - Real Database Users</title>
     <style>
         :root {
             --primary: #1a1f36;
@@ -49,9 +49,43 @@
             margin-bottom: 10px;
         }
         
-        .header p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
+        .api-config {
+            background: var(--secondary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .api-config h3 {
+            margin-bottom: 10px;
+            color: var(--warning);
+        }
+        
+        .config-inputs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .config-inputs input {
+            padding: 8px 12px;
+            background: var(--primary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text);
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .config-inputs button {
+            padding: 8px 16px;
+            background: var(--accent);
+            color: var(--primary);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
         }
         
         .stats-grid {
@@ -104,55 +138,29 @@
             width: 300px;
         }
         
-        .filter-options {
+        .action-buttons {
             display: flex;
-            gap: 15px;
+            gap: 10px;
         }
         
-        .filter-options label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
             cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
         }
         
-        .real-time-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            background-color: rgba(46, 204, 113, 0.1);
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid var(--success);
+        .btn-primary {
+            background-color: var(--accent);
+            color: var(--primary);
         }
         
-        .pulse {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: var(--success);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
-            }
-            
-            70% {
-                transform: scale(1);
-                box-shadow: 0 0 0 10px rgba(46, 204, 113, 0);
-            }
-            
-            100% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
-            }
+        .btn-secondary {
+            background: var(--primary);
+            color: var(--text);
+            border: 1px solid var(--border);
         }
         
         .users-table {
@@ -215,42 +223,9 @@
             color: var(--success);
         }
         
-        .status-pending {
-            background-color: rgba(243, 156, 18, 0.2);
-            color: var(--warning);
-        }
-        
-        .btn {
-            padding: 6px 12px;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-        
-        .btn-outline:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-        
-        .btn-primary {
-            background-color: var(--accent);
-            color: var(--primary);
-        }
-        
-        .btn-primary:hover {
-            opacity: 0.9;
-        }
-        
-        .btn-group {
-            display: flex;
-            gap: 5px;
+        .status-inactive {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: var(--danger);
         }
         
         .transfer-modal {
@@ -341,6 +316,12 @@
             background-color: var(--danger);
         }
         
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+        }
+        
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
@@ -368,18 +349,6 @@
             .search-box {
                 width: 100%;
             }
-            
-            .filter-options {
-                flex-wrap: wrap;
-            }
-            
-            .table-header, .user-row {
-                grid-template-columns: 1fr 1fr 100px;
-            }
-            
-            .user-profit, .user-registered, .user-sets {
-                display: none;
-            }
         }
     </style>
 </head>
@@ -387,20 +356,24 @@
     <div class="admin-container">
         <div class="header">
             <h1>X-BET Admin Panel</h1>
-            <p>Real User Management & Fund Transfers</p>
+            <p>Real Database Users & Fund Transfers</p>
         </div>
         
-        <!-- Real-time Indicator -->
-        <div class="real-time-indicator">
-            <div class="pulse"></div>
-            <span>Live Updates Active - Connected to Real User Database</span>
+        <!-- API Configuration -->
+        <div class="api-config">
+            <h3>Database Connection</h3>
+            <div class="config-inputs">
+                <input type="text" id="api-endpoint" placeholder="Enter your API endpoint (e.g., https://api.xbet.com/users)" value="https://api.xbet.com/users">
+                <input type="text" id="api-key" placeholder="Enter API Key (if required)">
+                <button id="connect-api" class="btn-primary">Connect to Database</button>
+            </div>
         </div>
         
         <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>Total Users</h3>
-                <div class="value" id="total-users">Loading...</div>
+                <div class="value" id="total-users">0</div>
             </div>
             <div class="stat-card">
                 <h3>System Balance</h3>
@@ -411,19 +384,17 @@
                 <div class="value">$0.00</div>
             </div>
             <div class="stat-card">
-                <h3>Total Admins</h3>
-                <div class="value">5</div>
+                <h3>Active Today</h3>
+                <div class="value" id="active-users">0</div>
             </div>
         </div>
         
         <!-- Controls -->
         <div class="controls">
             <input type="text" class="search-box" placeholder="Search users..." id="search-users">
-            <div class="filter-options">
-                <label><input type="checkbox" id="filter-regular" checked> Regular Users</label>
-                <label><input type="checkbox" id="filter-admins"> Admin Accounts</label>
-                <label><input type="checkbox" id="filter-active"> Active Users</label>
-                <label><input type="checkbox" id="filter-pending"> With Pending</label>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="refresh-users">Refresh Users</button>
+                <button class="btn btn-secondary" id="export-users">Export CSV</button>
             </div>
         </div>
         
@@ -435,26 +406,13 @@
                 <div>Profit</div>
                 <div>Status</div>
                 <div>Registered</div>
-                <div>Sets</div>
+                <div>Last Login</div>
                 <div>Actions</div>
             </div>
             
             <div id="users-container">
-                <!-- Users will be dynamically loaded here -->
-                <div class="user-row">
-                    <div class="user-info-col">
-                        <span class="user-name">Loading real users...</span>
-                        <span class="user-email">Please wait</span>
-                    </div>
-                    <div>$0.00</div>
-                    <div>$0.00</div>
-                    <div><span class="status-badge status-active">active</span></div>
-                    <div>11/26/2025</div>
-                    <div>0</div>
-                    <div class="btn-group">
-                        <button class="btn btn-outline">Details</button>
-                        <button class="btn btn-primary" disabled>Transfer</button>
-                    </div>
+                <div class="loading" id="loading-message">
+                    Please connect to your database to load real users...
                 </div>
             </div>
         </div>
@@ -473,15 +431,28 @@
                     <input type="text" class="form-control" id="recipient" readonly>
                 </div>
                 <div class="form-group">
+                    <label for="current-balance">Current Balance</label>
+                    <input type="text" class="form-control" id="current-balance" readonly>
+                </div>
+                <div class="form-group">
                     <label for="amount">Amount ($)</label>
                     <input type="number" class="form-control" id="amount" min="0.01" step="0.01" placeholder="Enter amount" required>
+                </div>
+                <div class="form-group">
+                    <label for="transaction-type">Transaction Type</label>
+                    <select class="form-control" id="transaction-type">
+                        <option value="deposit">Deposit</option>
+                        <option value="bonus">Bonus</option>
+                        <option value="winning">Winning</option>
+                        <option value="refund">Refund</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="notes">Notes (Optional)</label>
                     <textarea class="form-control" id="notes" rows="3" placeholder="Transaction notes"></textarea>
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-outline" id="cancel-transfer">Cancel</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-transfer">Cancel</button>
                     <button type="submit" class="btn btn-primary">Transfer Funds</button>
                 </div>
             </form>
@@ -489,34 +460,125 @@
     </div>
     
     <script>
-        // Real user data from your system
+        // Global variables
         let realUsers = [];
         let currentTransferUser = null;
+        let apiEndpoint = '';
+        let apiKey = '';
         
-        // Function to load real users from your backend
+        // DOM Elements
+        const usersContainer = document.getElementById('users-container');
+        const totalUsersEl = document.getElementById('total-users');
+        const activeUsersEl = document.getElementById('active-users');
+        const loadingMessage = document.getElementById('loading-message');
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved API configuration
+            const savedEndpoint = localStorage.getItem('xbet_api_endpoint');
+            const savedApiKey = localStorage.getItem('xbet_api_key');
+            
+            if (savedEndpoint) {
+                document.getElementById('api-endpoint').value = savedEndpoint;
+            }
+            
+            if (savedApiKey) {
+                document.getElementById('api-key').value = savedApiKey;
+            }
+            
+            // Event listeners
+            document.getElementById('connect-api').addEventListener('click', connectToDatabase);
+            document.getElementById('refresh-users').addEventListener('click', loadRealUsers);
+            document.getElementById('close-modal').addEventListener('click', closeTransferModal);
+            document.getElementById('cancel-transfer').addEventListener('click', closeTransferModal);
+            document.getElementById('transfer-form').addEventListener('submit', processTransfer);
+            document.getElementById('search-users').addEventListener('input', filterUsers);
+            
+            // Auto-connect if credentials are saved
+            if (savedEndpoint && savedEndpoint !== 'https://api.xbet.com/users') {
+                connectToDatabase();
+            }
+        });
+        
+        // Connect to database
+        async function connectToDatabase() {
+            apiEndpoint = document.getElementById('api-endpoint').value;
+            apiKey = document.getElementById('api-key').value;
+            
+            if (!apiEndpoint) {
+                showNotification('Please enter your API endpoint', 'error');
+                return;
+            }
+            
+            // Save configuration
+            localStorage.setItem('xbet_api_endpoint', apiEndpoint);
+            localStorage.setItem('xbet_api_key', apiKey);
+            
+            showNotification('Connecting to database...', 'success');
+            await loadRealUsers();
+        }
+        
+        // Load real users from your database
         async function loadRealUsers() {
+            if (!apiEndpoint) {
+                showNotification('Please configure API endpoint first', 'error');
+                return;
+            }
+            
             try {
-                // Replace this with your actual API endpoint
-                // const response = await fetch('/api/admin/users');
-                // realUsers = await response.json();
+                loadingMessage.textContent = 'Loading real users from database...';
+                loadingMessage.style.display = 'block';
                 
-                // For demo purposes, we'll simulate loading real users
-                // In production, replace this with actual API call
-                simulateRealUsersLoad();
+                // Prepare request headers
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                if (apiKey) {
+                    headers['Authorization'] = `Bearer ${apiKey}`;
+                }
+                
+                // Make API call to your backend
+                const response = await fetch(apiEndpoint, {
+                    method: 'GET',
+                    headers: headers
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Process the response based on your API structure
+                // Adjust this based on your actual API response format
+                if (data.users) {
+                    realUsers = data.users;
+                } else if (Array.isArray(data)) {
+                    realUsers = data;
+                } else {
+                    realUsers = [data]; // Single user object
+                }
+                
+                renderUsers(realUsers);
+                showNotification(`Successfully loaded ${realUsers.length} users from database`, 'success');
                 
             } catch (error) {
                 console.error('Error loading users:', error);
-                showNotification('Error loading users from database', 'error');
+                
+                // For demo purposes - show sample data if API fails
+                // REMOVE THIS IN PRODUCTION AND USE ACTUAL API
+                showNotification('Using demo data - configure your real API endpoint', 'error');
+                loadDemoData();
             }
         }
         
-        // Function to simulate loading real users (replace with actual API)
-        function simulateRealUsersLoad() {
-            // This is a simulation - replace with your actual user data
+        // Demo data fallback (remove in production)
+        function loadDemoData() {
             realUsers = [
                 {
                     id: 1,
-                    name: "xherbbet",
+                    username: "xherbbet",
                     email: "toiodulbok@zbet.com",
                     balance: 0.00,
                     pending: 0.00,
@@ -530,7 +592,7 @@
                 },
                 {
                     id: 2,
-                    name: "john_doe",
+                    username: "john_doe",
                     email: "john@example.com",
                     balance: 1250.50,
                     pending: 250.00,
@@ -541,62 +603,20 @@
                     transactions: 8,
                     status: "active",
                     isAdmin: false
-                },
-                {
-                    id: 3,
-                    name: "alice_smith",
-                    email: "alice@example.com",
-                    balance: 500.00,
-                    pending: 0.00,
-                    profit: 150.25,
-                    registered: "11/24/2025",
-                    lastLogin: "11/25/2025",
-                    sets: 5,
-                    transactions: 4,
-                    status: "active",
-                    isAdmin: false
-                },
-                {
-                    id: 4,
-                    name: "bob_johnson",
-                    email: "bob@example.com",
-                    balance: 7500.00,
-                    pending: 1000.00,
-                    profit: 2200.50,
-                    registered: "11/20/2025",
-                    lastLogin: "11/26/2025",
-                    sets: 25,
-                    transactions: 15,
-                    status: "pending",
-                    isAdmin: false
-                },
-                {
-                    id: 5,
-                    name: "Admin User",
-                    email: "admin@xbet.com",
-                    balance: 0.00,
-                    pending: 0.00,
-                    profit: 0.00,
-                    registered: "11/15/2025",
-                    lastLogin: "11/26/2025",
-                    sets: 0,
-                    transactions: 0,
-                    status: "active",
-                    isAdmin: true
                 }
             ];
             
             renderUsers(realUsers);
-            updateUserCount();
         }
         
-        // Function to render users
+        // Render users in the table
         function renderUsers(users) {
-            const container = document.getElementById('users-container');
-            container.innerHTML = '';
+            loadingMessage.style.display = 'none';
+            usersContainer.innerHTML = '';
             
             if (users.length === 0) {
-                container.innerHTML = '<div class="user-row"><div>No users found</div></div>';
+                usersContainer.innerHTML = '<div class="loading">No users found in database</div>';
+                updateUserCount(0);
                 return;
             }
             
@@ -604,23 +624,32 @@
                 const userRow = document.createElement('div');
                 userRow.className = 'user-row';
                 
+                // Use appropriate fields from your database
+                const username = user.username || user.name || user.email.split('@')[0];
+                const balance = user.balance || 0;
+                const profit = user.profit || user.winnings || 0;
+                const status = user.status || (user.isActive ? 'active' : 'inactive');
+                const registered = user.registered || user.createdAt || 'N/A';
+                const lastLogin = user.lastLogin || user.lastActive || 'N/A';
+                
                 userRow.innerHTML = `
                     <div class="user-info-col">
-                        <span class="user-name">${user.name} ${user.isAdmin ? '(Admin)' : ''}</span>
+                        <span class="user-name">${username} ${user.isAdmin ? '(Admin)' : ''}</span>
                         <span class="user-email">${user.email}</span>
                     </div>
-                    <div>$${user.balance.toFixed(2)}</div>
-                    <div>$${user.profit.toFixed(2)}</div>
-                    <div><span class="status-badge status-${user.status}">${user.status}</span></div>
-                    <div>${user.registered}</div>
-                    <div>${user.sets}</div>
-                    <div class="btn-group">
-                        <button class="btn btn-outline">Details</button>
-                        <button class="btn btn-primary transfer-btn" data-user-id="${user.id}" ${user.isAdmin ? 'disabled' : ''}>Transfer</button>
+                    <div>$${balance.toFixed(2)}</div>
+                    <div>$${profit.toFixed(2)}</div>
+                    <div><span class="status-badge status-${status}">${status}</span></div>
+                    <div>${registered}</div>
+                    <div>${lastLogin}</div>
+                    <div>
+                        <button class="btn btn-primary transfer-btn" data-user-id="${user.id}" ${user.isAdmin ? 'disabled' : ''}>
+                            Transfer
+                        </button>
                     </div>
                 `;
                 
-                container.appendChild(userRow);
+                usersContainer.appendChild(userRow);
             });
             
             // Add event listeners to transfer buttons
@@ -631,50 +660,87 @@
                 });
             });
             
-            updateUserCount();
+            updateUserCount(users.length);
         }
         
-        // Function to update user count
-        function updateUserCount() {
-            document.getElementById('total-users').textContent = realUsers.length;
+        // Update user count statistics
+        function updateUserCount(total) {
+            totalUsersEl.textContent = total;
+            activeUsersEl.textContent = realUsers.filter(user => user.status === 'active').length;
         }
         
-        // Function to open transfer modal
+        // Open transfer modal
         function openTransferModal(userId) {
             const user = realUsers.find(u => u.id == userId);
             if (!user) return;
             
             currentTransferUser = user;
-            document.getElementById('recipient').value = `${user.name} (${user.email})`;
+            const username = user.username || user.name || user.email.split('@')[0];
+            
+            document.getElementById('recipient').value = `${username} (${user.email})`;
+            document.getElementById('current-balance').value = `$${(user.balance || 0).toFixed(2)}`;
             document.getElementById('transfer-modal').style.display = 'flex';
         }
         
-        // Function to close transfer modal
+        // Close transfer modal
         function closeTransferModal() {
             document.getElementById('transfer-modal').style.display = 'none';
             document.getElementById('transfer-form').reset();
             currentTransferUser = null;
         }
         
-        // Function to process fund transfer
-        async function processTransfer(amount, notes) {
+        // Process fund transfer
+        async function processTransfer(e) {
+            e.preventDefault();
+            
+            const amount = document.getElementById('amount').value;
+            const notes = document.getElementById('notes').value;
+            const transactionType = document.getElementById('transaction-type').value;
+            
+            if (!amount || parseFloat(amount) <= 0) {
+                showNotification('Please enter a valid amount', 'error');
+                return;
+            }
+            
             try {
-                // Replace this with your actual API endpoint
-                // const response = await fetch('/api/admin/transfer', {
-                //     method: 'POST',
-                //     headers: {
-                //         'Content-Type': 'application/json',
-                //     },
-                //     body: JSON.stringify({
-                //         userId: currentTransferUser.id,
-                //         amount: parseFloat(amount),
-                //         notes: notes
-                //     })
-                // });
+                // Prepare transfer data
+                const transferData = {
+                    userId: currentTransferUser.id,
+                    amount: parseFloat(amount),
+                    type: transactionType,
+                    notes: notes,
+                    timestamp: new Date().toISOString()
+                };
                 
-                // For demo purposes, we'll simulate a successful transfer
-                // In production, replace with actual API call
-                simulateTransfer(amount, notes);
+                // Send transfer request to your backend API
+                // Replace this with your actual transfer endpoint
+                const transferEndpoint = apiEndpoint.replace('/users', '/transfer') || `${apiEndpoint}/transfer`;
+                
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                if (apiKey) {
+                    headers['Authorization'] = `Bearer ${apiKey}`;
+                }
+                
+                const response = await fetch(transferEndpoint, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(transferData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Transfer failed: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                showNotification(`Successfully transferred $${amount} to ${currentTransferUser.username || currentTransferUser.email}`, 'success');
+                
+                // Refresh user data to show updated balance
+                await loadRealUsers();
+                closeTransferModal();
                 
             } catch (error) {
                 console.error('Transfer error:', error);
@@ -682,20 +748,24 @@
             }
         }
         
-        // Function to simulate transfer (replace with actual API)
-        function simulateTransfer(amount, notes) {
-            // Find user and update balance
-            const userIndex = realUsers.findIndex(u => u.id === currentTransferUser.id);
-            if (userIndex !== -1) {
-                realUsers[userIndex].balance += parseFloat(amount);
+        // Filter users based on search
+        function filterUsers() {
+            const searchTerm = this.value.toLowerCase();
+            if (!searchTerm) {
                 renderUsers(realUsers);
-                showNotification(`Successfully transferred $${amount} to ${currentTransferUser.name}`, 'success');
+                return;
             }
             
-            closeTransferModal();
+            const filteredUsers = realUsers.filter(user => {
+                const username = (user.username || user.name || '').toLowerCase();
+                const email = (user.email || '').toLowerCase();
+                return username.includes(searchTerm) || email.includes(searchTerm);
+            });
+            
+            renderUsers(filteredUsers);
         }
         
-        // Function to show notification
+        // Show notification
         function showNotification(message, type = 'success') {
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
@@ -706,74 +776,6 @@
                 notification.remove();
             }, 5000);
         }
-        
-        // Event listeners
-        document.getElementById('close-modal').addEventListener('click', closeTransferModal);
-        document.getElementById('cancel-transfer').addEventListener('click', closeTransferModal);
-        
-        document.getElementById('transfer-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const amount = document.getElementById('amount').value;
-            const notes = document.getElementById('notes').value;
-            
-            if (!amount || parseFloat(amount) <= 0) {
-                showNotification('Please enter a valid amount', 'error');
-                return;
-            }
-            
-            processTransfer(amount, notes);
-        });
-        
-        // Search functionality
-        document.getElementById('search-users').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const filteredUsers = realUsers.filter(user => 
-                user.name.toLowerCase().includes(searchTerm) || 
-                user.email.toLowerCase().includes(searchTerm)
-            );
-            renderUsers(filteredUsers);
-        });
-        
-        // Filter functionality
-        document.querySelectorAll('.filter-options input').forEach(checkbox => {
-            checkbox.addEventListener('change', applyFilters);
-        });
-        
-        function applyFilters() {
-            const showRegular = document.getElementById('filter-regular').checked;
-            const showAdmins = document.getElementById('filter-admins').checked;
-            const showActive = document.getElementById('filter-active').checked;
-            const showPending = document.getElementById('filter-pending').checked;
-            
-            let filteredUsers = realUsers;
-            
-            // Filter by user type
-            if (!showRegular || !showAdmins) {
-                filteredUsers = filteredUsers.filter(user => 
-                    (showRegular && !user.isAdmin) || (showAdmins && user.isAdmin)
-                );
-            }
-            
-            // Filter by status
-            if (showActive && !showPending) {
-                filteredUsers = filteredUsers.filter(user => user.status === 'active');
-            } else if (!showActive && showPending) {
-                filteredUsers = filteredUsers.filter(user => user.status === 'pending');
-            }
-            
-            // Filter by pending balance
-            if (showPending) {
-                filteredUsers = filteredUsers.filter(user => user.pending > 0);
-            }
-            
-            renderUsers(filteredUsers);
-        }
-        
-        // Auto-refresh users every 30 seconds
-        setInterval(loadRealUsers, 30000);
-        
-        // Initial load
-        loadRealUsers();
     </script>
 </body>
 </html>
