@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset X-BET Data</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        button { padding: 10px 20px; margin: 10px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 X-BET Data Reset</h1>
+        <p>This will reset ALL data and create fresh admin accounts.</p>
+        
+        <button onclick="resetData()">Reset All Data</button>
+        <button onclick="checkData()">Check Current Data</button>
+        
+        <div id="result"></div>
+        <div id="currentData"></div>
+    </div>
+
+    <script>
+        function resetData() {
+            // Clear all localStorage
+            localStorage.clear();
+            
+            // Create admin accounts
+            const adminAccounts = {
+                'admin_master': { password: 'MasterAdmin2024!', balance: 50000.00, role: 'Head Administrator' },
+                'finance_manager': { password: 'Finance14M$2024', balance: 14000000.00, role: 'Finance Manager' },
+                'support_admin': { password: 'SupportAdmin789!', balance: 50000.00, role: 'Support Admin' },
+                'admin_tech': { password: 'TechAdmin2024!', balance: 0.00, role: 'Technical Admin' },
+                'admin_support2': { password: 'Support2Admin2024!', balance: 0.00, role: 'Support Admin 2' }
+            };
+
+            const registeredUsers = {};
+            
+            Object.keys(adminAccounts).forEach(admin => {
+                const adminData = adminAccounts[admin];
+                
+                // Save to registeredUsers
+                registeredUsers[admin] = adminData.password;
+                
+                // Create admin user data
+                const adminUserData = {
+                    balance: adminData.balance,
+                    pendingWithdrawals: 0.00,
+                    totalProfit: 0.00,
+                    email: admin + '@xbet.com',
+                    transactions: [{
+                        type: 'System Allocation',
+                        amount: adminData.balance,
+                        status: 'completed',
+                        date: new Date().toISOString(),
+                        details: 'Admin system fund allocation'
+                    }],
+                    bets: [],
+                    isAdmin: true,
+                    role: adminData.role,
+                    registeredAt: new Date().toISOString(),
+                    lastLogin: new Date().toISOString()
+                };
+                
+                localStorage.setItem('userData_' + admin, JSON.stringify(adminUserData));
+            });
+
+            // Save registeredUsers
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+            
+            // Create test regular users
+            const testUsers = {
+                'testuser1': 'password123',
+                'testuser2': 'password123', 
+                'testuser3': 'password123',
+                'xbebbet': 'password123'
+            };
+
+            Object.keys(testUsers).forEach(user => {
+                registeredUsers[user] = testUsers[user];
+                
+                const userData = {
+                    balance: 100.00,
+                    pendingWithdrawals: 0.00,
+                    totalProfit: 0.00,
+                    email: user + '@test.com',
+                    transactions: [{
+                        type: 'Test Deposit',
+                        amount: 100.00,
+                        status: 'completed',
+                        date: new Date().toISOString(),
+                        details: 'Test account setup'
+                    }],
+                    bets: [],
+                    registeredAt: new Date().toISOString(),
+                    lastLogin: new Date().toISOString()
+                };
+                
+                localStorage.setItem('userData_' + user, JSON.stringify(userData));
+            });
+
+            // Update registeredUsers with test users
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+            
+            document.getElementById('result').innerHTML = 
+                '<p class="success">✅ Data reset successful! Created 5 admin accounts and 4 test users.</p>';
+            
+            checkData();
+        }
+
+        function checkData() {
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            let output = '<h3>Current Data:</h3>';
+            
+            output += `<p><strong>Total Users in registeredUsers:</strong> ${Object.keys(registeredUsers).length}</p>`;
+            output += `<p><strong>Users:</strong> ${Object.keys(registeredUsers).join(', ')}</p>`;
+            
+            // Check userData_ entries
+            let userDataCount = 0;
+            let userDataUsers = [];
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('userData_')) {
+                    userDataCount++;
+                    const username = key.replace('userData_', '');
+                    userDataUsers.push(username);
+                }
+            }
+            
+            output += `<p><strong>Total userData_ entries:</strong> ${userDataCount}</p>`;
+            output += `<p><strong>userData Users:</strong> ${userDataUsers.join(', ')}</p>`;
+            
+            document.getElementById('currentData').innerHTML = output;
+        }
+
+        // Check data on load
+        checkData();
+    </script>
+</body>
+</html>
