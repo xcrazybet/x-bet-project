@@ -3,76 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET - Admin Control Panel</title>
+    <title>X-BET - Admin Panel</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: #0f1419;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
             color: white;
             min-height: 100vh;
         }
 
         .navbar {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+            border-bottom: 2px solid #e74c3c;
         }
 
-        .logo h1 {
-            font-size: 24px;
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e74c3c;
+            text-decoration: none;
         }
 
-        .logo span {
-            color: #ffeb3b;
-        }
-
-        .user-info {
+        .admin-info {
             display: flex;
             align-items: center;
-            gap: 15px;
-        }
-
-        .admin-badge {
-            background: #e74c3c;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .manager-badge {
-            background: #f39c12;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
+            gap: 1rem;
         }
 
         .logout-btn {
-            background: rgba(255,255,255,0.1);
+            background: #e74c3c;
             color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 8px 15px;
+            border: none;
+            padding: 0.5rem 1rem;
             border-radius: 5px;
             cursor: pointer;
-            transition: all 0.3s;
         }
 
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
-        .dashboard-content {
-            padding: 30px;
+        .admin-container {
+            padding: 2rem;
             max-width: 1400px;
             margin: 0 auto;
         }
@@ -80,803 +58,529 @@
         .admin-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
-        .stat-card {
-            background: linear-gradient(135deg, #1e2a3a, #2d3b4e);
-            padding: 25px;
+        .admin-stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             text-align: center;
-            border: 1px solid #34495e;
+            backdrop-filter: blur(10px);
         }
 
-        .stat-card.manager {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-            border-color: #f1c40f;
-        }
-
-        .stat-card h3 {
-            color: #bdc3c7;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .stat-card .number {
-            font-size: 28px;
+        .admin-stat-value {
+            font-size: 1.8rem;
             font-weight: bold;
-            color: white;
+            color: #e74c3c;
+            margin: 0.5rem 0;
         }
 
-        .stat-card .balance {
-            font-size: 32px;
-            font-weight: bold;
-            color: #2ecc71;
-        }
-
-        .admin-panels {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .panel {
-            background: #1e2a3a;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            border: 1px solid #34495e;
-        }
-
-        .panel h2 {
-            margin-bottom: 20px;
-            color: white;
-            border-bottom: 2px solid #b21f1f;
-            padding-bottom: 10px;
+        .tabs {
             display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            border-bottom-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .user-list, .transaction-list {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .user-item, .transaction-item {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
+        }
+
+        .action-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+
+        .action-btn.success {
+            background: #27ae60;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 1rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #bdc3c7;
-            font-weight: bold;
+            margin-bottom: 0.5rem;
         }
 
         .form-group input, .form-group select {
             width: 100%;
-            padding: 12px;
-            background: #2d3b4e;
-            border: 1px solid #34495e;
-            border-radius: 5px;
-            font-size: 14px;
-            color: white;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #b21f1f;
-        }
-
-        .btn {
-            padding: 12px 20px;
+            padding: 0.75rem;
             border: none;
             border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            margin-right: 10px;
-            margin-bottom: 10px;
+            background: rgba(255,255,255,0.9);
         }
 
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #219653;
-        }
-
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #2980b9;
-        }
-
-        .btn-warning {
-            background: #f39c12;
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background: #e67e22;
-        }
-
-        .btn-danger {
+        .submit-btn {
             background: #e74c3c;
             color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-
-        .btn-manager {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-            color: white;
-            font-weight: bold;
-        }
-
-        .btn-manager:hover {
-            background: linear-gradient(135deg, #e67e22, #d35400);
-        }
-
-        .transaction-table {
-            width: 100%;
-            background: #2d3b4e;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-            margin-top: 20px;
-        }
-
-        .transaction-table th,
-        .transaction-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #34495e;
-        }
-
-        .transaction-table th {
-            background: #1a2a6c;
-            font-weight: bold;
-            color: white;
-        }
-
-        .status-pending {
-            color: #f39c12;
-            font-weight: bold;
-        }
-
-        .status-completed {
-            color: #2ecc71;
-            font-weight: bold;
-        }
-
-        .status-rejected {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-
-        .message {
-            padding: 12px;
+            border: none;
+            padding: 1rem 2rem;
             border-radius: 5px;
-            margin: 10px 0;
-            text-align: center;
-            display: none;
-        }
-
-        .message.success {
-            background: #27ae60;
-            color: white;
-        }
-
-        .message.error {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-        }
-
-        .system-controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .control-card {
-            background: #2d3b4e;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #34495e;
             cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .control-card:hover {
-            background: #34495e;
-            transform: translateY(-2px);
-        }
-
-        .financial-overview {
-            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
-            padding: 25px;
-            border-radius: 10px;
-            margin-top: 30px;
-        }
-
-        .financial-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            width: 100%;
+            margin-top: 1rem;
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">
-            <h1>X-<span>BET</span> Admin Control</h1>
-        </div>
-        <div class="user-info">
-            <span>Welcome, <span id="currentAdmin">Admin</span></span>
-            <span id="adminBadge" class="admin-badge">ADMIN</span>
-            <span id="managerBadge" class="manager-badge" style="display: none;">MANAGER</span>
-            <button class="logout-btn" onclick="logout()">Logout</button>
+        <a href="admin.html" class="logo">X-BET Admin Panel</a>
+        <div class="admin-info">
+            <span>Welcome, <span id="adminName"></span></span>
+            <button class="logout-btn" onclick="adminLogout()">Logout</button>
         </div>
     </nav>
 
-    <div class="dashboard-content">
-        <!-- Admin Statistics -->
+    <div class="admin-container">
         <div class="admin-stats">
-            <div class="stat-card manager" id="managerCard" style="display: none;">
-                <h3>Manager Balance</h3>
-                <div class="balance" id="managerBalance">$0.00</div>
-                <div style="font-size: 12px; color: #f1c40f; margin-top: 5px;">Full System Control</div>
-            </div>
-            <div class="stat-card">
+            <div class="admin-stat-card">
                 <h3>Total Users</h3>
-                <div class="number" id="totalUsers">0</div>
+                <div class="admin-stat-value" id="totalUsers">0</div>
             </div>
-            <div class="stat-card">
-                <h3>Pending Requests</h3>
-                <div class="number" id="pendingRequests">0</div>
-            </div>
-            <div class="stat-card">
+            <div class="admin-stat-card">
                 <h3>System Balance</h3>
-                <div class="number" id="systemBalance">$0</div>
+                <div class="admin-stat-value" id="systemBalance">$0.00</div>
             </div>
-            <div class="stat-card">
-                <h3>Active Today</h3>
-                <div class="number" id="activeToday">0</div>
-            </div>
-        </div>
-
-        <div class="admin-panels">
-            <!-- Left Panel: User Management -->
-            <div class="panel">
-                <h2>👑 User Account Management</h2>
-                
-                <div class="form-group">
-                    <label for="selectedUser">Select User</label>
-                    <select id="selectedUser">
-                        <option value="">Select a user</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="adminAmount">Amount ($)</label>
-                    <input type="number" id="adminAmount" placeholder="Enter amount" min="1" step="0.01">
-                </div>
-                
-                <div class="form-group">
-                    <label for="adminTransactionCode">Transaction Code</label>
-                    <input type="text" id="adminTransactionCode" placeholder="Enter transaction code">
-                </div>
-                
-                <div>
-                    <button class="btn btn-success" onclick="processDeposit()">💰 Process Deposit</button>
-                    <button class="btn btn-primary" onclick="processWithdrawal()">💳 Process Withdrawal</button>
-                    <button class="btn btn-warning" onclick="viewUserDetails()">👁️ View Details</button>
-                    <button class="btn btn-manager" id="managerTransferBtn" style="display: none;" onclick="showManagerTransfer()">🏦 Manager Transfer</button>
-                </div>
-                
-                <div class="message" id="adminMessage"></div>
-
-                <!-- User Details Display -->
-                <div id="userDetails" style="display: none; margin-top: 20px; padding: 15px; background: #2d3b4e; border-radius: 5px;">
-                    <h4>User Details</h4>
-                    <div id="userDetailsContent"></div>
-                </div>
-
-                <!-- Manager Transfer Section -->
-                <div id="managerTransfer" style="display: none; margin-top: 20px; padding: 15px; background: #34495e; border-radius: 5px;">
-                    <h4>🏦 Manager Fund Transfer</h4>
-                    <div class="form-group">
-                        <label for="transferAmount">Transfer Amount ($)</label>
-                        <input type="number" id="transferAmount" placeholder="Enter amount" min="1" step="0.01">
-                    </div>
-                    <div class="form-group">
-                        <label for="transferNote">Transfer Note</label>
-                        <input type="text" id="transferNote" placeholder="Purpose of transfer">
-                    </div>
-                    <button class="btn btn-manager" onclick="processManagerTransfer()">Execute Transfer</button>
-                </div>
-            </div>
-
-            <!-- Right Panel: Pending Requests -->
-            <div class="panel">
-                <h2>⏳ Pending Withdrawal Requests</h2>
-                <div class="transaction-table">
-                    <table style="width: 100%;">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Amount</th>
-                                <th>Transaction Code</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pendingRequestsTable">
-                            <tr>
-                                <td colspan="5" style="text-align: center;">No pending requests</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="admin-stat-card">
+                <h3>Pending Withdrawals</h3>
+                <div class="admin-stat-value" id="totalPending">$0.00</div>
             </div>
         </div>
 
-        <!-- System Controls -->
-        <div class="panel">
-            <h2>⚙️ System Administration</h2>
-            <div class="system-controls">
-                <div class="control-card" onclick="viewAllUsers()">
-                    <h4>👥 All Users</h4>
-                    <p>View complete user list</p>
-                </div>
-                <div class="control-card" onclick="viewTransactionLog()">
-                    <h4>📊 System Logs</h4>
-                    <p>Audit trail & logs</p>
-                </div>
-                <div class="control-card" onclick="backupSystem()">
-                    <h4>💾 Backup</h4>
-                    <p>Create system backup</p>
-                </div>
-                <div class="control-card" onclick="systemReport()">
-                    <h4>📈 Reports</h4>
-                    <p>Generate reports</p>
-                </div>
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('users')">👥 Users</button>
+            <button class="tab" onclick="switchTab('transactions')">💳 Transactions</button>
+            <button class="tab" onclick="switchTab('withdrawals')">💰 Withdrawals</button>
+        </div>
+
+        <div id="usersTab" class="tab-content active">
+            <div class="user-list" id="usersList">
+                <!-- Users will be loaded here -->
             </div>
         </div>
 
-        <!-- Financial Overview -->
-        <div class="financial-overview">
-            <h2>💰 Financial Overview</h2>
-            <div class="financial-stats">
-                <div class="stat-card">
-                    <h3>Total Deposits</h3>
-                    <div class="number">$84,500</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Total Withdrawals</h3>
-                    <div class="number">$42,300</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Net Profit</h3>
-                    <div class="number" style="color: #2ecc71;">$42,200</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Active Users</h3>
-                    <div class="number">127</div>
-                </div>
+        <div id="transactionsTab" class="tab-content">
+            <div class="transaction-list" id="allTransactions">
+                <!-- All transactions will be loaded here -->
+            </div>
+        </div>
+
+        <div id="withdrawalsTab" class="tab-content">
+            <div class="transaction-list" id="pendingWithdrawals">
+                <!-- Pending withdrawals will be loaded here -->
             </div>
         </div>
     </div>
 
+    <!-- Deposit Modal -->
+    <div id="depositModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('depositModal')">&times;</span>
+            <h2>💳 Deposit to User</h2>
+            <form id="depositForm">
+                <input type="hidden" id="depositUsername">
+                <div class="form-group">
+                    <label>Amount ($)</label>
+                    <input type="number" id="depositAmount" min="1" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="depositDescription" placeholder="Deposit reason" required>
+                </div>
+                <button type="submit" class="submit-btn">Process Deposit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Withdrawal Modal -->
+    <div id="withdrawalModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('withdrawalModal')">&times;</span>
+            <h2>💰 Process Withdrawal</h2>
+            <form id="withdrawalForm">
+                <input type="hidden" id="withdrawalUsername">
+                <input type="hidden" id="withdrawalAmount">
+                <input type="hidden" id="withdrawalIndex">
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="withdrawalStatus" required>
+                        <option value="completed">Completed</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <input type="text" id="withdrawalNotes" placeholder="Processing notes">
+                </div>
+                <button type="submit" class="submit-btn">Update Withdrawal</button>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // Admin data
-        let currentAdmin = '';
-        let isManager = false;
-        let adminData = {};
-
         // Check admin authentication
-        function checkAdminAuth() {
-            const isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn');
-            currentAdmin = localStorage.getItem('currentAdmin');
-            
-            if (!isAdminLoggedIn || isAdminLoggedIn !== 'true' || !currentAdmin) {
-                alert('Admin authentication required!');
-                window.location.href = 'login.html';
-                return false;
-            }
-            
-            document.getElementById('currentAdmin').textContent = currentAdmin;
-            
-            // Check if manager
-            isManager = currentAdmin === 'finance_manager';
-            if (isManager) {
-                document.getElementById('managerBadge').style.display = 'inline-block';
-                document.getElementById('adminBadge').style.display = 'none';
-                document.getElementById('managerCard').style.display = 'block';
-                document.getElementById('managerTransferBtn').style.display = 'inline-block';
-            }
-            
-            loadAdminData();
-            return true;
-        }
-
-        // Load admin data
-        function loadAdminData() {
-            const savedData = localStorage.getItem('userData_' + currentAdmin);
-            if (savedData) {
-                adminData = JSON.parse(savedData);
-                updateAdminDashboard();
-            }
-        }
-
-        // Update admin dashboard
-        function updateAdminDashboard() {
-            // Update manager balance
-            if (isManager) {
-                document.getElementById('managerBalance').textContent = '$' + adminData.balance.toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
-            }
-            
-            // Update stats
-            loadUserList();
-            loadPendingRequests();
-            updateSystemStats();
-        }
-
-        // Update system statistics
-        function updateSystemStats() {
-            const users = ['john_doe', 'sarah_w', 'mike_t'];
-            let totalBalance = 0;
-            
-            users.forEach(user => {
-                const userData = getUserData(user);
-                totalBalance += userData.balance;
-            });
-            
-            // Add admin balances
-            const admins = ['admin_master', 'finance_manager', 'support_admin'];
-            admins.forEach(admin => {
-                const adminData = getUserData(admin);
-                totalBalance += adminData.balance;
-            });
-            
-            document.getElementById('totalUsers').textContent = users.length;
-            document.getElementById('systemBalance').textContent = '$' + totalBalance.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-        }
-
-        // Load user list
-        function loadUserList() {
-            const users = ['john_doe', 'sarah_w', 'mike_t'];
-            const select = document.getElementById('selectedUser');
-            
-            select.innerHTML = '<option value="">Select a user</option>';
-            users.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user;
-                option.textContent = user;
-                select.appendChild(option);
-            });
-        }
-
-        // Get user data
-        function getUserData(username) {
-            const userDataStr = localStorage.getItem('userData_' + username);
-            if (userDataStr) {
-                return JSON.parse(userDataStr);
-            }
-            
-            // Default user data
-            return {
-                balance: 1500.00,
-                pendingWithdrawals: 0.00,
-                totalProfit: 350.00,
-                transactions: [],
-                bets: []
-            };
-        }
-
-        // Load pending requests
-        function loadPendingRequests() {
-            const pendingRequests = JSON.parse(localStorage.getItem('pendingRequests') || '[]');
-            const table = document.getElementById('pendingRequestsTable');
-            
-            document.getElementById('pendingRequests').textContent = pendingRequests.filter(r => r.status === 'pending').length;
-            
-            if (pendingRequests.length === 0) {
-                table.innerHTML = '<tr><td colspan="5" style="text-align: center;">No pending requests</td></tr>';
-                return;
-            }
-            
-            let html = '';
-            pendingRequests.forEach(request => {
-                if (request.status === 'pending') {
-                    html += `
-                        <tr>
-                            <td><strong>${request.user}</strong></td>
-                            <td>$${request.amount.toFixed(2)}</td>
-                            <td>${request.code}</td>
-                            <td>${new Date(request.date).toLocaleDateString()}</td>
-                            <td class="action-buttons">
-                                <button class="btn btn-success" onclick="approveRequest(${request.id})">Approve</button>
-                                <button class="btn btn-danger" onclick="rejectRequest(${request.id})">Reject</button>
-                            </td>
-                        </tr>
-                    `;
-                }
-            });
-            
-            table.innerHTML = html || '<tr><td colspan="5" style="text-align: center;">No pending requests</td></tr>';
-        }
-
-        // Process deposit for user
-        function processDeposit() {
-            const user = document.getElementById('selectedUser').value;
-            const amount = parseFloat(document.getElementById('adminAmount').value);
-            const code = document.getElementById('adminTransactionCode').value.trim();
-            const messageEl = document.getElementById('adminMessage');
-            
-            if (!user || !amount || amount <= 0 || !code) {
-                showMessage(messageEl, 'Please fill all fields correctly', 'error');
-                return;
-            }
-            
-            const userData = getUserData(user);
-            
-            // Process deposit
-            userData.balance += amount;
-            
-            // Add transaction
-            userData.transactions.push({
-                type: 'Deposit',
-                amount: amount,
-                status: 'completed',
-                code: code,
-                date: new Date().toISOString(),
-                processedBy: currentAdmin
-            });
-            
-            // Save user data
-            localStorage.setItem('userData_' + user, JSON.stringify(userData));
-            
-            showMessage(messageEl, `✅ Deposited $${amount.toFixed(2)} to ${user}`, 'success');
-            clearAdminForm();
-            updateSystemStats();
-        }
-
-        // Process withdrawal for user
-        function processWithdrawal() {
-            const user = document.getElementById('selectedUser').value;
-            const amount = parseFloat(document.getElementById('adminAmount').value);
-            const code = document.getElementById('adminTransactionCode').value.trim();
-            const messageEl = document.getElementById('adminMessage');
-            
-            if (!user || !amount || amount <= 0 || !code) {
-                showMessage(messageEl, 'Please fill all fields correctly', 'error');
-                return;
-            }
-            
-            const userData = getUserData(user);
-            
-            if (amount > userData.balance) {
-                showMessage(messageEl, 'User has insufficient balance', 'error');
-                return;
-            }
-            
-            // Process withdrawal
-            userData.balance -= amount;
-            
-            // Add transaction
-            userData.transactions.push({
-                type: 'Withdrawal',
-                amount: amount,
-                status: 'completed',
-                code: code,
-                date: new Date().toISOString(),
-                processedBy: currentAdmin
-            });
-            
-            localStorage.setItem('userData_' + user, JSON.stringify(userData));
-            
-            showMessage(messageEl, `✅ Processed withdrawal of $${amount.toFixed(2)} for ${user}`, 'success');
-            clearAdminForm();
-            updateSystemStats();
-        }
-
-        // Manager transfer functions
-        function showManagerTransfer() {
-            if (!isManager) {
-                showMessage(document.getElementById('adminMessage'), 'Manager access required', 'error');
-                return;
-            }
-            
-            document.getElementById('managerTransfer').style.display = 'block';
-        }
-
-        function processManagerTransfer() {
-            const amount = parseFloat(document.getElementById('transferAmount').value);
-            const note = document.getElementById('transferNote').value.trim();
-            const messageEl = document.getElementById('adminMessage');
-            
-            if (!amount || amount <= 0) {
-                showMessage(messageEl, 'Please enter a valid amount', 'error');
-                return;
-            }
-            
-            if (amount > adminData.balance) {
-                showMessage(messageEl, 'Insufficient manager balance', 'error');
-                return;
-            }
-            
-            // Process manager transfer
-            adminData.balance -= amount;
-            
-            // Add transaction
-            adminData.transactions.push({
-                type: 'Manager Transfer',
-                amount: amount,
-                status: 'completed',
-                date: new Date().toISOString(),
-                details: note || 'Manager fund allocation'
-            });
-            
-            localStorage.setItem('userData_finance_manager', JSON.stringify(adminData));
-            
-            showMessage(messageEl, `✅ Manager transfer of $${amount.toFixed(2)} processed`, 'success');
-            document.getElementById('transferAmount').value = '';
-            document.getElementById('transferNote').value = '';
-            updateAdminDashboard();
-        }
-
-        // View user details
-        function viewUserDetails() {
-            const user = document.getElementById('selectedUser').value;
-            if (!user) {
-                showMessage(document.getElementById('adminMessage'), 'Please select a user', 'error');
-                return;
-            }
-            
-            const userData = getUserData(user);
-            const detailsDiv = document.getElementById('userDetails');
-            const contentDiv = document.getElementById('userDetailsContent');
-            
-            contentDiv.innerHTML = `
-                <p><strong>Username:</strong> ${user}</p>
-                <p><strong>Balance:</strong> $${userData.balance.toFixed(2)}</p>
-                <p><strong>Pending Withdrawals:</strong> $${userData.pendingWithdrawals.toFixed(2)}</p>
-                <p><strong>Total Profit:</strong> $${userData.totalProfit.toFixed(2)}</p>
-                <p><strong>Total Transactions:</strong> ${userData.transactions.length}</p>
-                <p><strong>Active Bets:</strong> ${userData.bets.filter(bet => bet.status === 'active').length}</p>
-            `;
-            
-            detailsDiv.style.display = 'block';
-        }
-
-        // Approve withdrawal request
-        function approveRequest(requestId) {
-            const pendingRequests = JSON.parse(localStorage.getItem('pendingRequests') || '[]');
-            const request = pendingRequests.find(r => r.id === requestId);
-            
-            if (request) {
-                request.status = 'completed';
-                request.processedBy = currentAdmin;
-                request.processedAt = new Date().toISOString();
-                
-                localStorage.setItem('pendingRequests', JSON.stringify(pendingRequests));
-                loadPendingRequests();
-                updateSystemStats();
-                
-                showMessage(document.getElementById('adminMessage'), `✅ Withdrawal approved for ${request.user}`, 'success');
-            }
-        }
-
-        // Reject withdrawal request
-        function rejectRequest(requestId) {
-            const pendingRequests = JSON.parse(localStorage.getItem('pendingRequests') || '[]');
-            const request = pendingRequests.find(r => r.id === requestId);
-            
-            if (request) {
-                // Return funds to user
-                const userData = getUserData(request.user);
-                userData.balance += request.amount;
-                userData.pendingWithdrawals -= request.amount;
-                
-                // Update transaction status
-                const transaction = userData.transactions.find(t => 
-                    t.code === request.code && t.status === 'pending'
-                );
-                
-                if (transaction) {
-                    transaction.status = 'rejected';
-                    transaction.processedBy = currentAdmin;
-                }
-                
-                // Update request status
-                request.status = 'rejected';
-                request.processedBy = currentAdmin;
-                request.processedAt = new Date().toISOString();
-                
-                localStorage.setItem('userData_' + request.user, JSON.stringify(userData));
-                localStorage.setItem('pendingRequests', JSON.stringify(pendingRequests));
-                
-                loadPendingRequests();
-                updateSystemStats();
-                
-                showMessage(document.getElementById('adminMessage'), `❌ Withdrawal rejected for ${request.user}`, 'success');
-            }
-        }
-
-        // System control functions
-        function viewAllUsers() {
-            const users = ['john_doe', 'sarah_w', 'mike_t'];
-            let userList = 'Complete User List:\n\n';
-            
-            users.forEach(user => {
-                const userData = getUserData(user);
-                userList += `${user}: $${userData.balance.toFixed(2)} | ${userData.transactions.length} transactions\n`;
-            });
-            
-            alert(userList);
-        }
-
-        function viewTransactionLog() {
-            alert('System logs exported to console');
-            console.log('=== SYSTEM TRANSACTION LOG ===');
-        }
-
-        function backupSystem() {
-            showMessage(document.getElementById('adminMessage'), '✅ System backup created successfully', 'success');
-        }
-
-        function systemReport() {
-            showMessage(document.getElementById('adminMessage'), '📊 System report generated', 'success');
-        }
-
-        // Utility functions
-        function showMessage(element, message, type) {
-            element.textContent = message;
-            element.className = `message ${type}`;
-            element.style.display = 'block';
-            
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 5000);
-        }
-
-        function clearAdminForm() {
-            document.getElementById('adminAmount').value = '';
-            document.getElementById('adminTransactionCode').value = '';
-        }
-
-        function logout() {
-            localStorage.removeItem('isAdminLoggedIn');
-            localStorage.removeItem('currentAdmin');
+        const currentAdmin = localStorage.getItem('currentAdmin');
+        if (!currentAdmin) {
             window.location.href = 'login.html';
         }
 
-        // Initialize admin dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            if (!checkAdminAuth()) return;
+        document.getElementById('adminName').textContent = currentAdmin;
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function loadAdminData() {
+            loadUsers();
+            loadAllTransactions();
+            loadPendingWithdrawals();
+            updateAdminStats();
+        }
+
+        function loadUsers() {
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            const usersList = document.getElementById('usersList');
+            const users = Object.keys(registeredUsers).filter(user => 
+                !['admin_master', 'finance_manager', 'support_admin'].includes(user)
+            );
+
+            if (users.length === 0) {
+                usersList.innerHTML = '<p>No registered users yet.</p>';
+                return;
+            }
+
+            usersList.innerHTML = users.map(user => {
+                const userData = JSON.parse(localStorage.getItem('userData_' + user) || '{}');
+                return `
+                    <div class="user-item">
+                        <div>
+                            <strong>${user}</strong>
+                            <div>Balance: $${(userData.balance || 0).toFixed(2)}</div>
+                            <div>Email: ${userData.email || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <button class="action-btn" onclick="openDepositModal('${user}')">Deposit</button>
+                            <button class="action-btn" onclick="viewUserTransactions('${user}')">Transactions</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadAllTransactions() {
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            const allTransactions = document.getElementById('allTransactions');
+            let allTx = [];
+
+            Object.keys(registeredUsers).forEach(user => {
+                const userData = JSON.parse(localStorage.getItem('userData_' + user) || '{}');
+                const transactions = userData.transactions || [];
+                transactions.forEach(tx => {
+                    tx.username = user;
+                    allTx.push(tx);
+                });
+            });
+
+            allTx.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (allTx.length === 0) {
+                allTransactions.innerHTML = '<p>No transactions found.</p>';
+                return;
+            }
+
+            allTransactions.innerHTML = allTx.map(tx => `
+                <div class="transaction-item">
+                    <div>
+                        <strong>${tx.username}</strong>
+                        <div>${tx.type}: $${Math.abs(tx.amount).toFixed(2)}</div>
+                        <small>${new Date(tx.date).toLocaleDateString()} - ${tx.status}</small>
+                        ${tx.details ? `<div>${tx.details}</div>` : ''}
+                    </div>
+                    <div style="color: ${tx.amount >= 0 ? '#2ecc71' : '#e74c3c'}">
+                        ${tx.amount >= 0 ? '+' : ''}$${Math.abs(tx.amount).toFixed(2)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadPendingWithdrawals() {
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            const pendingWithdrawals = document.getElementById('pendingWithdrawals');
+            let pending = [];
+
+            Object.keys(registeredUsers).forEach(user => {
+                const userData = JSON.parse(localStorage.getItem('userData_' + user) || '{}');
+                const transactions = userData.transactions || [];
+                transactions.forEach((tx, index) => {
+                    if (tx.type === 'Withdrawal Request' && tx.status === 'pending') {
+                        tx.username = user;
+                        tx.transactionIndex = index;
+                        pending.push(tx);
+                    }
+                });
+            });
+
+            if (pending.length === 0) {
+                pendingWithdrawals.innerHTML = '<p>No pending withdrawals.</p>';
+                return;
+            }
+
+            pendingWithdrawals.innerHTML = pending.map(tx => `
+                <div class="transaction-item">
+                    <div>
+                        <strong>${tx.username}</strong>
+                        <div>Amount: $${Math.abs(tx.amount).toFixed(2)}</div>
+                        <div>Method: ${tx.paymentMethod}</div>
+                        <div>Account: ${tx.accountDetails}</div>
+                        <small>Requested: ${new Date(tx.date).toLocaleDateString()}</small>
+                    </div>
+                    <div>
+                        <button class="action-btn success" onclick="openWithdrawalModal('${tx.username}', ${Math.abs(tx.amount)}, ${tx.transactionIndex})">Process</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateAdminStats() {
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            const users = Object.keys(registeredUsers).filter(user => 
+                !['admin_master', 'finance_manager', 'support_admin'].includes(user)
+            );
+            
+            document.getElementById('totalUsers').textContent = users.length;
+            
+            // Calculate system balance from finance_manager
+            const financeData = JSON.parse(localStorage.getItem('userData_finance_manager') || '{}');
+            document.getElementById('systemBalance').textContent = '$' + (financeData.balance || 0).toFixed(2);
+            
+            // Calculate total pending withdrawals
+            let totalPending = 0;
+            Object.keys(registeredUsers).forEach(user => {
+                const userData = JSON.parse(localStorage.getItem('userData_' + user) || '{}');
+                totalPending += userData.pendingWithdrawals || 0;
+            });
+            document.getElementById('totalPending').textContent = '$' + totalPending.toFixed(2);
+        }
+
+        function openDepositModal(username) {
+            document.getElementById('depositUsername').value = username;
+            document.getElementById('depositModal').style.display = 'block';
+        }
+
+        function openWithdrawalModal(username, amount, index) {
+            document.getElementById('withdrawalUsername').value = username;
+            document.getElementById('withdrawalAmount').value = amount;
+            document.getElementById('withdrawalIndex').value = index;
+            document.getElementById('withdrawalModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Deposit form handler
+        document.getElementById('depositForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('depositUsername').value;
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const description = document.getElementById('depositDescription').value;
+            
+            const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
+            const financeData = JSON.parse(localStorage.getItem('userData_finance_manager') || '{}');
+            
+            // Check if finance manager has enough balance
+            if (financeData.balance < amount) {
+                alert('Insufficient system funds!');
+                return;
+            }
+            
+            // Update user balance
+            userData.balance = (userData.balance || 0) + amount;
+            
+            // Add transaction to user
+            if (!userData.transactions) userData.transactions = [];
+            userData.transactions.push({
+                type: 'Admin Deposit',
+                amount: amount,
+                status: 'completed',
+                date: new Date().toISOString(),
+                details: description
+            });
+            
+            // Update finance manager balance
+            financeData.balance -= amount;
+            financeData.transactions.push({
+                type: 'User Deposit',
+                amount: -amount,
+                status: 'completed',
+                date: new Date().toISOString(),
+                details: `Deposit to ${username}: ${description}`
+            });
+            
+            localStorage.setItem('userData_' + username, JSON.stringify(userData));
+            localStorage.setItem('userData_finance_manager', JSON.stringify(financeData));
+            
+            alert(`Successfully deposited $${amount} to ${username}`);
+            closeModal('depositModal');
+            loadAdminData();
         });
+
+        // Withdrawal form handler
+        document.getElementById('withdrawalForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('withdrawalUsername').value;
+            const amount = parseFloat(document.getElementById('withdrawalAmount').value);
+            const status = document.getElementById('withdrawalStatus').value;
+            const notes = document.getElementById('withdrawalNotes').value;
+            const index = parseInt(document.getElementById('withdrawalIndex').value);
+            
+            const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
+            const financeData = JSON.parse(localStorage.getItem('userData_finance_manager') || '{}');
+            
+            // Update transaction status
+            userData.transactions[index].status = status;
+            userData.transactions[index].details += ` | Processed: ${notes}`;
+            
+            if (status === 'completed') {
+                // Remove from pending withdrawals
+                userData.pendingWithdrawals = (userData.pendingWithdrawals || 0) - amount;
+                
+                // Add to finance manager transactions
+                financeData.transactions.push({
+                    type: 'Withdrawal Processed',
+                    amount: -amount,
+                    status: 'completed',
+                    date: new Date().toISOString(),
+                    details: `Withdrawal for ${username}: ${notes}`
+                });
+            } else if (status === 'rejected') {
+                // Refund balance to user
+                userData.balance = (userData.balance || 0) + amount;
+                userData.pendingWithdrawals = (userData.pendingWithdrawals || 0) - amount;
+                
+                userData.transactions.push({
+                    type: 'Withdrawal Refund',
+                    amount: amount,
+                    status: 'completed',
+                    date: new Date().toISOString(),
+                    details: `Refund for rejected withdrawal: ${notes}`
+                });
+            }
+            
+            localStorage.setItem('userData_' + username, JSON.stringify(userData));
+            localStorage.setItem('userData_finance_manager', JSON.stringify(financeData));
+            
+            alert(`Withdrawal ${status} for ${username}`);
+            closeModal('withdrawalModal');
+            loadAdminData();
+        });
+
+        function viewUserTransactions(username) {
+            const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
+            const transactions = userData.transactions || [];
+            
+            let txList = `Transactions for ${username}:\n\n`;
+            transactions.forEach(tx => {
+                txList += `${new Date(tx.date).toLocaleDateString()} - ${tx.type}: $${Math.abs(tx.amount).toFixed(2)} (${tx.status})\n`;
+                if (tx.details) txList += `Details: ${tx.details}\n`;
+                txList += '\n';
+            });
+            
+            alert(txList);
+        }
+
+        function adminLogout() {
+            localStorage.removeItem('isAdminLoggedIn');
+            localStorage.removeItem('currentAdmin');
+            window.location.href = 'index.html';
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Initialize admin panel
+        loadAdminData();
     </script>
 </body>
 </html>
