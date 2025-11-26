@@ -239,6 +239,25 @@
             font-size: 0.9rem;
             border-left: 4px solid #e74c3c;
         }
+
+        .refresh-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .user-count {
+            background: rgba(52, 152, 219, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -271,10 +290,12 @@
         </div>
 
         <!-- Debug Information -->
-        <div class="debug-info" id="debugInfo" style="display: none;">
+        <div class="debug-info" id="debugInfo">
             <strong>Debug Info:</strong> 
-            <span id="debugText"></span>
+            <span id="debugText">Loading...</span>
         </div>
+
+        <button class="refresh-btn" onclick="loadAdminData()">🔄 Refresh Data</button>
 
         <div class="tabs">
             <button class="tab active" onclick="switchTab('users')">👥 All Users</button>
@@ -285,6 +306,7 @@
 
         <div id="usersTab" class="tab-content active">
             <input type="text" class="search-box" id="userSearch" placeholder="🔍 Search users..." onkeyup="searchUsers()">
+            <div class="user-count" id="userCount">Loading users...</div>
             <div class="user-list" id="usersList">
                 Loading users...
             </div>
@@ -298,12 +320,14 @@
 
         <div id="transactionsTab" class="tab-content">
             <input type="text" class="search-box" id="transactionSearch" placeholder="🔍 Search transactions..." onkeyup="searchTransactions()">
+            <div class="user-count" id="transactionCount">Loading transactions...</div>
             <div class="transaction-list" id="allTransactions">
                 Loading transactions...
             </div>
         </div>
 
         <div id="withdrawalsTab" class="tab-content">
+            <div class="user-count" id="withdrawalCount">Loading withdrawals...</div>
             <div class="transaction-list" id="pendingWithdrawals">
                 Loading pending withdrawals...
             </div>
@@ -394,14 +418,14 @@
 
         document.getElementById('adminName').textContent = currentAdmin;
 
-// Admin credentials - FIXED: Only these are admins
-const ADMIN_USERS = {
-    'admin_master': 'MasterAdmin2024!',
-    'finance_manager': 'Finance14M$2024', 
-    'support_admin': 'SupportAdmin789!',
-    'admin_tech': 'TechAdmin2024!',
-    'admin_support2': 'Support2Admin2024!'
-};
+        // Admin credentials - FIXED: Only these are admins
+        const ADMIN_USERS = {
+            'admin_master': 'MasterAdmin2024!',
+            'finance_manager': 'Finance14M$2024', 
+            'support_admin': 'SupportAdmin789!',
+            'admin_tech': 'TechAdmin2024!',
+            'admin_support2': 'Support2Admin2024!'
+        };
 
         function switchTab(tabName) {
             // Hide all tabs
@@ -424,6 +448,7 @@ const ADMIN_USERS = {
         }
 
         function loadAdminData() {
+            console.log('🔄 Loading all admin data...');
             loadUsers();
             loadAdmins();
             loadAllTransactions();
@@ -431,36 +456,53 @@ const ADMIN_USERS = {
             updateAdminStats();
         }
 
-        function loadUsers() {
-            console.log('Loading users...');
-            
+        function getAllUsersFromStorage() {
+            // Method 1: Get from registeredUsers
             const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            console.log('📝 Registered users from localStorage:', registeredUsers);
+            
+            // Method 2: Scan all userData_ keys to find additional users
+            const allUsers = new Set(Object.keys(registeredUsers));
+            
+            // Scan localStorage for userData_ keys
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('userData_')) {
+                    const username = key.replace('userData_', '');
+                    if (username && !ADMIN_USERS[username]) {
+                        allUsers.add(username);
+                    }
+                }
+            }
+            
+            console.log('👥 All users found:', Array.from(allUsers));
+            return Array.from(allUsers);
+        }
+
+        function loadUsers() {
+            console.log('👥 Loading users...');
+            
+            const allUsers = getAllUsersFromStorage();
             const usersList = document.getElementById('usersList');
-            
-            // DEBUG: Show what's in localStorage
-            const debugInfo = document.getElementById('debugInfo');
-            const debugText = document.getElementById('debugText');
-            
-            console.log('All registered users:', registeredUsers);
-            
-            // Get ALL users from registeredUsers
-            const allUsers = Object.keys(registeredUsers);
-            console.log('All user keys:', allUsers);
+            const userCount = document.getElementById('userCount');
             
             // Filter out ONLY the predefined admin users
             const regularUsers = allUsers.filter(user => !ADMIN_USERS[user]);
-            console.log('Regular users after filter:', regularUsers);
+            console.log('✅ Regular users after filter:', regularUsers);
+
+            // Update debug info
+            const debugText = document.getElementById('debugText');
+            debugText.innerHTML = `Found ${allUsers.length} total users in system, ${regularUsers.length} regular users after filtering ${Object.keys(ADMIN_USERS).length} admins. Users: ${regularUsers.join(', ')}`;
             
-            debugText.innerHTML = `Found ${allUsers.length} total users, ${regularUsers.length} regular users after filtering admins`;
-            debugInfo.style.display = 'block';
+            // Update user count
+            userCount.textContent = `Showing ${regularUsers.length} regular users`;
 
             if (regularUsers.length === 0) {
                 usersList.innerHTML = `
                     <div style="text-align: center; padding: 2rem; opacity: 0.7;">
                         <h3>No regular users found</h3>
-                        <p>Total users in system: ${allUsers.length}</p>
-                        <p>Admin users: ${Object.keys(ADMIN_USERS).join(', ')}</p>
-                        <p>All users: ${allUsers.join(', ')}</p>
+                        <p>Try creating some test users through the signup page.</p>
+                        <p>Admins: ${Object.keys(ADMIN_USERS).join(', ')}</p>
                     </div>
                 `;
                 return;
@@ -499,7 +541,9 @@ const ADMIN_USERS = {
                 const adminData = JSON.parse(localStorage.getItem('userData_' + admin) || '{}');
                 const role = adminData.role || 
                     (admin === 'admin_master' ? 'Head Administrator' : 
-                     admin === 'finance_manager' ? 'Finance Manager' : 'Support Admin');
+                     admin === 'finance_manager' ? 'Finance Manager' : 
+                     admin === 'support_admin' ? 'Support Admin' :
+                     admin === 'admin_tech' ? 'Technical Admin' : 'Support Admin 2');
                 
                 return `
                     <div class="admin-item">
@@ -519,12 +563,13 @@ const ADMIN_USERS = {
         }
 
         function loadAllTransactions() {
-            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            const allUsers = getAllUsersFromStorage();
             const allTransactions = document.getElementById('allTransactions');
+            const transactionCount = document.getElementById('transactionCount');
             let allTx = [];
 
             // Get transactions from ALL users (including admins)
-            Object.keys(registeredUsers).forEach(user => {
+            allUsers.forEach(user => {
                 const userData = JSON.parse(localStorage.getItem('userData_' + user) || '{}');
                 const transactions = userData.transactions || [];
                 transactions.forEach(tx => {
@@ -536,6 +581,8 @@ const ADMIN_USERS = {
 
             // Sort by date (newest first)
             allTx.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            transactionCount.textContent = `Showing ${allTx.length} total transactions`;
 
             if (allTx.length === 0) {
                 allTransactions.innerHTML = '<div style="text-align: center; padding: 2rem; opacity: 0.7;">No transactions found.</div>';
@@ -566,12 +613,13 @@ const ADMIN_USERS = {
         }
 
         function loadPendingWithdrawals() {
-            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            const allUsers = getAllUsersFromStorage();
             const pendingWithdrawals = document.getElementById('pendingWithdrawals');
+            const withdrawalCount = document.getElementById('withdrawalCount');
             let pending = [];
 
             // Check ALL users for pending withdrawals
-            Object.keys(registeredUsers).forEach(user => {
+            allUsers.forEach(user => {
                 // Skip admin users for withdrawals
                 if (ADMIN_USERS[user]) return;
                 
@@ -585,6 +633,8 @@ const ADMIN_USERS = {
                     }
                 });
             });
+
+            withdrawalCount.textContent = `Showing ${pending.length} pending withdrawals`;
 
             if (pending.length === 0) {
                 pendingWithdrawals.innerHTML = '<div style="text-align: center; padding: 2rem; opacity: 0.7;">No pending withdrawals.</div>';
@@ -610,8 +660,7 @@ const ADMIN_USERS = {
         }
 
         function updateAdminStats() {
-            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-            const allUsers = Object.keys(registeredUsers);
+            const allUsers = getAllUsersFromStorage();
             const regularUsers = allUsers.filter(user => !ADMIN_USERS[user]);
             
             document.getElementById('totalUsers').textContent = regularUsers.length;
@@ -695,7 +744,9 @@ const ADMIN_USERS = {
             const adminData = JSON.parse(localStorage.getItem('userData_' + admin) || '{}');
             const role = adminData.role || 
                 (admin === 'admin_master' ? 'Head Administrator' : 
-                 admin === 'finance_manager' ? 'Finance Manager' : 'Support Admin');
+                 admin === 'finance_manager' ? 'Finance Manager' : 
+                 admin === 'support_admin' ? 'Support Admin' :
+                 admin === 'admin_tech' ? 'Technical Admin' : 'Support Admin 2');
             
             alert(`👑 Admin Details:\n\n👤 Username: ${admin}\n🎯 Role: ${role}\n💰 Balance: $${(adminData.balance || 0).toFixed(2)}\n💳 Transactions: ${(adminData.transactions || []).length}\n🔐 Last Login: ${adminData.lastLogin ? new Date(adminData.lastLogin).toLocaleDateString() : 'Never'}`);
         }
@@ -718,8 +769,6 @@ const ADMIN_USERS = {
                 txList += '─'.repeat(30) + '\n';
             });
             
-            // Show in alert but also log to console for debugging
-            console.log(`Transactions for ${username}:`, transactions);
             alert(txList);
         }
 
@@ -850,28 +899,36 @@ const ADMIN_USERS = {
             const searchTerm = document.getElementById('userSearch').value.toLowerCase();
             const userItems = document.querySelectorAll('.user-item');
             
+            let visibleCount = 0;
             userItems.forEach(item => {
                 const username = item.getAttribute('data-username').toLowerCase();
                 if (username.includes(searchTerm)) {
                     item.style.display = 'flex';
+                    visibleCount++;
                 } else {
                     item.style.display = 'none';
                 }
             });
+            
+            document.getElementById('userCount').textContent = `Showing ${visibleCount} users (filtered)`;
         }
 
         function searchTransactions() {
             const searchTerm = document.getElementById('transactionSearch').value.toLowerCase();
             const transactionItems = document.querySelectorAll('.transaction-item');
             
+            let visibleCount = 0;
             transactionItems.forEach(item => {
                 const text = item.textContent.toLowerCase();
                 if (text.includes(searchTerm)) {
                     item.style.display = 'flex';
+                    visibleCount++;
                 } else {
                     item.style.display = 'none';
                 }
             });
+            
+            document.getElementById('transactionCount').textContent = `Showing ${visibleCount} transactions (filtered)`;
         }
 
         function adminLogout() {
@@ -889,6 +946,9 @@ const ADMIN_USERS = {
 
         // Initialize admin panel
         loadAdminData();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadAdminData, 30000);
     </script>
 </body>
 </html>
