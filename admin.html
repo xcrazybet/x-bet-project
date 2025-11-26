@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET Admin Panel</title>
+    <title>X-BET Admin - Fix Permissions</title>
     <style>
         :root {
             --primary: #1a1f36;
@@ -47,32 +47,63 @@
             margin-bottom: 10px;
         }
         
-        .debug-panel {
+        .permission-fix {
             background: var(--secondary);
-            padding: 20px;
+            padding: 25px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             border-left: 4px solid var(--warning);
         }
         
-        .debug-panel h3 {
+        .permission-fix h3 {
             color: var(--warning);
             margin-bottom: 15px;
+            font-size: 1.5rem;
         }
         
-        .debug-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+        .steps {
+            background: var(--primary);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .step {
             margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 5px;
+        }
+        
+        .step-number {
+            background: var(--accent);
+            color: var(--primary);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .code-block {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            border-left: 4px solid var(--accent);
         }
         
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-weight: 600;
+            margin: 5px;
         }
         
         .btn-primary {
@@ -84,11 +115,6 @@
             background: var(--primary);
             color: var(--text);
             border: 1px solid var(--border);
-        }
-        
-        .btn-success {
-            background: var(--success);
-            color: white;
         }
         
         .stats-grid {
@@ -116,6 +142,7 @@
             background: var(--secondary);
             border-radius: 10px;
             overflow: hidden;
+            margin-top: 20px;
         }
         
         .table-header {
@@ -161,23 +188,55 @@
     <div class="container">
         <div class="header">
             <h1>X-BET Admin Panel</h1>
-            <p>Firebase Database Setup & User Management</p>
+            <p>Firebase Permission Fix Required</p>
         </div>
 
-        <!-- Debug Panel -->
-        <div class="debug-panel">
-            <h3>🔧 Database Setup Required</h3>
-            <p>Your Firebase database doesn't have a users collection yet. Let's set it up:</p>
+        <!-- Permission Fix Instructions -->
+        <div class="permission-fix">
+            <h3>🔐 Firebase Permission Error Detected</h3>
+            <p>Your Firebase Firestore has security rules that block write operations. Here's how to fix it:</p>
             
-            <div class="debug-buttons">
-                <button class="btn btn-success" onclick="createUsersCollection()">1. Create Users Collection</button>
-                <button class="btn btn-primary" onclick="addSampleUsers()">2. Add Sample Users</button>
-                <button class="btn btn-secondary" onclick="checkDatabaseStructure()">3. Check Database</button>
-                <button class="btn btn-primary" onclick="loadUsersFromFirebase()">4. Load Users</button>
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    Go to <a href="https://console.firebase.google.com/" target="_blank" style="color: var(--accent);">Firebase Console</a>
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">2</span>
+                    Select your project: <strong>x-bet-prod-jd</strong>
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">3</span>
+                    Go to <strong>Firestore Database</strong> → <strong>Rules</strong>
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <strong>Replace the current rules</strong> with this temporary development rules:
+                    
+                    <div class="code-block">
+rules_version = '2';<br>
+service cloud.firestore {<br>
+&nbsp;&nbsp;match /databases/{database}/documents {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;match /{document=**} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read, write: if true;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <span class="step-number">5</span>
+                    Click <strong>Publish</strong> to save the rules
+                </div>
             </div>
             
-            <div id="debug-info" style="background: var(--primary); padding: 15px; border-radius: 5px; margin-top: 15px; font-family: monospace; font-size: 12px;">
-                Click "Check Database" to see your current structure
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="testConnection()">Test Connection After Fix</button>
+                <button class="btn btn-secondary" onclick="loadUsersReadOnly()">Try Read-Only Mode</button>
             </div>
         </div>
 
@@ -208,9 +267,16 @@
             </div>
             <div id="users-container">
                 <div class="loading">
-                    Click "Create Users Collection" to get started
+                    Fix permissions above to see users
                 </div>
             </div>
+        </div>
+
+        <!-- Demo Data Section -->
+        <div style="margin-top: 40px; padding: 20px; background: var(--secondary); border-radius: 10px;">
+            <h3 style="color: var(--accent); margin-bottom: 15px;">🔄 Temporary Demo Mode</h3>
+            <p>While fixing permissions, you can use demo data:</p>
+            <button class="btn btn-primary" onclick="loadDemoData()">Load Demo Users</button>
         </div>
     </div>
 
@@ -234,124 +300,82 @@
             try {
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
-                showNotification('✅ Connected to Firebase successfully!', 'success');
-                checkDatabaseStructure();
+                showNotification('✅ Firebase connected! Checking permissions...', 'success');
+                testConnection();
             } catch (error) {
-                showNotification('❌ Firebase connection failed: ' + error.message, 'error');
+                showNotification('❌ Firebase connection failed', 'error');
             }
         });
 
-        // Check database structure
-        async function checkDatabaseStructure() {
-            const debugInfo = document.getElementById('debug-info');
-            debugInfo.innerHTML = '🔍 Scanning database collections...';
+        // Test connection and permissions
+        async function testConnection() {
+            showNotification('🔍 Testing database permissions...', 'warning');
             
             try {
-                // Get all collections
-                const collections = await db.listCollections();
-                let collectionsInfo = '<strong>📁 Found Collections:</strong><br>';
+                // Test read permission
+                const testRead = await db.collection('test').limit(1).get();
+                showNotification('✅ Read permissions: OK', 'success');
                 
-                if (collections.length === 0) {
-                    collectionsInfo += 'No collections found. Database is empty.<br>';
+                // Test write permission
+                const testDoc = db.collection('test').doc('permission-test');
+                await testDoc.set({ 
+                    test: true, 
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+                });
+                await testDoc.delete();
+                showNotification('✅ Write permissions: OK', 'success');
+                
+                // If we get here, permissions are fixed
+                loadUsersFromFirebase();
+                
+            } catch (error) {
+                if (error.code === 'permission-denied') {
+                    showNotification('❌ Permission denied. Please update Firestore rules.', 'error');
                 } else {
-                    collections.forEach(collection => {
-                        collectionsInfo += `• ${collection.id}<br>`;
+                    showNotification('❌ Connection error: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Try to load users in read-only mode
+        async function loadUsersReadOnly() {
+            try {
+                showNotification('🔍 Trying to read users...', 'warning');
+                const usersSnapshot = await db.collection('users').get();
+                
+                if (usersSnapshot.empty) {
+                    showNotification('📭 No users found in database', 'warning');
+                } else {
+                    realUsers = [];
+                    usersSnapshot.forEach(doc => {
+                        realUsers.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
                     });
+                    renderUsers(realUsers);
+                    showNotification(`✅ Read ${realUsers.length} users successfully`, 'success');
                 }
                 
-                debugInfo.innerHTML = collectionsInfo;
-                showNotification('✅ Database scan completed', 'success');
-                
             } catch (error) {
-                debugInfo.innerHTML = `❌ Error scanning database: ${error.message}`;
-                showNotification('❌ Error scanning database', 'error');
+                if (error.code === 'permission-denied') {
+                    showNotification('❌ Read permission denied. Update Firestore rules.', 'error');
+                } else {
+                    showNotification('❌ Error: ' + error.message, 'error');
+                }
             }
         }
 
-        // Create users collection
-        async function createUsersCollection() {
-            try {
-                // Create a sample user to initialize the collection
-                const sampleUser = {
-                    email: "admin@xbet.com",
-                    displayName: "Admin User",
-                    balance: 0,
-                    profit: 0,
-                    status: "active",
-                    isAdmin: true,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                await db.collection('users').doc('admin-user').set(sampleUser);
-                showNotification('✅ Users collection created successfully!', 'success');
-                checkDatabaseStructure();
-                loadUsersFromFirebase();
-                
-            } catch (error) {
-                showNotification('❌ Error creating collection: ' + error.message, 'error');
-            }
-        }
-
-        // Add sample users
-        async function addSampleUsers() {
-            try {
-                const sampleUsers = [
-                    {
-                        email: "xherbbet@zbet.com",
-                        displayName: "xherbbet",
-                        balance: 1500.00,
-                        profit: 500.00,
-                        status: "active",
-                        isAdmin: false,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    },
-                    {
-                        email: "player1@example.com",
-                        displayName: "john_doe",
-                        balance: 2500.50,
-                        profit: 1200.75,
-                        status: "active",
-                        isAdmin: false,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    },
-                    {
-                        email: "player2@example.com",
-                        displayName: "alice_smith",
-                        balance: 500.00,
-                        profit: 150.25,
-                        status: "inactive",
-                        isAdmin: false,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    }
-                ];
-
-                const batch = db.batch();
-                
-                sampleUsers.forEach((user, index) => {
-                    const userRef = db.collection('users').doc('user-' + (index + 1));
-                    batch.set(userRef, user);
-                });
-
-                await batch.commit();
-                showNotification('✅ Sample users added successfully!', 'success');
-                loadUsersFromFirebase();
-                
-            } catch (error) {
-                showNotification('❌ Error adding sample users: ' + error.message, 'error');
-            }
-        }
-
-        // Load users from Firebase
+        // Load users with full access
         async function loadUsersFromFirebase() {
             try {
                 const usersContainer = document.getElementById('users-container');
-                usersContainer.innerHTML = '<div class="loading">Loading users...</div>';
+                usersContainer.innerHTML = '<div class="loading">Loading users from Firebase...</div>';
 
                 const usersSnapshot = await db.collection('users').get();
                 
                 if (usersSnapshot.empty) {
-                    usersContainer.innerHTML = '<div class="loading">No users found. Click "Add Sample Users" to create some.</div>';
+                    usersContainer.innerHTML = '<div class="loading">No users found. Ready to add users.</div>';
                     updateUserStats(0);
                     return;
                 }
@@ -372,6 +396,27 @@
             }
         }
 
+        // Add sample user (for testing write permissions)
+        async function addSampleUser() {
+            try {
+                const sampleUser = {
+                    email: "test@xbet.com",
+                    displayName: "Test User",
+                    balance: 1000,
+                    profit: 500,
+                    status: "active",
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                await db.collection('users').doc('test-user').set(sampleUser);
+                showNotification('✅ Sample user added successfully!', 'success');
+                loadUsersFromFirebase();
+                
+            } catch (error) {
+                showNotification('❌ Cannot add user: ' + error.message, 'error');
+            }
+        }
+
         // Render users
         function renderUsers(users) {
             const usersContainer = document.getElementById('users-container');
@@ -384,7 +429,7 @@
                 userRow.innerHTML = `
                     <div>
                         <strong>${user.displayName || 'No Name'}</strong><br>
-                        <small>${user.email}</small>
+                        <small>${user.email || 'No Email'}</small>
                     </div>
                     <div>$${(user.balance || 0).toFixed(2)}</div>
                     <div>${user.status || 'unknown'}</div>
@@ -408,12 +453,47 @@
             document.getElementById('active-users').textContent = realUsers.filter(user => user.status === 'active').length;
         }
 
+        // Load demo data
+        function loadDemoData() {
+            realUsers = [
+                {
+                    id: 'demo-1',
+                    email: "xherbbet@zbet.com",
+                    displayName: "xherbbet",
+                    balance: 1500.00,
+                    profit: 500.00,
+                    status: "active",
+                    createdAt: { seconds: Date.now() / 1000 }
+                },
+                {
+                    id: 'demo-2',
+                    email: "player1@example.com",
+                    displayName: "john_doe", 
+                    balance: 2500.50,
+                    profit: 1200.75,
+                    status: "active",
+                    createdAt: { seconds: Date.now() / 1000 - 86400 }
+                },
+                {
+                    id: 'demo-3',
+                    email: "player2@example.com",
+                    displayName: "alice_smith",
+                    balance: 500.00,
+                    profit: 150.25,
+                    status: "inactive",
+                    createdAt: { seconds: Date.now() / 1000 - 172800 }
+                }
+            ];
+            
+            renderUsers(realUsers);
+            showNotification('✅ Demo users loaded', 'success');
+        }
+
         // Transfer function
         function transferToUser(userId, userEmail) {
             const amount = prompt(`Enter amount to transfer to ${userEmail}:`);
             if (amount && !isNaN(amount)) {
                 showNotification(`✅ Transferring $${amount} to ${userEmail}`, 'success');
-                // Add your transaction logic here
             }
         }
 
