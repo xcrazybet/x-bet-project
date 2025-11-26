@@ -13,54 +13,22 @@
         }
 
         body {
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             color: white;
             min-height: 100vh;
         }
 
-        /* Loading Screen */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 215, 0, 0.3);
-            border-top: 5px solid #ffd700;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Navigation */
         .navbar {
             background: rgba(0, 0, 0, 0.9);
             padding: 1rem 2rem;
-            display: none;
+            display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(10px);
             border-bottom: 2px solid #ffd700;
         }
 
         .logo {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: #ffd700;
             text-decoration: none;
@@ -68,7 +36,7 @@
 
         .nav-links {
             display: flex;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .nav-links a {
@@ -81,966 +49,391 @@
 
         .nav-links a:hover {
             background: rgba(255, 215, 0, 0.2);
-            color: #ffd700;
-        }
-
-        .user-section {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(45deg, #ff6b6b, #ffd700);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        .user-details {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .user-email {
-            color: #ffd700;
-            font-size: 0.9rem;
-        }
-
-        .user-balance {
-            color: #4CAF50;
-            font-weight: bold;
-            font-size: 1rem;
         }
 
         .logout-btn {
-            background: transparent;
-            color: #ffd700;
-            border: 2px solid #ffd700;
-            padding: 0.5rem 1.5rem;
-            border-radius: 25px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background 0.3s ease;
         }
 
         .logout-btn:hover {
-            background: #ffd700;
-            color: #000;
+            background: #c0392b;
         }
 
-        /* Dashboard Content */
-        .dashboard {
+        .dashboard-container {
             padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
-            display: none;
         }
 
         .welcome-section {
             text-align: center;
             margin-bottom: 3rem;
+            background: rgba(255,255,255,0.1);
             padding: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-        }
-
-        .welcome-title {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: #ffd700;
-        }
-
-        /* User ID Section */
-        .user-id-section {
-            background: linear-gradient(135deg, #ff6b6b, #ffd700);
-            padding: 1.5rem;
             border-radius: 15px;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .user-id-display {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin: 1rem 0;
-        }
-
-        .user-id {
-            font-size: 1.5rem;
-            font-weight: bold;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 0.5rem 1rem;
-            border-radius: 10px;
-            font-family: monospace;
-        }
-
-        .copy-btn {
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .copy-btn:hover {
-            background: rgba(0, 0, 0, 0.7);
-        }
-
-        /* Balance Cards */
-        .balance-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .balance-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 2rem;
-            border-radius: 20px;
-            text-align: center;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .balance-card h3 {
-            margin-bottom: 1rem;
-            opacity: 0.9;
-        }
-
-        .balance-amount {
-            font-size: 3rem;
-            font-weight: bold;
-            margin: 1rem 0;
-        }
-
-        /* Quick Actions */
-        .quick-actions {
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
             margin-bottom: 3rem;
         }
 
-        .action-card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            border-radius: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            text-decoration: none;
-            color: white;
-            display: block;
-        }
-
-        .action-card:hover {
-            transform: translateY(-10px);
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            text-decoration: none;
-        }
-
-        .action-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        /* Transaction Section */
-        .transaction-section {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            border-radius: 15px;
-            margin-bottom: 3rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .transaction-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 1.5rem;
-        }
-
-        .transaction-btn {
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .deposit-btn {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-        }
-
-        .withdraw-btn {
-            background: linear-gradient(45deg, #ff6b6b, #e55050);
-            color: white;
-        }
-
-        .transaction-btn:hover {
-            transform: scale(1.05);
-        }
-
-        /* Games Grid */
-        .games-section {
-            margin-top: 3rem;
-        }
-
-        .section-title {
-            font-size: 2rem;
-            margin-bottom: 2rem;
-            color: #ffd700;
-            text-align: center;
-        }
-
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .game-card {
-            background: rgba(255, 255, 255, 0.1);
+        .stat-card {
+            background: rgba(255,255,255,0.1);
             padding: 1.5rem;
-            border-radius: 15px;
-            text-align: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .game-card:hover {
-            transform: scale(1.05);
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .game-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .play-btn {
-            background: linear-gradient(45deg, #ff6b6b, #ffd700);
-            color: black;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 1rem;
-            transition: transform 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .play-btn:hover {
-            transform: scale(1.1);
-            color: black;
-            text-decoration: none;
-        }
-
-        /* Footer */
-        footer {
-            background: rgba(0, 0, 0, 0.9);
-            padding: 3rem 2rem;
-            text-align: center;
-            margin-top: 4rem;
-            border-top: 2px solid #ffd700;
-            display: none;
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .social-icon {
-            color: #ffd700;
-            font-size: 1.5rem;
-            text-decoration: none;
-            transition: transform 0.3s ease;
-        }
-
-        .social-icon:hover {
-            transform: scale(1.2);
-        }
-
-        .copyright {
-            opacity: 0.7;
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #4CAF50;
-            color: white;
-            padding: 1rem 2rem;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 1001;
-            display: none;
-            animation: slideIn 0.3s ease;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 0.5rem 0;
         }
 
-        /* Modal */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .transactions-section {
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .transaction-item {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #ffd700;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .transaction-positive {
+            border-left-color: #2ecc71;
+        }
+
+        .transaction-negative {
+            border-left-color: #e74c3c;
+        }
+
         .modal {
             display: none;
             position: fixed;
-            top: 0;
+            z-index: 1000;
             left: 0;
+            top: 0;
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.8);
-            z-index: 1002;
-            align-items: center;
-            justify-content: center;
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
             background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            margin: 10% auto;
             padding: 2rem;
             border-radius: 15px;
             width: 90%;
-            max-width: 400px;
-            text-align: center;
+            max-width: 500px;
+            position: relative;
         }
 
-        .modal input {
+        .close {
+            color: white;
+            float: right;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input, .form-group select {
             width: 100%;
-            padding: 1rem;
-            margin: 1rem 0;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 1rem;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
             background: rgba(255,255,255,0.9);
         }
 
-        .modal-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-
-        .modal-btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .confirm-btn {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .cancel-btn {
-            background: #ff6b6b;
-            color: white;
-        }
-
-        /* Transaction History */
-        .transaction-history {
-            background: rgba(255,255,255,0.1);
-            padding: 1rem;
-            border-radius: 10px;
-            margin-top: 1rem;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .transaction-item {
-            background: rgba(255,255,255,0.1);
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .transaction-type {
-            font-weight: bold;
-        }
-
-        .transaction-deposit {
-            color: #4CAF50;
-        }
-
-        .transaction-withdrawal {
-            color: #ff6b6b;
-        }
-
-        /* Transaction Code Section */
-        .transaction-code-section {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1.5rem;
-            border-radius: 15px;
-            margin: 2rem 0;
-            backdrop-filter: blur(10px);
-        }
-
-        .code-display {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 1rem;
-            border-radius: 10px;
-            margin: 1rem 0;
-        }
-
-        .code-value {
-            font-family: monospace;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #ffd700;
-        }
-
-        .generate-btn {
-            background: linear-gradient(45deg, #ff6b6b, #ffd700);
+        .submit-btn {
+            background: #ffd700;
             color: black;
             border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 25px;
+            padding: 1rem 2rem;
+            border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            transition: transform 0.3s ease;
-        }
-
-        .generate-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .code-instructions {
-            font-size: 0.9rem;
-            color: #ccc;
+            width: 100%;
             margin-top: 1rem;
         }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-spinner"></div>
-        <p>Loading Dashboard...</p>
+    <nav class="navbar">
+        <a href="dashboard.html" class="logo">X-BET Dashboard</a>
+        <div class="nav-links">
+            <a href="games.html">🎮 Games</a>
+            <a href="#transactions">💳 Transactions</a>
+            <a href="#withdraw">💰 Withdraw</a>
+        </div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="welcome-section">
+            <h1>Welcome, <span id="usernameDisplay"></span>! 🎉</h1>
+            <p>Your gaming adventure starts here</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Current Balance</h3>
+                <div class="stat-value" id="currentBalance">$0.00</div>
+                <p>Available for betting</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Profit</h3>
+                <div class="stat-value" id="totalProfit">$0.00</div>
+                <p>All time earnings</p>
+            </div>
+            <div class="stat-card">
+                <h3>Pending Withdrawals</h3>
+                <div class="stat-value" id="pendingWithdrawals">$0.00</div>
+                <p>Awaiting processing</p>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="action-btn" onclick="openDepositModal()">💳 Deposit Funds</button>
+            <button class="action-btn" onclick="openWithdrawModal()">💰 Withdraw Money</button>
+            <a href="games.html" class="action-btn">🎮 Play Games</a>
+            <button class="action-btn" onclick="contactAdmin()">👑 Contact Admin</button>
+        </div>
+
+        <div class="transactions-section">
+            <h2>Recent Transactions</h2>
+            <div id="transactionsList">
+                <!-- Transactions will be loaded here -->
+            </div>
+        </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div class="toast" id="toast"></div>
-
     <!-- Deposit Modal -->
-    <div class="modal" id="depositModal">
+    <div id="depositModal" class="modal">
         <div class="modal-content">
-            <h3>💰 Deposit Request</h3>
-            <p>Enter amount and transaction code</p>
-            <input type="number" id="depositAmount" class="transaction-input" placeholder="Enter amount ($)" min="1" step="0.01">
-            <input type="text" id="depositCode" class="transaction-input" placeholder="Enter transaction code" maxlength="8">
-            <div class="modal-buttons">
-                <button class="modal-btn confirm-btn" onclick="processDeposit()">Request Deposit</button>
-                <button class="modal-btn cancel-btn" onclick="closeModal('depositModal')">Cancel</button>
+            <span class="close" onclick="closeDepositModal()">&times;</span>
+            <h2>💳 Deposit Funds</h2>
+            <p>Contact admins to deposit money to your account</p>
+            <div class="info-box" style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                <h4>Admin Contacts:</h4>
+                <p>📞 Finance Manager: +1234567890</p>
+                <p>📧 Email: finance@xbet.com</p>
+                <p>💬 Telegram: @xbet_finance</p>
             </div>
+            <button class="submit-btn" onclick="closeDepositModal()">Understood</button>
         </div>
     </div>
 
     <!-- Withdraw Modal -->
-    <div class="modal" id="withdrawModal">
+    <div id="withdrawModal" class="modal">
         <div class="modal-content">
-            <h3>💰 Withdrawal Request</h3>
-            <p>Enter amount and transaction code</p>
-            <input type="number" id="withdrawAmount" class="transaction-input" placeholder="Enter amount ($)" min="1" step="0.01">
-            <input type="text" id="withdrawCode" class="transaction-input" placeholder="Enter transaction code" maxlength="8">
-            <div class="modal-buttons">
-                <button class="modal-btn confirm-btn" onclick="processWithdrawal()">Request Withdrawal</button>
-                <button class="modal-btn cancel-btn" onclick="closeModal('withdrawModal')">Cancel</button>
-            </div>
+            <span class="close" onclick="closeWithdrawModal()">&times;</span>
+            <h2>💰 Withdraw Funds</h2>
+            <form id="withdrawForm">
+                <div class="form-group">
+                    <label>Amount to Withdraw ($)</label>
+                    <input type="number" id="withdrawAmount" min="1" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="paymentMethod" required>
+                        <option value="">Select method</option>
+                        <option value="bank">Bank Transfer</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="crypto">Cryptocurrency</option>
+                        <option value="skrill">Skrill</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Account Details</label>
+                    <input type="text" id="accountDetails" placeholder="Your account number/email" required>
+                </div>
+                <button type="submit" class="submit-btn">Request Withdrawal</button>
+            </form>
         </div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="navbar" id="navbar">
-        <a href="dashboard.html" class="logo">X-BET</a>
-        <div class="nav-links">
-            <a href="dashboard.html" style="background: rgba(255, 215, 0, 0.2); color: #ffd700;">Dashboard</a>
-            <a href="games.html">🎮 Games</a>
-            <a href="bits.html">💰 Bits</a>
-            <a href="contact.html">📞 Contact</a>
-            <a href="about.html">ℹ️ About</a>
-        </div>
-        <div class="user-section">
-            <div class="user-info">
-                <div class="user-avatar" id="userAvatar">U</div>
-                <div class="user-details">
-                    <span class="user-email" id="userEmail">user@example.com</span>
-                    <span class="user-balance" id="headerBalance">$0.00</span>
-                </div>
-            </div>
-            <button class="logout-btn" onclick="logout()">Logout</button>
-        </div>
-    </nav>
-
-    <!-- Dashboard Content -->
-    <div class="dashboard" id="dashboardContent">
-        <!-- Welcome Section -->
-        <div class="welcome-section">
-            <h1 class="welcome-title">🎮 Welcome to Your Dashboard!</h1>
-            <p>Ready to play and win amazing rewards? Choose your game and start your journey!</p>
-        </div>
-
-        <!-- User ID Section -->
-        <div class="user-id-section">
-            <h3>💰 Your Unique User ID</h3>
-            <p>Use this ID for instant transactions with admins</p>
-            <div class="user-id-display">
-                <span class="user-id" id="userIdDisplay">Loading...</span>
-                <button class="copy-btn" onclick="copyUserId()">Copy ID</button>
-            </div>
-            <small>Share this ID with admins for instant deposits and withdrawals</small>
-        </div>
-
-        <!-- Transaction Code Section -->
-        <div class="transaction-code-section">
-            <h3 style="color: #ffd700; margin-bottom: 1rem;">🔐 Transaction Security Code</h3>
-            <p>Generate a unique code for secure transactions with admins</p>
-            <div class="code-display">
-                <span class="code-value" id="transactionCode">Click Generate</span>
-                <button class="generate-btn" onclick="generateTransactionCode()">Generate Code</button>
-            </div>
-            <div class="code-instructions">
-                💡 Share this code with admins when requesting deposits or withdrawals. 
-                Code expires in 1 hour for security.
-            </div>
-        </div>
-
-        <!-- Balance Section -->
-        <div class="balance-section">
-            <div class="balance-card">
-                <h3>💰 Available Balance</h3>
-                <div class="balance-amount" id="userBalance">$0.00</div>
-                <p>Start playing to increase your balance!</p>
-            </div>
-            <div class="balance-card">
-                <h3>🏆 Total Wins</h3>
-                <div class="balance-amount" id="totalWins">$0.00</div>
-                <p>Your total earnings so far</p>
-            </div>
-            <div class="balance-card">
-                <h3>⭐ Player Level</h3>
-                <div class="balance-amount" id="playerLevel">1</div>
-                <p>New Player - Keep playing to level up!</p>
-            </div>
-        </div>
-
-        <!-- Transaction Section -->
-        <div class="transaction-section">
-            <h3 style="text-align: center; margin-bottom: 1rem; color: #ffd700;">💳 Secure Transactions</h3>
-            <p style="text-align: center; margin-bottom: 1rem;">Request deposits or withdrawals using transaction codes</p>
-            <div class="transaction-buttons">
-                <button class="transaction-btn deposit-btn" onclick="openDepositModal()">Request Deposit</button>
-                <button class="transaction-btn withdraw-btn" onclick="openWithdrawModal()">Request Withdrawal</button>
-            </div>
-            
-            <!-- Recent Transactions -->
-            <div class="transaction-history" id="recentTransactions">
-                <h4 style="margin-bottom: 1rem; color: #ffd700;">Recent Transactions</h4>
-                <div id="transactionList">
-                    <!-- Transactions will appear here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <a href="games.html" class="action-card">
-                <div class="action-icon">🎯</div>
-                <h3>Play Games</h3>
-                <p>Explore our exciting game collection</p>
-            </a>
-            <a href="bits.html" class="action-card">
-                <div class="action-icon">💰</div>
-                <h3>Earn Bits</h3>
-                <p>Discover ways to earn rewards</p>
-            </a>
-            <a href="contact.html" class="action-card">
-                <div class="action-icon">📞</div>
-                <h3>Contact Support</h3>
-                <p>Get help from our support team</p>
-            </a>
-            <a href="about.html" class="action-card">
-                <div class="action-icon">ℹ️</div>
-                <h3>About Us</h3>
-                <p>Learn more about X-BET</p>
-            </a>
-        </div>
-
-        <!-- Popular Games -->
-        <div class="games-section">
-            <h2 class="section-title">🔥 Popular Games</h2>
-            <div class="games-grid">
-                <div class="game-card">
-                    <div class="game-icon">🎯</div>
-                    <h3>Lucky Dice</h3>
-                    <p>Test your luck with classic dice rolling</p>
-                    <a href="games.html" class="play-btn">Play Now</a>
-                </div>
-                <div class="game-card">
-                    <div class="game-icon">🃏</div>
-                    <h3>Card Master</h3>
-                    <p>Strategic card games for smart players</p>
-                    <a href="games.html" class="play-btn">Play Now</a>
-                </div>
-                <div class="game-card">
-                    <div class="game-icon">🎰</div>
-                    <h3>Fortune Slots</h3>
-                    <p>Spin to win massive jackpots</p>
-                    <a href="games.html" class="play-btn">Play Now</a>
-                </div>
-                <div class="game-card">
-                    <div class="game-icon">⚽</div>
-                    <h3>Sports Predict</h3>
-                    <p>Predict scores and win big</p>
-                    <a href="games.html" class="play-btn">Play Now</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer id="footer">
-        <div class="social-links">
-            <a href="#" class="social-icon">📘</a>
-            <a href="#" class="social-icon">📷</a>
-            <a href="#" class="social-icon">🐦</a>
-            <a href="#" class="social-icon">💬</a>
-        </div>
-        <div class="copyright">
-            &copy; 2024 Crazy X Bet. All rights reserved.
-        </div>
-    </footer>
-
-    <script src="common-header.js"></script>
     <script>
-        // User data storage with transaction code support
-        let userData = {
-            balance: 0,
-            totalWins: 0,
-            playerLevel: 1,
-            userId: '',
-            transactions: [],
-            transactionCode: '',
-            codeExpiry: null
-        };
-
-        // Show loading screen initially
-        const loadingScreen = document.getElementById('loadingScreen');
-        const navbar = document.getElementById('navbar');
-        const dashboardContent = document.getElementById('dashboardContent');
-        const footer = document.getElementById('footer');
-
         // Check authentication
-        function checkAuth() {
-            const currentUser = localStorage.getItem('currentUser');
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const currentUser = localStorage.getItem('currentUser');
+        if (!currentUser) {
+            window.location.href = 'login.html';
+        }
+
+        // Load user data
+        function loadUserData() {
+            const userData = JSON.parse(localStorage.getItem('userData_' + currentUser) || '{}');
             
-            if (isLoggedIn === 'true' && currentUser) {
-                // User is logged in - show dashboard
-                document.getElementById('userEmail').textContent = currentUser;
-                document.getElementById('userAvatar').textContent = currentUser.charAt(0).toUpperCase();
-                
-                // Initialize user data
-                initializeUserData(currentUser);
-                
-                loadingScreen.style.display = 'none';
-                navbar.style.display = 'flex';
-                dashboardContent.style.display = 'block';
-                footer.style.display = 'block';
+            document.getElementById('usernameDisplay').textContent = currentUser;
+            document.getElementById('currentBalance').textContent = '$' + (userData.balance || 0).toFixed(2);
+            document.getElementById('totalProfit').textContent = '$' + (userData.totalProfit || 0).toFixed(2);
+            document.getElementById('pendingWithdrawals').textContent = '$' + (userData.pendingWithdrawals || 0).toFixed(2);
+            
+            // Load transactions
+            const transactionsList = document.getElementById('transactionsList');
+            const transactions = userData.transactions || [];
+            
+            if (transactions.length === 0) {
+                transactionsList.innerHTML = '<p>No transactions yet. Start by contacting admins for deposits!</p>';
             } else {
-                // User is not logged in - redirect to login
-                window.location.href = 'login.html';
+                transactionsList.innerHTML = transactions.slice(-10).reverse().map(transaction => `
+                    <div class="transaction-item ${transaction.amount >= 0 ? 'transaction-positive' : 'transaction-negative'}">
+                        <strong>${transaction.type}</strong>
+                        <div class="transaction-amount">${transaction.amount >= 0 ? '+' : ''}$${Math.abs(transaction.amount).toFixed(2)}</div>
+                        <small>${new Date(transaction.date).toLocaleDateString()} - ${transaction.status}</small>
+                        ${transaction.details ? `<p>${transaction.details}</p>` : ''}
+                    </div>
+                `).join('');
             }
-        }
-
-        // Initialize user data with transaction code support
-        function initializeUserData(username) {
-            const savedData = localStorage.getItem('userData_' + username);
-            
-            if (savedData) {
-                userData = JSON.parse(savedData);
-            } else {
-                // Create new user data
-                userData.userId = 'XB' + Date.now().toString().substr(-6);
-                userData.balance = 0;
-                userData.totalWins = 0;
-                userData.playerLevel = 1;
-                userData.transactions = [];
-                userData.transactionCode = '';
-                userData.codeExpiry = null;
-                saveUserData(username);
-            }
-            
-            updateUI();
-            updateTransactionList();
-        }
-
-        // Save user data to localStorage
-        function saveUserData(username) {
-            localStorage.setItem('userData_' + username, JSON.stringify(userData));
-        }
-
-        // Update UI with user data
-        function updateUI() {
-            const currentUser = localStorage.getItem('currentUser');
-            document.getElementById('userIdDisplay').textContent = userData.userId;
-            document.getElementById('userBalance').textContent = '$' + userData.balance.toFixed(2);
-            document.getElementById('headerBalance').textContent = '$' + userData.balance.toFixed(2);
-            document.getElementById('totalWins').textContent = '$' + userData.totalWins.toFixed(2);
-            document.getElementById('playerLevel').textContent = userData.playerLevel;
-            
-            // Update transaction code display
-            if (userData.transactionCode && isCodeValid()) {
-                document.getElementById('transactionCode').textContent = userData.transactionCode;
-            } else {
-                document.getElementById('transactionCode').textContent = 'Click Generate';
-            }
-        }
-
-        // Check if transaction code is still valid
-        function isCodeValid() {
-            if (!userData.codeExpiry) return false;
-            return new Date() < new Date(userData.codeExpiry);
-        }
-
-        // Generate transaction code
-        function generateTransactionCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for (let i = 0; i < 8; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            
-            userData.transactionCode = code;
-            userData.codeExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour expiry
-            
-            saveUserData(localStorage.getItem('currentUser'));
-            updateUI();
-            showToast('✅ Transaction code generated! Valid for 1 hour.');
-        }
-
-        // Process Deposit Request
-        function processDeposit() {
-            const amount = parseFloat(document.getElementById('depositAmount').value);
-            const code = document.getElementById('depositCode').value.trim().toUpperCase();
-            
-            if (!amount || amount <= 0) {
-                showToast('Please enter a valid amount');
-                return;
-            }
-
-            if (!code) {
-                showToast('Please enter transaction code');
-                return;
-            }
-
-            if (amount > 10000) {
-                showToast('Maximum deposit request is $10,000');
-                return;
-            }
-
-            // Create deposit request
-            const transaction = {
-                type: 'deposit_request',
-                amount: amount,
-                date: new Date().toLocaleString(),
-                status: 'pending',
-                code: code,
-                id: generateTransactionId(),
-                userId: userData.userId
-            };
-            
-            // Save to pending requests
-            savePendingRequest(transaction);
-            
-            userData.transactions.push(transaction);
-            
-            saveUserData(localStorage.getItem('currentUser'));
-            updateUI();
-            updateTransactionList();
-            closeModal('depositModal');
-            showToast(`✅ Deposit request of $${amount} submitted! Awaiting admin approval.`);
-        }
-
-        // Process Withdrawal Request
-        function processWithdrawal() {
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-            const code = document.getElementById('withdrawCode').value.trim().toUpperCase();
-            
-            if (!amount || amount <= 0) {
-                showToast('Please enter a valid amount');
-                return;
-            }
-
-            if (!code) {
-                showToast('Please enter transaction code');
-                return;
-            }
-
-            if (amount > userData.balance) {
-                showToast('Insufficient balance for withdrawal');
-                return;
-            }
-
-            if (amount > 5000) {
-                showToast('Maximum withdrawal request is $5,000');
-                return;
-            }
-
-            // Create withdrawal request
-            const transaction = {
-                type: 'withdrawal_request',
-                amount: amount,
-                date: new Date().toLocaleString(),
-                status: 'pending',
-                code: code,
-                id: generateTransactionId(),
-                userId: userData.userId
-            };
-            
-            // Save to pending requests
-            savePendingRequest(transaction);
-            
-            userData.transactions.push(transaction);
-            
-            saveUserData(localStorage.getItem('currentUser'));
-            updateUI();
-            updateTransactionList();
-            closeModal('withdrawModal');
-            showToast(`✅ Withdrawal request of $${amount} submitted! Awaiting admin approval.`);
-        }
-
-        // Save pending request to localStorage
-        function savePendingRequest(request) {
-            let pendingRequests = JSON.parse(localStorage.getItem('pendingRequests') || '[]');
-            pendingRequests.push(request);
-            localStorage.setItem('pendingRequests', JSON.stringify(pendingRequests));
-        }
-
-        // Update transaction list
-        function updateTransactionList() {
-            const transactionList = document.getElementById('transactionList');
-            const recentTransactions = userData.transactions.slice(-5).reverse();
-            
-            if (recentTransactions.length === 0) {
-                transactionList.innerHTML = '<p style="text-align: center; color: #ccc; padding: 1rem;">No transactions yet</p>';
-            } else {
-                let html = '';
-                recentTransactions.forEach(transaction => {
-                    const typeClass = transaction.type.includes('deposit') ? 'transaction-deposit' : 'transaction-withdrawal';
-                    const typeIcon = transaction.type.includes('deposit') ? '⬇️' : '⬆️';
-                    const statusIcon = transaction.status === 'completed' ? '✅' : transaction.status === 'rejected' ? '❌' : '⏳';
-                    
-                    html += `
-                        <div class="transaction-item">
-                            <div>
-                                <span class="transaction-type ${typeClass}">${typeIcon} ${transaction.type.replace('_', ' ').toUpperCase()}</span>
-                                <div style="font-size: 0.8rem; color: #ccc;">${transaction.date}</div>
-                                <div style="font-size: 0.7rem; color: #ffd700;">Code: ${transaction.code}</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-weight: bold;">$${transaction.amount}</div>
-                                <div style="font-size: 0.8rem; color: #ccc;">${statusIcon} ${transaction.status}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                transactionList.innerHTML = html;
-            }
-        }
-
-        // Copy User ID to clipboard
-        function copyUserId() {
-            const userId = document.getElementById('userIdDisplay').textContent;
-            navigator.clipboard.writeText(userId).then(() => {
-                showToast('User ID copied to clipboard!');
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-            });
-        }
-
-        // Show toast notification
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.style.display = 'block';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
         }
 
         // Modal functions
         function openDepositModal() {
-            document.getElementById('depositAmount').value = '';
-            document.getElementById('depositCode').value = '';
-            document.getElementById('depositModal').style.display = 'flex';
+            document.getElementById('depositModal').style.display = 'block';
+        }
+
+        function closeDepositModal() {
+            document.getElementById('depositModal').style.display = 'none';
         }
 
         function openWithdrawModal() {
-            document.getElementById('withdrawAmount').value = '';
-            document.getElementById('withdrawCode').value = '';
-            document.getElementById('withdrawModal').style.display = 'flex';
+            const userData = JSON.parse(localStorage.getItem('userData_' + currentUser) || '{}');
+            const balance = userData.balance || 0;
+            
+            if (balance <= 0) {
+                alert('Insufficient balance for withdrawal!');
+                return;
+            }
+            
+            document.getElementById('withdrawModal').style.display = 'block';
+            document.getElementById('withdrawAmount').max = balance;
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
+        function closeWithdrawModal() {
+            document.getElementById('withdrawModal').style.display = 'none';
         }
 
-        function generateTransactionId() {
-            return 'TXN' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
+        // Withdraw form handler
+        document.getElementById('withdrawForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const accountDetails = document.getElementById('accountDetails').value;
+            
+            const userData = JSON.parse(localStorage.getItem('userData_' + currentUser) || '{}');
+            const balance = userData.balance || 0;
+            
+            if (amount > balance) {
+                alert('Insufficient balance!');
+                return;
+            }
+            
+            // Update user data
+            userData.balance = balance - amount;
+            userData.pendingWithdrawals = (userData.pendingWithdrawals || 0) + amount;
+            
+            // Add transaction
+            if (!userData.transactions) userData.transactions = [];
+            userData.transactions.push({
+                type: 'Withdrawal Request',
+                amount: -amount,
+                status: 'pending',
+                date: new Date().toISOString(),
+                details: `Method: ${paymentMethod}, Account: ${accountDetails}`,
+                paymentMethod: paymentMethod,
+                accountDetails: accountDetails
+            });
+            
+            localStorage.setItem('userData_' + currentUser, JSON.stringify(userData));
+            
+            alert('Withdrawal request submitted! Admin will process it soon.');
+            closeWithdrawModal();
+            loadUserData();
+        });
+
+        function contactAdmin() {
+            alert('Contact Finance Manager:\n📞 +1234567890\n📧 finance@xbet.com\n💬 @xbet_finance');
         }
 
-        // Close modal when clicking outside
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        // Close modals when clicking outside
         window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
+            const depositModal = document.getElementById('depositModal');
+            const withdrawModal = document.getElementById('withdrawModal');
+            
+            if (event.target === depositModal) {
+                closeDepositModal();
+            }
+            if (event.target === withdrawModal) {
+                closeWithdrawModal();
             }
         }
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
-        });
+        // Initialize dashboard
+        loadUserData();
     </script>
 </body>
 </html>
