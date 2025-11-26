@@ -230,6 +230,15 @@
             border-radius: 5px;
             background: rgba(255,255,255,0.9);
         }
+
+        .debug-info {
+            background: rgba(255,0,0,0.1);
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            border-left: 4px solid #e74c3c;
+        }
     </style>
 </head>
 <body>
@@ -261,6 +270,12 @@
             </div>
         </div>
 
+        <!-- Debug Information -->
+        <div class="debug-info" id="debugInfo" style="display: none;">
+            <strong>Debug Info:</strong> 
+            <span id="debugText"></span>
+        </div>
+
         <div class="tabs">
             <button class="tab active" onclick="switchTab('users')">👥 All Users</button>
             <button class="tab" onclick="switchTab('admins')">👑 Admin Accounts</button>
@@ -271,26 +286,26 @@
         <div id="usersTab" class="tab-content active">
             <input type="text" class="search-box" id="userSearch" placeholder="🔍 Search users..." onkeyup="searchUsers()">
             <div class="user-list" id="usersList">
-                <!-- Users will be loaded here -->
+                Loading users...
             </div>
         </div>
 
         <div id="adminsTab" class="tab-content">
             <div class="admin-list" id="adminsList">
-                <!-- Admin accounts will be loaded here -->
+                Loading admin accounts...
             </div>
         </div>
 
         <div id="transactionsTab" class="tab-content">
             <input type="text" class="search-box" id="transactionSearch" placeholder="🔍 Search transactions..." onkeyup="searchTransactions()">
             <div class="transaction-list" id="allTransactions">
-                <!-- All transactions will be loaded here -->
+                Loading transactions...
             </div>
         </div>
 
         <div id="withdrawalsTab" class="tab-content">
             <div class="transaction-list" id="pendingWithdrawals">
-                <!-- Pending withdrawals will be loaded here -->
+                Loading pending withdrawals...
             </div>
         </div>
     </div>
@@ -379,8 +394,8 @@
 
         document.getElementById('adminName').textContent = currentAdmin;
 
-        // Admin credentials
-        const adminCredentials = {
+        // Admin credentials - FIXED: Only these are admins
+        const ADMIN_USERS = {
             'admin_master': 'MasterAdmin2024!',
             'finance_manager': 'Finance14M$2024', 
             'support_admin': 'SupportAdmin789!'
@@ -415,37 +430,60 @@
         }
 
         function loadUsers() {
+            console.log('Loading users...');
+            
             const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
             const usersList = document.getElementById('usersList');
             
-            // Filter out admin accounts
-            const users = Object.keys(registeredUsers).filter(user => 
-                !Object.keys(adminCredentials).includes(user)
-            );
+            // DEBUG: Show what's in localStorage
+            const debugInfo = document.getElementById('debugInfo');
+            const debugText = document.getElementById('debugText');
+            
+            console.log('All registered users:', registeredUsers);
+            
+            // Get ALL users from registeredUsers
+            const allUsers = Object.keys(registeredUsers);
+            console.log('All user keys:', allUsers);
+            
+            // Filter out ONLY the predefined admin users
+            const regularUsers = allUsers.filter(user => !ADMIN_USERS[user]);
+            console.log('Regular users after filter:', regularUsers);
+            
+            debugText.innerHTML = `Found ${allUsers.length} total users, ${regularUsers.length} regular users after filtering admins`;
+            debugInfo.style.display = 'block';
 
-            if (users.length === 0) {
-                usersList.innerHTML = '<div style="text-align: center; padding: 2rem; opacity: 0.7;">No registered users yet.</div>';
+            if (regularUsers.length === 0) {
+                usersList.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; opacity: 0.7;">
+                        <h3>No regular users found</h3>
+                        <p>Total users in system: ${allUsers.length}</p>
+                        <p>Admin users: ${Object.keys(ADMIN_USERS).join(', ')}</p>
+                        <p>All users: ${allUsers.join(', ')}</p>
+                    </div>
+                `;
                 return;
             }
 
-            usersList.innerHTML = users.map(user => {
+            usersList.innerHTML = regularUsers.map(user => {
                 const userData = JSON.parse(localStorage.getItem('userData_' + user) || '{}');
                 const email = userData.email || 'No email';
                 const registeredDate = userData.registeredAt ? new Date(userData.registeredAt).toLocaleDateString() : 'Unknown';
+                const lastLogin = userData.lastLogin ? new Date(userData.lastLogin).toLocaleDateString() : 'Never';
                 
                 return `
-                    <div class="user-item">
+                    <div class="user-item" data-username="${user}">
                         <div class="user-info">
                             <strong>${user}</strong>
-                            <div>Email: ${email}</div>
-                            <div>Balance: $${(userData.balance || 0).toFixed(2)} | Pending: $${(userData.pendingWithdrawals || 0).toFixed(2)}</div>
-                            <div>Registered: ${registeredDate}</div>
-                            <div>Total Profit: $${(userData.totalProfit || 0).toFixed(2)}</div>
+                            <div>📧 ${email}</div>
+                            <div>💰 Balance: $${(userData.balance || 0).toFixed(2)} | ⏳ Pending: $${(userData.pendingWithdrawals || 0).toFixed(2)}</div>
+                            <div>📈 Total Profit: $${(userData.totalProfit || 0).toFixed(2)}</div>
+                            <div>📅 Registered: ${registeredDate} | 🔐 Last Login: ${lastLogin}</div>
+                            <div>🎮 Total Bets: ${(userData.bets || []).length} | 💳 Transactions: ${(userData.transactions || []).length}</div>
                         </div>
                         <div class="action-buttons">
-                            <button class="action-btn success" onclick="openDepositModal('${user}')">Deposit</button>
-                            <button class="action-btn info" onclick="viewUserDetails('${user}')">Details</button>
-                            <button class="action-btn" onclick="viewUserTransactions('${user}')">Transactions</button>
+                            <button class="action-btn success" onclick="openDepositModal('${user}')">💰 Deposit</button>
+                            <button class="action-btn info" onclick="viewUserDetails('${user}')">👁️ Details</button>
+                            <button class="action-btn" onclick="viewUserTransactions('${user}')">📊 Transactions</button>
                         </div>
                     </div>
                 `;
@@ -454,20 +492,21 @@
 
         function loadAdmins() {
             const adminsList = document.getElementById('adminsList');
-            const admins = Object.keys(adminCredentials);
             
-            adminsList.innerHTML = admins.map(admin => {
+            adminsList.innerHTML = Object.keys(ADMIN_USERS).map(admin => {
                 const adminData = JSON.parse(localStorage.getItem('userData_' + admin) || '{}');
-                const role = adminData.role || (admin === 'admin_master' ? 'Head Administrator' : 
-                                  admin === 'finance_manager' ? 'Finance Manager' : 'Support Admin');
+                const role = adminData.role || 
+                    (admin === 'admin_master' ? 'Head Administrator' : 
+                     admin === 'finance_manager' ? 'Finance Manager' : 'Support Admin');
                 
                 return `
                     <div class="admin-item">
                         <div class="admin-info-details">
                             <strong>${admin}</strong>
-                            <div>Role: ${role}</div>
-                            <div>Balance: $${(adminData.balance || 0).toFixed(2)}</div>
-                            <div>Transactions: ${(adminData.transactions || []).length}</div>
+                            <div>🎯 Role: ${role}</div>
+                            <div>💰 Balance: $${(adminData.balance || 0).toFixed(2)}</div>
+                            <div>💳 Transactions: ${(adminData.transactions || []).length}</div>
+                            <div>📅 Last Active: ${adminData.lastLogin ? new Date(adminData.lastLogin).toLocaleDateString() : 'Never'}</div>
                         </div>
                         <div class="action-buttons">
                             <button class="action-btn info" onclick="viewAdminDetails('${admin}')">View Details</button>
@@ -482,11 +521,13 @@
             const allTransactions = document.getElementById('allTransactions');
             let allTx = [];
 
+            // Get transactions from ALL users (including admins)
             Object.keys(registeredUsers).forEach(user => {
                 const userData = JSON.parse(localStorage.getItem('userData_' + user) || '{}');
                 const transactions = userData.transactions || [];
                 transactions.forEach(tx => {
                     tx.username = user;
+                    tx.isAdmin = ADMIN_USERS[user] ? true : false;
                     allTx.push(tx);
                 });
             });
@@ -501,13 +542,18 @@
 
             allTransactions.innerHTML = allTx.map(tx => {
                 const isPositive = tx.amount >= 0;
+                const isAdminUser = tx.isAdmin;
+                
                 return `
                     <div class="transaction-item">
                         <div>
-                            <strong>${tx.username}</strong>
+                            <strong>${tx.username} ${isAdminUser ? '👑' : '👤'}</strong>
                             <div>${tx.type} • ${new Date(tx.date).toLocaleDateString()}</div>
                             <div style="opacity: 0.8; margin-top: 0.25rem;">${tx.details || 'No details'}</div>
                             ${tx.code ? `<div class="transaction-code">Code: ${tx.code}</div>` : ''}
+                            <div style="margin-top: 0.25rem; font-size: 0.8rem; opacity: 0.7;">
+                                Status: ${tx.status} ${tx.processedBy ? `| By: ${tx.processedBy}` : ''}
+                            </div>
                         </div>
                         <div style="color: ${isPositive ? '#2ecc71' : '#e74c3c'}; font-weight: bold; font-size: 1.1rem;">
                             ${isPositive ? '+' : ''}$${Math.abs(tx.amount).toFixed(2)}
@@ -522,7 +568,11 @@
             const pendingWithdrawals = document.getElementById('pendingWithdrawals');
             let pending = [];
 
+            // Check ALL users for pending withdrawals
             Object.keys(registeredUsers).forEach(user => {
+                // Skip admin users for withdrawals
+                if (ADMIN_USERS[user]) return;
+                
                 const userData = JSON.parse(localStorage.getItem('userData_' + user) || '{}');
                 const transactions = userData.transactions || [];
                 transactions.forEach((tx, index) => {
@@ -544,10 +594,10 @@
                     <div class="transaction-item">
                         <div>
                             <strong>${tx.username}</strong>
-                            <div>Amount: $${Math.abs(tx.amount).toFixed(2)}</div>
-                            <div>Method: ${tx.paymentMethod} | Account: ${tx.accountDetails}</div>
-                            <div>Requested: ${new Date(tx.date).toLocaleDateString()}</div>
-                            ${tx.code ? `<div class="transaction-code">Code: ${tx.code}</div>` : ''}
+                            <div>💰 Amount: $${Math.abs(tx.amount).toFixed(2)}</div>
+                            <div>💳 Method: ${tx.paymentMethod} | 📝 Account: ${tx.accountDetails}</div>
+                            <div>📅 Requested: ${new Date(tx.date).toLocaleDateString()}</div>
+                            ${tx.code ? `<div class="transaction-code">🔒 Code: ${tx.code}</div>` : ''}
                         </div>
                         <div class="action-buttons">
                             <button class="action-btn success" onclick="openWithdrawalModal('${tx.username}', ${tx.transactionIndex})">Process</button>
@@ -559,23 +609,19 @@
 
         function updateAdminStats() {
             const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            const allUsers = Object.keys(registeredUsers);
+            const regularUsers = allUsers.filter(user => !ADMIN_USERS[user]);
             
-            // Count regular users (excluding admins)
-            const users = Object.keys(registeredUsers).filter(user => 
-                !Object.keys(adminCredentials).includes(user)
-            );
-            document.getElementById('totalUsers').textContent = users.length;
-            
-            // Count admins
-            document.getElementById('totalAdmins').textContent = Object.keys(adminCredentials).length;
+            document.getElementById('totalUsers').textContent = regularUsers.length;
+            document.getElementById('totalAdmins').textContent = Object.keys(ADMIN_USERS).length;
             
             // Calculate system balance from finance_manager
             const financeData = JSON.parse(localStorage.getItem('userData_finance_manager') || '{}');
             document.getElementById('systemBalance').textContent = '$' + (financeData.balance || 0).toFixed(2);
             
-            // Calculate total pending withdrawals
+            // Calculate total pending withdrawals from regular users only
             let totalPending = 0;
-            Object.keys(registeredUsers).forEach(user => {
+            regularUsers.forEach(user => {
                 const userData = JSON.parse(localStorage.getItem('userData_' + user) || '{}');
                 totalPending += userData.pendingWithdrawals || 0;
             });
@@ -611,30 +657,33 @@
             
             userDetailsContent.innerHTML = `
                 <div style="margin-bottom: 1rem;">
-                    <strong>Username:</strong> ${username}
+                    <strong>👤 Username:</strong> ${username}
                 </div>
                 <div style="margin-bottom: 1rem;">
-                    <strong>Email:</strong> ${userData.email || 'No email'}
+                    <strong>📧 Email:</strong> ${userData.email || 'No email'}
                 </div>
                 <div style="margin-bottom: 1rem;">
-                    <strong>Balance:</strong> $${(userData.balance || 0).toFixed(2)}
+                    <strong>💰 Balance:</strong> $${(userData.balance || 0).toFixed(2)}
                 </div>
                 <div style="margin-bottom: 1rem;">
-                    <strong>Pending Withdrawals:</strong> $${(userData.pendingWithdrawals || 0).toFixed(2)}
+                    <strong>⏳ Pending Withdrawals:</strong> $${(userData.pendingWithdrawals || 0).toFixed(2)}
                 </div>
                 <div style="margin-bottom: 1rem;">
-                    <strong>Total Profit:</strong> $${(userData.totalProfit || 0).toFixed(2)}
+                    <strong>📈 Total Profit:</strong> $${(userData.totalProfit || 0).toFixed(2)}
                 </div>
                 <div style="margin-bottom: 1rem;">
-                    <strong>Registered:</strong> ${userData.registeredAt ? new Date(userData.registeredAt).toLocaleDateString() : 'Unknown'}
+                    <strong>📅 Registered:</strong> ${userData.registeredAt ? new Date(userData.registeredAt).toLocaleDateString() : 'Unknown'}
                 </div>
                 <div style="margin-bottom: 1rem;">
-                    <strong>Total Bets:</strong> ${(userData.bets || []).length}
+                    <strong>🔐 Last Login:</strong> ${userData.lastLogin ? new Date(userData.lastLogin).toLocaleDateString() : 'Never'}
                 </div>
                 <div style="margin-bottom: 1rem;">
-                    <strong>Total Transactions:</strong> ${(userData.transactions || []).length}
+                    <strong>🎮 Total Bets:</strong> ${(userData.bets || []).length}
                 </div>
-                <button class="action-btn success" style="width: 100%; margin-top: 1rem;" onclick="openDepositModal('${username}')">Make Deposit</button>
+                <div style="margin-bottom: 1rem;">
+                    <strong>💳 Total Transactions:</strong> ${(userData.transactions || []).length}
+                </div>
+                <button class="action-btn success" style="width: 100%; margin-top: 1rem;" onclick="openDepositModal('${username}')">💰 Make Deposit</button>
             `;
             
             document.getElementById('userDetailsModal').style.display = 'block';
@@ -642,7 +691,11 @@
 
         function viewAdminDetails(admin) {
             const adminData = JSON.parse(localStorage.getItem('userData_' + admin) || '{}');
-            alert(`Admin Details:\n\nUsername: ${admin}\nRole: ${adminData.role || 'Administrator'}\nBalance: $${(adminData.balance || 0).toFixed(2)}\nTransactions: ${(adminData.transactions || []).length}`);
+            const role = adminData.role || 
+                (admin === 'admin_master' ? 'Head Administrator' : 
+                 admin === 'finance_manager' ? 'Finance Manager' : 'Support Admin');
+            
+            alert(`👑 Admin Details:\n\n👤 Username: ${admin}\n🎯 Role: ${role}\n💰 Balance: $${(adminData.balance || 0).toFixed(2)}\n💳 Transactions: ${(adminData.transactions || []).length}\n🔐 Last Login: ${adminData.lastLogin ? new Date(adminData.lastLogin).toLocaleDateString() : 'Never'}`);
         }
 
         function viewUserTransactions(username) {
@@ -654,7 +707,7 @@
                 return;
             }
             
-            let txList = `Transactions for ${username}:\n\n`;
+            let txList = `📊 Transactions for ${username}:\n\n`;
             transactions.slice().reverse().forEach(tx => {
                 txList += `📅 ${new Date(tx.date).toLocaleDateString()}\n`;
                 txList += `💰 ${tx.type}: $${Math.abs(tx.amount).toFixed(2)} (${tx.status})\n`;
@@ -663,6 +716,8 @@
                 txList += '─'.repeat(30) + '\n';
             });
             
+            // Show in alert but also log to console for debugging
+            console.log(`Transactions for ${username}:`, transactions);
             alert(txList);
         }
 
@@ -683,12 +738,12 @@
             
             // Check if finance manager has enough balance
             if (financeData.balance < amount) {
-                alert('Insufficient system funds!');
+                alert('❌ Insufficient system funds!');
                 return;
             }
             
             if (amount <= 0) {
-                alert('Please enter a valid amount!');
+                alert('❌ Please enter a valid amount!');
                 return;
             }
             
@@ -725,7 +780,7 @@
             localStorage.setItem('userData_' + username, JSON.stringify(userData));
             localStorage.setItem('userData_finance_manager', JSON.stringify(financeData));
             
-            alert(`✅ Successfully deposited $${amount.toFixed(2)} to ${username}\nTransaction Code: ${transactionCode}`);
+            alert(`✅ Successfully deposited $${amount.toFixed(2)} to ${username}\n🔒 Transaction Code: ${transactionCode}`);
             closeModal('depositModal');
             loadAdminData();
         });
@@ -794,7 +849,7 @@
             const userItems = document.querySelectorAll('.user-item');
             
             userItems.forEach(item => {
-                const username = item.querySelector('strong').textContent.toLowerCase();
+                const username = item.getAttribute('data-username').toLowerCase();
                 if (username.includes(searchTerm)) {
                     item.style.display = 'flex';
                 } else {
