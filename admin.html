@@ -107,14 +107,16 @@
             display: block;
         }
 
-        .user-list, .transaction-list {
+        .user-list, .transaction-list, .admin-list {
             background: rgba(255,255,255,0.1);
             border-radius: 10px;
             padding: 1rem;
             backdrop-filter: blur(10px);
+            max-height: 600px;
+            overflow-y: auto;
         }
 
-        .user-item, .transaction-item {
+        .user-item, .transaction-item, .admin-item {
             background: rgba(255,255,255,0.05);
             padding: 1rem;
             margin: 0.5rem 0;
@@ -124,6 +126,15 @@
             align-items: center;
         }
 
+        .user-info, .admin-info-details {
+            flex-grow: 1;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
         .action-btn {
             background: #e74c3c;
             color: white;
@@ -131,11 +142,15 @@
             padding: 0.5rem 1rem;
             border-radius: 5px;
             cursor: pointer;
-            margin-left: 0.5rem;
+            font-size: 0.9rem;
         }
 
         .action-btn.success {
             background: #27ae60;
+        }
+
+        .action-btn.info {
+            background: #3498db;
         }
 
         .modal {
@@ -151,11 +166,21 @@
 
         .modal-content {
             background: linear-gradient(135deg, #2c3e50, #34495e);
-            margin: 10% auto;
+            margin: 5% auto;
             padding: 2rem;
             border-radius: 15px;
             width: 90%;
             max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: white;
+            float: right;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
         }
 
         .form-group {
@@ -165,9 +190,10 @@
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
+            font-weight: bold;
         }
 
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 0.75rem;
             border: none;
@@ -184,6 +210,25 @@
             cursor: pointer;
             width: 100%;
             margin-top: 1rem;
+            font-weight: bold;
+        }
+
+        .transaction-code {
+            background: rgba(255,255,255,0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .search-box {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.9);
         }
     </style>
 </head>
@@ -210,21 +255,34 @@
                 <h3>Pending Withdrawals</h3>
                 <div class="admin-stat-value" id="totalPending">$0.00</div>
             </div>
+            <div class="admin-stat-card">
+                <h3>Total Admins</h3>
+                <div class="admin-stat-value" id="totalAdmins">0</div>
+            </div>
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('users')">👥 Users</button>
-            <button class="tab" onclick="switchTab('transactions')">💳 Transactions</button>
-            <button class="tab" onclick="switchTab('withdrawals')">💰 Withdrawals</button>
+            <button class="tab active" onclick="switchTab('users')">👥 All Users</button>
+            <button class="tab" onclick="switchTab('admins')">👑 Admin Accounts</button>
+            <button class="tab" onclick="switchTab('transactions')">💳 All Transactions</button>
+            <button class="tab" onclick="switchTab('withdrawals')">💰 Pending Withdrawals</button>
         </div>
 
         <div id="usersTab" class="tab-content active">
+            <input type="text" class="search-box" id="userSearch" placeholder="🔍 Search users..." onkeyup="searchUsers()">
             <div class="user-list" id="usersList">
                 <!-- Users will be loaded here -->
             </div>
         </div>
 
+        <div id="adminsTab" class="tab-content">
+            <div class="admin-list" id="adminsList">
+                <!-- Admin accounts will be loaded here -->
+            </div>
+        </div>
+
         <div id="transactionsTab" class="tab-content">
+            <input type="text" class="search-box" id="transactionSearch" placeholder="🔍 Search transactions..." onkeyup="searchTransactions()">
             <div class="transaction-list" id="allTransactions">
                 <!-- All transactions will be loaded here -->
             </div>
@@ -245,6 +303,10 @@
             <form id="depositForm">
                 <input type="hidden" id="depositUsername">
                 <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="displayUsername" disabled style="background: rgba(255,255,255,0.7)">
+                </div>
+                <div class="form-group">
                     <label>Amount ($)</label>
                     <input type="number" id="depositAmount" min="1" step="0.01" required>
                 </div>
@@ -264,21 +326,47 @@
             <h2>💰 Process Withdrawal</h2>
             <form id="withdrawalForm">
                 <input type="hidden" id="withdrawalUsername">
-                <input type="hidden" id="withdrawalAmount">
                 <input type="hidden" id="withdrawalIndex">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="displayWithdrawalUser" disabled style="background: rgba(255,255,255,0.7)">
+                </div>
+                <div class="form-group">
+                    <label>Amount</label>
+                    <input type="text" id="displayWithdrawalAmount" disabled style="background: rgba(255,255,255,0.7)">
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <input type="text" id="displayPaymentMethod" disabled style="background: rgba(255,255,255,0.7)">
+                </div>
+                <div class="form-group">
+                    <label>Account Details</label>
+                    <input type="text" id="displayAccountDetails" disabled style="background: rgba(255,255,255,0.7)">
+                </div>
                 <div class="form-group">
                     <label>Status</label>
                     <select id="withdrawalStatus" required>
-                        <option value="completed">Completed</option>
-                        <option value="rejected">Rejected</option>
+                        <option value="completed">✅ Completed</option>
+                        <option value="rejected">❌ Rejected</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Notes</label>
-                    <input type="text" id="withdrawalNotes" placeholder="Processing notes">
+                    <label>Admin Notes</label>
+                    <textarea id="withdrawalNotes" placeholder="Processing notes" rows="3"></textarea>
                 </div>
                 <button type="submit" class="submit-btn">Update Withdrawal</button>
             </form>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="userDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('userDetailsModal')">&times;</span>
+            <h2>👤 User Details</h2>
+            <div id="userDetailsContent">
+                <!-- User details will be loaded here -->
+            </div>
         </div>
     </div>
 
@@ -290,6 +378,13 @@
         }
 
         document.getElementById('adminName').textContent = currentAdmin;
+
+        // Admin credentials
+        const adminCredentials = {
+            'admin_master': 'MasterAdmin2024!',
+            'finance_manager': 'Finance14M$2024', 
+            'support_admin': 'SupportAdmin789!'
+        };
 
         function switchTab(tabName) {
             // Hide all tabs
@@ -303,10 +398,17 @@
             // Show selected tab
             document.getElementById(tabName + 'Tab').classList.add('active');
             event.target.classList.add('active');
+
+            // Reload data for the tab
+            if (tabName === 'users') loadUsers();
+            else if (tabName === 'admins') loadAdmins();
+            else if (tabName === 'transactions') loadAllTransactions();
+            else if (tabName === 'withdrawals') loadPendingWithdrawals();
         }
 
         function loadAdminData() {
             loadUsers();
+            loadAdmins();
             loadAllTransactions();
             loadPendingWithdrawals();
             updateAdminStats();
@@ -315,27 +417,60 @@
         function loadUsers() {
             const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
             const usersList = document.getElementById('usersList');
+            
+            // Filter out admin accounts
             const users = Object.keys(registeredUsers).filter(user => 
-                !['admin_master', 'finance_manager', 'support_admin'].includes(user)
+                !Object.keys(adminCredentials).includes(user)
             );
 
             if (users.length === 0) {
-                usersList.innerHTML = '<p>No registered users yet.</p>';
+                usersList.innerHTML = '<div style="text-align: center; padding: 2rem; opacity: 0.7;">No registered users yet.</div>';
                 return;
             }
 
             usersList.innerHTML = users.map(user => {
                 const userData = JSON.parse(localStorage.getItem('userData_' + user) || '{}');
+                const email = userData.email || 'No email';
+                const registeredDate = userData.registeredAt ? new Date(userData.registeredAt).toLocaleDateString() : 'Unknown';
+                
                 return `
                     <div class="user-item">
-                        <div>
+                        <div class="user-info">
                             <strong>${user}</strong>
-                            <div>Balance: $${(userData.balance || 0).toFixed(2)}</div>
-                            <div>Email: ${userData.email || 'N/A'}</div>
+                            <div>Email: ${email}</div>
+                            <div>Balance: $${(userData.balance || 0).toFixed(2)} | Pending: $${(userData.pendingWithdrawals || 0).toFixed(2)}</div>
+                            <div>Registered: ${registeredDate}</div>
+                            <div>Total Profit: $${(userData.totalProfit || 0).toFixed(2)}</div>
                         </div>
-                        <div>
-                            <button class="action-btn" onclick="openDepositModal('${user}')">Deposit</button>
+                        <div class="action-buttons">
+                            <button class="action-btn success" onclick="openDepositModal('${user}')">Deposit</button>
+                            <button class="action-btn info" onclick="viewUserDetails('${user}')">Details</button>
                             <button class="action-btn" onclick="viewUserTransactions('${user}')">Transactions</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadAdmins() {
+            const adminsList = document.getElementById('adminsList');
+            const admins = Object.keys(adminCredentials);
+            
+            adminsList.innerHTML = admins.map(admin => {
+                const adminData = JSON.parse(localStorage.getItem('userData_' + admin) || '{}');
+                const role = adminData.role || (admin === 'admin_master' ? 'Head Administrator' : 
+                                  admin === 'finance_manager' ? 'Finance Manager' : 'Support Admin');
+                
+                return `
+                    <div class="admin-item">
+                        <div class="admin-info-details">
+                            <strong>${admin}</strong>
+                            <div>Role: ${role}</div>
+                            <div>Balance: $${(adminData.balance || 0).toFixed(2)}</div>
+                            <div>Transactions: ${(adminData.transactions || []).length}</div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn info" onclick="viewAdminDetails('${admin}')">View Details</button>
                         </div>
                     </div>
                 `;
@@ -356,26 +491,30 @@
                 });
             });
 
+            // Sort by date (newest first)
             allTx.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             if (allTx.length === 0) {
-                allTransactions.innerHTML = '<p>No transactions found.</p>';
+                allTransactions.innerHTML = '<div style="text-align: center; padding: 2rem; opacity: 0.7;">No transactions found.</div>';
                 return;
             }
 
-            allTransactions.innerHTML = allTx.map(tx => `
-                <div class="transaction-item">
-                    <div>
-                        <strong>${tx.username}</strong>
-                        <div>${tx.type}: $${Math.abs(tx.amount).toFixed(2)}</div>
-                        <small>${new Date(tx.date).toLocaleDateString()} - ${tx.status}</small>
-                        ${tx.details ? `<div>${tx.details}</div>` : ''}
+            allTransactions.innerHTML = allTx.map(tx => {
+                const isPositive = tx.amount >= 0;
+                return `
+                    <div class="transaction-item">
+                        <div>
+                            <strong>${tx.username}</strong>
+                            <div>${tx.type} • ${new Date(tx.date).toLocaleDateString()}</div>
+                            <div style="opacity: 0.8; margin-top: 0.25rem;">${tx.details || 'No details'}</div>
+                            ${tx.code ? `<div class="transaction-code">Code: ${tx.code}</div>` : ''}
+                        </div>
+                        <div style="color: ${isPositive ? '#2ecc71' : '#e74c3c'}; font-weight: bold; font-size: 1.1rem;">
+                            ${isPositive ? '+' : ''}$${Math.abs(tx.amount).toFixed(2)}
+                        </div>
                     </div>
-                    <div style="color: ${tx.amount >= 0 ? '#2ecc71' : '#e74c3c'}">
-                        ${tx.amount >= 0 ? '+' : ''}$${Math.abs(tx.amount).toFixed(2)}
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function loadPendingWithdrawals() {
@@ -396,33 +535,39 @@
             });
 
             if (pending.length === 0) {
-                pendingWithdrawals.innerHTML = '<p>No pending withdrawals.</p>';
+                pendingWithdrawals.innerHTML = '<div style="text-align: center; padding: 2rem; opacity: 0.7;">No pending withdrawals.</div>';
                 return;
             }
 
-            pendingWithdrawals.innerHTML = pending.map(tx => `
-                <div class="transaction-item">
-                    <div>
-                        <strong>${tx.username}</strong>
-                        <div>Amount: $${Math.abs(tx.amount).toFixed(2)}</div>
-                        <div>Method: ${tx.paymentMethod}</div>
-                        <div>Account: ${tx.accountDetails}</div>
-                        <small>Requested: ${new Date(tx.date).toLocaleDateString()}</small>
+            pendingWithdrawals.innerHTML = pending.map(tx => {
+                return `
+                    <div class="transaction-item">
+                        <div>
+                            <strong>${tx.username}</strong>
+                            <div>Amount: $${Math.abs(tx.amount).toFixed(2)}</div>
+                            <div>Method: ${tx.paymentMethod} | Account: ${tx.accountDetails}</div>
+                            <div>Requested: ${new Date(tx.date).toLocaleDateString()}</div>
+                            ${tx.code ? `<div class="transaction-code">Code: ${tx.code}</div>` : ''}
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn success" onclick="openWithdrawalModal('${tx.username}', ${tx.transactionIndex})">Process</button>
+                        </div>
                     </div>
-                    <div>
-                        <button class="action-btn success" onclick="openWithdrawalModal('${tx.username}', ${Math.abs(tx.amount)}, ${tx.transactionIndex})">Process</button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function updateAdminStats() {
             const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-            const users = Object.keys(registeredUsers).filter(user => 
-                !['admin_master', 'finance_manager', 'support_admin'].includes(user)
-            );
             
+            // Count regular users (excluding admins)
+            const users = Object.keys(registeredUsers).filter(user => 
+                !Object.keys(adminCredentials).includes(user)
+            );
             document.getElementById('totalUsers').textContent = users.length;
+            
+            // Count admins
+            document.getElementById('totalAdmins').textContent = Object.keys(adminCredentials).length;
             
             // Calculate system balance from finance_manager
             const financeData = JSON.parse(localStorage.getItem('userData_finance_manager') || '{}');
@@ -439,14 +584,86 @@
 
         function openDepositModal(username) {
             document.getElementById('depositUsername').value = username;
+            document.getElementById('displayUsername').value = username;
+            document.getElementById('depositAmount').value = '';
+            document.getElementById('depositDescription').value = '';
             document.getElementById('depositModal').style.display = 'block';
         }
 
-        function openWithdrawalModal(username, amount, index) {
+        function openWithdrawalModal(username, index) {
+            const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
+            const transaction = userData.transactions[index];
+            
             document.getElementById('withdrawalUsername').value = username;
-            document.getElementById('withdrawalAmount').value = amount;
             document.getElementById('withdrawalIndex').value = index;
+            document.getElementById('displayWithdrawalUser').value = username;
+            document.getElementById('displayWithdrawalAmount').value = '$' + Math.abs(transaction.amount).toFixed(2);
+            document.getElementById('displayPaymentMethod').value = transaction.paymentMethod;
+            document.getElementById('displayAccountDetails').value = transaction.accountDetails;
+            document.getElementById('withdrawalNotes').value = '';
+            
             document.getElementById('withdrawalModal').style.display = 'block';
+        }
+
+        function viewUserDetails(username) {
+            const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
+            const userDetailsContent = document.getElementById('userDetailsContent');
+            
+            userDetailsContent.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <strong>Username:</strong> ${username}
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Email:</strong> ${userData.email || 'No email'}
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Balance:</strong> $${(userData.balance || 0).toFixed(2)}
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Pending Withdrawals:</strong> $${(userData.pendingWithdrawals || 0).toFixed(2)}
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Total Profit:</strong> $${(userData.totalProfit || 0).toFixed(2)}
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Registered:</strong> ${userData.registeredAt ? new Date(userData.registeredAt).toLocaleDateString() : 'Unknown'}
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Total Bets:</strong> ${(userData.bets || []).length}
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Total Transactions:</strong> ${(userData.transactions || []).length}
+                </div>
+                <button class="action-btn success" style="width: 100%; margin-top: 1rem;" onclick="openDepositModal('${username}')">Make Deposit</button>
+            `;
+            
+            document.getElementById('userDetailsModal').style.display = 'block';
+        }
+
+        function viewAdminDetails(admin) {
+            const adminData = JSON.parse(localStorage.getItem('userData_' + admin) || '{}');
+            alert(`Admin Details:\n\nUsername: ${admin}\nRole: ${adminData.role || 'Administrator'}\nBalance: $${(adminData.balance || 0).toFixed(2)}\nTransactions: ${(adminData.transactions || []).length}`);
+        }
+
+        function viewUserTransactions(username) {
+            const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
+            const transactions = userData.transactions || [];
+            
+            if (transactions.length === 0) {
+                alert(`No transactions found for ${username}`);
+                return;
+            }
+            
+            let txList = `Transactions for ${username}:\n\n`;
+            transactions.slice().reverse().forEach(tx => {
+                txList += `📅 ${new Date(tx.date).toLocaleDateString()}\n`;
+                txList += `💰 ${tx.type}: $${Math.abs(tx.amount).toFixed(2)} (${tx.status})\n`;
+                if (tx.details) txList += `📝 ${tx.details}\n`;
+                if (tx.code) txList += `🔒 Code: ${tx.code}\n`;
+                txList += '─'.repeat(30) + '\n';
+            });
+            
+            alert(txList);
         }
 
         function closeModal(modalId) {
@@ -470,6 +687,14 @@
                 return;
             }
             
+            if (amount <= 0) {
+                alert('Please enter a valid amount!');
+                return;
+            }
+            
+            // Generate transaction code
+            const transactionCode = 'DEP-' + Date.now().toString(36).toUpperCase();
+            
             // Update user balance
             userData.balance = (userData.balance || 0) + amount;
             
@@ -480,23 +705,27 @@
                 amount: amount,
                 status: 'completed',
                 date: new Date().toISOString(),
-                details: description
+                details: description,
+                code: transactionCode,
+                processedBy: currentAdmin
             });
             
             // Update finance manager balance
             financeData.balance -= amount;
+            if (!financeData.transactions) financeData.transactions = [];
             financeData.transactions.push({
                 type: 'User Deposit',
                 amount: -amount,
                 status: 'completed',
                 date: new Date().toISOString(),
-                details: `Deposit to ${username}: ${description}`
+                details: `Deposit to ${username}: ${description}`,
+                code: transactionCode
             });
             
             localStorage.setItem('userData_' + username, JSON.stringify(userData));
             localStorage.setItem('userData_finance_manager', JSON.stringify(financeData));
             
-            alert(`Successfully deposited $${amount} to ${username}`);
+            alert(`✅ Successfully deposited $${amount.toFixed(2)} to ${username}\nTransaction Code: ${transactionCode}`);
             closeModal('depositModal');
             loadAdminData();
         });
@@ -506,30 +735,35 @@
             e.preventDefault();
             
             const username = document.getElementById('withdrawalUsername').value;
-            const amount = parseFloat(document.getElementById('withdrawalAmount').value);
             const status = document.getElementById('withdrawalStatus').value;
             const notes = document.getElementById('withdrawalNotes').value;
             const index = parseInt(document.getElementById('withdrawalIndex').value);
             
             const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
             const financeData = JSON.parse(localStorage.getItem('userData_finance_manager') || '{}');
+            const transaction = userData.transactions[index];
+            const amount = Math.abs(transaction.amount);
             
             // Update transaction status
             userData.transactions[index].status = status;
-            userData.transactions[index].details += ` | Processed: ${notes}`;
+            userData.transactions[index].details += ` | Processed by ${currentAdmin}: ${notes}`;
             
             if (status === 'completed') {
                 // Remove from pending withdrawals
                 userData.pendingWithdrawals = (userData.pendingWithdrawals || 0) - amount;
                 
                 // Add to finance manager transactions
+                if (!financeData.transactions) financeData.transactions = [];
                 financeData.transactions.push({
                     type: 'Withdrawal Processed',
                     amount: -amount,
                     status: 'completed',
                     date: new Date().toISOString(),
-                    details: `Withdrawal for ${username}: ${notes}`
+                    details: `Withdrawal for ${username}: ${notes}`,
+                    code: transaction.code
                 });
+                
+                alert(`✅ Withdrawal completed for ${username}`);
             } else if (status === 'rejected') {
                 // Refund balance to user
                 userData.balance = (userData.balance || 0) + amount;
@@ -540,30 +774,47 @@
                     amount: amount,
                     status: 'completed',
                     date: new Date().toISOString(),
-                    details: `Refund for rejected withdrawal: ${notes}`
+                    details: `Refund for rejected withdrawal: ${notes}`,
+                    code: 'REF-' + Date.now().toString(36).toUpperCase(),
+                    processedBy: currentAdmin
                 });
+                
+                alert(`❌ Withdrawal rejected for ${username}. Amount refunded.`);
             }
             
             localStorage.setItem('userData_' + username, JSON.stringify(userData));
             localStorage.setItem('userData_finance_manager', JSON.stringify(financeData));
             
-            alert(`Withdrawal ${status} for ${username}`);
             closeModal('withdrawalModal');
             loadAdminData();
         });
 
-        function viewUserTransactions(username) {
-            const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
-            const transactions = userData.transactions || [];
+        function searchUsers() {
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            const userItems = document.querySelectorAll('.user-item');
             
-            let txList = `Transactions for ${username}:\n\n`;
-            transactions.forEach(tx => {
-                txList += `${new Date(tx.date).toLocaleDateString()} - ${tx.type}: $${Math.abs(tx.amount).toFixed(2)} (${tx.status})\n`;
-                if (tx.details) txList += `Details: ${tx.details}\n`;
-                txList += '\n';
+            userItems.forEach(item => {
+                const username = item.querySelector('strong').textContent.toLowerCase();
+                if (username.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
             });
+        }
+
+        function searchTransactions() {
+            const searchTerm = document.getElementById('transactionSearch').value.toLowerCase();
+            const transactionItems = document.querySelectorAll('.transaction-item');
             
-            alert(txList);
+            transactionItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
         }
 
         function adminLogout() {
