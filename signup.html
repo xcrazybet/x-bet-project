@@ -214,7 +214,9 @@
         const adminUsers = {
             'admin_master': true,
             'finance_manager': true,
-            'support_admin': true
+            'support_admin': true,
+            'admin_tech': true,
+            'admin_support2': true
         };
 
         // Check if username already exists in localStorage
@@ -228,6 +230,72 @@
             const userEmails = JSON.parse(localStorage.getItem('userEmails') || '{}');
             const emails = Object.values(userEmails);
             return emails.includes(email);
+        }
+
+        // Initialize admin accounts if they don't exist
+        function initializeAdminAccounts() {
+            const adminAccounts = {
+                'admin_master': {
+                    password: 'MasterAdmin2024!',
+                    balance: 50000.00,
+                    role: 'Head Administrator'
+                },
+                'finance_manager': {
+                    password: 'Finance14M$2024',
+                    balance: 14000000.00,
+                    role: 'Finance Manager'
+                },
+                'support_admin': {
+                    password: 'SupportAdmin789!',
+                    balance: 50000.00,
+                    role: 'Support Admin'
+                },
+                'admin_tech': {
+                    password: 'TechAdmin2024!',
+                    balance: 0.00,
+                    role: 'Technical Admin'
+                },
+                'admin_support2': {
+                    password: 'Support2Admin2024!',
+                    balance: 0.00,
+                    role: 'Support Admin 2'
+                }
+            };
+
+            // Initialize admin accounts in localStorage
+            Object.keys(adminAccounts).forEach(admin => {
+                const adminData = adminAccounts[admin];
+                
+                // Save admin credentials
+                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+                if (!registeredUsers[admin]) {
+                    registeredUsers[admin] = adminData.password;
+                    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                }
+
+                // Initialize admin user data if not exists
+                if (!localStorage.getItem('userData_' + admin)) {
+                    const adminUserData = {
+                        balance: adminData.balance,
+                        pendingWithdrawals: 0.00,
+                        totalProfit: 0.00,
+                        email: admin + '@xbet.com',
+                        transactions: [{
+                            type: 'System Allocation',
+                            amount: adminData.balance,
+                            status: 'completed',
+                            date: new Date().toISOString(),
+                            details: 'Admin system fund allocation'
+                        }],
+                        bets: [],
+                        isAdmin: true,
+                        role: adminData.role,
+                        registeredAt: new Date().toISOString(),
+                        lastLogin: new Date().toISOString()
+                    };
+                    localStorage.setItem('userData_' + admin, JSON.stringify(adminUserData));
+                }
+            });
         }
 
         // Registration form handler
@@ -287,12 +355,16 @@
             signupBtn.textContent = 'Creating Account...';
             signupBtn.disabled = true;
 
+            // Initialize admin accounts first
+            initializeAdminAccounts();
+
             // Simulate registration process
             setTimeout(() => {
-                // Save user credentials
+                // Save user credentials to registeredUsers
                 const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
                 registeredUsers[username] = password;
                 localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                console.log('Saved user to registeredUsers:', username);
 
                 // Save user email
                 const userEmails = JSON.parse(localStorage.getItem('userEmails') || '{}');
@@ -324,6 +396,9 @@
                 // Show success message
                 successMessage.style.display = 'block';
                 signupBtn.textContent = 'Account Created!';
+
+                // Debug: Check what's in localStorage
+                console.log('Current registeredUsers:', JSON.parse(localStorage.getItem('registeredUsers') || '{}'));
 
                 // Redirect to login page after 2 seconds
                 setTimeout(() => {
@@ -364,6 +439,9 @@
                 this.style.borderColor = '#2ecc71';
             }
         });
+
+        // Initialize admin accounts when page loads
+        initializeAdminAccounts();
     </script>
 </body>
 </html>
