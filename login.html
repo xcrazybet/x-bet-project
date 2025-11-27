@@ -141,17 +141,14 @@
             color: #e67e22;
         }
 
-        .admin-test-accounts {
-            margin-top: 20px;
-            padding: 15px;
+        .security-notice {
+            margin-top: 15px;
+            padding: 10px;
             background: #e8f6f3;
             border-radius: 8px;
             border-left: 4px solid #1abc9c;
             font-size: 12px;
-        }
-
-        .admin-test-accounts h4 {
-            margin-bottom: 8px;
+            text-align: center;
             color: #16a085;
         }
     </style>
@@ -160,7 +157,7 @@
     <div class="login-container">
         <div class="logo">
             <h1>X-<span>BET</span></h1>
-            <p>Welcome to Gaming Platform</p>
+            <p>Secure Gaming Platform</p>
         </div>
 
         <form id="loginForm">
@@ -174,7 +171,7 @@
                 <input type="password" id="password" name="password" required placeholder="Enter your password">
             </div>
 
-            <button type="submit" class="login-btn" id="loginBtn">Login to Play</button>
+            <button type="submit" class="login-btn" id="loginBtn">Login to Platform</button>
             
             <div class="error-message" id="errorMessage">
                 Invalid username or password!
@@ -185,20 +182,15 @@
             </div>
         </form>
 
-        <div class="admin-test-accounts">
-            <h4>👑 Admin Test Accounts:</h4>
-            <p><strong>admin_master</strong> / MasterAdmin2024!</p>
-            <p><strong>finance_manager</strong> / Finance14M$2024</p>
-            <p><strong>support_admin</strong> / SupportAdmin789!</p>
-            <p><strong>admin_tech</strong> / TechAdmin2024!</p>
-            <p><strong>admin_support2</strong> / Support2Admin2024!</p>
+        <div class="security-notice">
+            <p>🔒 Secure Authentication System</p>
         </div>
 
         <div class="info-box">
-            <h4>💡 How to Start Playing:</h4>
-            <p>1. Sign up for free account</p>
-            <p>2. Contact admins to deposit money</p>
-            <p>3. Start betting and winning!</p>
+            <h4>💡 How to Get Started:</h4>
+            <p>1. Create a free account</p>
+            <p>2. Contact support for account funding</p>
+            <p>3. Start playing and winning!</p>
         </div>
 
         <div class="register-link">
@@ -329,7 +321,7 @@
                 // Failed login
                 errorMessage.style.display = 'block';
                 successMessage.style.display = 'none';
-                loginBtn.textContent = 'Login to Play';
+                loginBtn.textContent = 'Login to Platform';
                 loginBtn.disabled = false;
                 
                 setTimeout(() => {
