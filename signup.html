@@ -5,475 +5,375 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>X-BET - Sign Up</title>
     <style>
+        :root {
+            --primary: #1a1f36;
+            --secondary: #252b42;
+            --accent: #00d4aa;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #2ecc71;
+            --text: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border: #2d3748;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: linear-gradient(135deg, #0f1419 0%, #1a1f36 100%);
+            color: var(--text);
+            line-height: 1.6;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
-
+        
         .signup-container {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             width: 100%;
-            max-width: 450px;
+            max-width: 400px;
+            background: var(--secondary);
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
         }
-
+        
         .logo {
             text-align: center;
             margin-bottom: 30px;
         }
-
+        
         .logo h1 {
-            color: #333;
-            font-size: 28px;
-            font-weight: bold;
+            color: var(--accent);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
         }
-
-        .logo span {
-            color: #b21f1f;
+        
+        .logo p {
+            color: var(--text-muted);
+            font-size: 1rem;
         }
-
+        
         .form-group {
             margin-bottom: 20px;
         }
-
+        
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-weight: 500;
         }
-
-        .form-group input {
+        
+        .form-control {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: border-color 0.3s;
+            padding: 12px 15px;
+            background: var(--primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+            transition: all 0.3s;
         }
-
-        .form-group input:focus {
+        
+        .form-control:focus {
             outline: none;
-            border-color: #b21f1f;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
         }
-
-        .signup-btn {
+        
+        .btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.2s;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
         }
-
-        .signup-btn:hover {
+        
+        .btn-primary {
+            background: var(--accent);
+            color: var(--primary);
+        }
+        
+        .btn-primary:hover {
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 170, 0.3);
         }
-
-        .signup-btn:disabled {
-            background: #95a5a6;
-            cursor: not-allowed;
-            transform: none;
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+            margin-top: 10px;
         }
-
-        .message {
-            text-align: center;
-            margin-top: 15px;
-            padding: 10px;
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
             border-radius: 5px;
+            color: white;
+            z-index: 1000;
+        }
+        
+        .success { background: var(--success); }
+        .error { background: var(--danger); }
+        .warning { background: var(--warning); }
+        
+        .loading {
+            text-align: center;
+            padding: 10px;
+            color: var(--text-muted);
+        }
+        
+        .hidden {
             display: none;
         }
-
-        .error-message {
-            background: #fadbd8;
-            color: #e74c3c;
-            border: 1px solid #f5c6cb;
-        }
-
-        .success-message {
-            background: #d4edda;
-            color: #27ae60;
-            border: 1px solid #c3e6cb;
-        }
-
+        
         .login-link {
             text-align: center;
             margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
+            color: var(--text-muted);
         }
-
+        
         .login-link a {
-            color: #3498db;
+            color: var(--accent);
             text-decoration: none;
-            font-weight: bold;
         }
-
+        
         .login-link a:hover {
             text-decoration: underline;
         }
-
-        .info-box {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e8f4fd;
-            border-radius: 8px;
-            border-left: 4px solid #3498db;
-            font-size: 14px;
-        }
-
-        .info-box h4 {
-            margin-bottom: 8px;
-            color: #2980b9;
-        }
-
+        
         .terms {
-            margin-top: 15px;
             font-size: 12px;
-            color: #666;
+            color: var(--text-muted);
             text-align: center;
-        }
-
-        .debug-info {
-            background: #fff3cd;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            font-size: 12px;
-            color: #856404;
-            display: none;
+            margin-top: 15px;
         }
     </style>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <div class="signup-container">
         <div class="logo">
-            <h1>X-<span>BET</span></h1>
-            <p>Create Your Free Account</p>
+            <h1>X-BET</h1>
+            <p>Create Your Account</p>
         </div>
-
-        <form id="signupForm">
+        
+        <form id="signup-form">
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required placeholder="Choose a username" minlength="3" maxlength="20">
+                <label for="displayName">Full Name</label>
+                <input type="text" class="form-control" id="displayName" placeholder="Enter your full name" required>
             </div>
-
+            
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required placeholder="Enter your email">
+                <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
             </div>
-
+            
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="Create a password" minlength="6">
+                <input type="password" class="form-control" id="password" placeholder="Create a password" minlength="6" required>
             </div>
-
+            
             <div class="form-group">
                 <label for="confirmPassword">Confirm Password</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password">
+                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password" minlength="6" required>
             </div>
-
-            <button type="submit" class="signup-btn" id="signupBtn">Create Free Account</button>
             
-            <div class="message error-message" id="errorMessage">
-                Please fix the errors above.
-            </div>
-
-            <div class="message success-message" id="successMessage">
-                Account created successfully! Redirecting to login...
-            </div>
-
-            <div class="debug-info" id="debugInfo">
-                <!-- Debug info will appear here -->
+            <button type="submit" class="btn btn-primary" id="signup-btn">
+                Create Account
+            </button>
+            
+            <div class="loading hidden" id="loading">
+                Creating your account...
             </div>
         </form>
-
-        <div class="info-box">
-            <h4>🎮 Start Playing Today!</h4>
-            <p>• Free account registration</p>
-            <p>• Contact admins for money deposits</p>
-            <p>• Play games anytime, anywhere</p>
-            <p>• Instant withdrawals</p>
-        </div>
-
+        
         <div class="login-link">
-            <p>Already have an account? <a href="login.html">Login here</a></p>
+            Already have an account? <a href="login.html">Sign In</a>
         </div>
-
+        
         <div class="terms">
-            By creating an account, you agree to our Terms of Service
+            By creating an account, you agree to our Terms of Service and Privacy Policy
         </div>
     </div>
 
     <script>
-        // Existing admin users (cannot be registered by public)
-        const ADMIN_USERS = {
-            'admin_master': true,
-            'finance_manager': true,
-            'support_admin': true,
-            'admin_tech': true,
-            'admin_support2': true
+        // Firebase Configuration - Same as admin panel
+        const firebaseConfig = {
+            apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
+            authDomain: "x-bet-prod-jd.firebaseapp.com",
+            projectId: "x-bet-prod-jd",
+            storageBucket: "x-bet-prod-jd.firebasestorage.app",
+            messagingSenderId: "499334334535",
+            appId: "1:499334334535:web:bebc1bf817e24d9e3c4962",
+            measurementId: "G-PTV4XMYQ6P"
         };
 
-        // Check if username already exists in localStorage
-        function isUsernameTaken(username) {
-            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-            return registeredUsers.hasOwnProperty(username) || ADMIN_USERS[username];
-        }
+        let auth;
+        let db;
 
-        // Check if email already exists in localStorage
-        function isEmailTaken(email) {
-            const userEmails = JSON.parse(localStorage.getItem('userEmails') || '{}');
-            const emails = Object.values(userEmails);
-            return emails.includes(email);
-        }
-
-        // Initialize admin accounts if they don't exist
-        function initializeAdminAccounts() {
-            const adminAccounts = {
-                'admin_master': {
-                    password: 'MasterAdmin2024!',
-                    balance: 50000.00,
-                    role: 'Head Administrator'
-                },
-                'finance_manager': {
-                    password: 'Finance14M$2024',
-                    balance: 14000000.00,
-                    role: 'Finance Manager'
-                },
-                'support_admin': {
-                    password: 'SupportAdmin789!',
-                    balance: 50000.00,
-                    role: 'Support Admin'
-                },
-                'admin_tech': {
-                    password: 'TechAdmin2024!',
-                    balance: 0.00,
-                    role: 'Technical Admin'
-                },
-                'admin_support2': {
-                    password: 'Support2Admin2024!',
-                    balance: 0.00,
-                    role: 'Support Admin 2'
-                }
-            };
-
-            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-            let updated = false;
-
-            Object.keys(adminAccounts).forEach(admin => {
-                const adminData = adminAccounts[admin];
-                
-                // Save admin credentials to registeredUsers
-                if (!registeredUsers[admin]) {
-                    registeredUsers[admin] = adminData.password;
-                    updated = true;
-                }
-
-                // Initialize admin user data if not exists
-                if (!localStorage.getItem('userData_' + admin)) {
-                    const adminUserData = {
-                        balance: adminData.balance,
-                        pendingWithdrawals: 0.00,
-                        totalProfit: 0.00,
-                        email: admin + '@xbet.com',
-                        transactions: [{
-                            type: 'System Allocation',
-                            amount: adminData.balance,
-                            status: 'completed',
-                            date: new Date().toISOString(),
-                            details: 'Admin system fund allocation'
-                        }],
-                        bets: [],
-                        isAdmin: true,
-                        role: adminData.role,
-                        registeredAt: new Date().toISOString(),
-                        lastLogin: new Date().toISOString()
-                    };
-                    localStorage.setItem('userData_' + admin, JSON.stringify(adminUserData));
-                    updated = true;
-                }
-            });
-
-            if (updated) {
-                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+        // Initialize Firebase
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.firestore();
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                showNotification('System error. Please try again later.', 'error');
             }
-        }
+        });
 
-        // Registration form handler
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
+        // Handle signup form submission
+        document.getElementById('signup-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const username = document.getElementById('username').value.trim();
+            const displayName = document.getElementById('displayName').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            const errorMessage = document.getElementById('errorMessage');
-            const successMessage = document.getElementById('successMessage');
-            const debugInfo = document.getElementById('debugInfo');
-            const signupBtn = document.getElementById('signupBtn');
-
-            // Reset messages
-            errorMessage.style.display = 'none';
-            successMessage.style.display = 'none';
-            debugInfo.style.display = 'none';
+            const signupBtn = document.getElementById('signup-btn');
+            const loading = document.getElementById('loading');
 
             // Validation
-            let errors = [];
-
-            // Username validation
-            if (username.length < 3) {
-                errors.push('Username must be at least 3 characters long');
-            }
-            if (isUsernameTaken(username)) {
-                errors.push('Username already exists');
-            }
-            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-                errors.push('Username can only contain letters, numbers, and underscores');
-            }
-
-            // Email validation
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                errors.push('Please enter a valid email address');
-            }
-            if (isEmailTaken(email)) {
-                errors.push('Email already registered');
-            }
-
-            // Password validation
-            if (password.length < 6) {
-                errors.push('Password must be at least 6 characters long');
-            }
             if (password !== confirmPassword) {
-                errors.push('Passwords do not match');
+                showNotification('Passwords do not match', 'error');
+                return;
             }
 
-            // Show errors or proceed with registration
-            if (errors.length > 0) {
-                errorMessage.textContent = errors.join('. ');
-                errorMessage.style.display = 'block';
+            if (password.length < 6) {
+                showNotification('Password must be at least 6 characters', 'error');
                 return;
             }
 
             // Show loading state
-            signupBtn.textContent = 'Creating Account...';
             signupBtn.disabled = true;
+            loading.classList.remove('hidden');
+            signupBtn.textContent = 'Creating Account...';
 
-            // Initialize admin accounts first
-            initializeAdminAccounts();
+            try {
+                // 1. Create user in Firebase Authentication
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
 
-            // Simulate registration process
-            setTimeout(() => {
-                try {
-                    // Get current registeredUsers
-                    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-                    
-                    // Save user credentials to registeredUsers
-                    registeredUsers[username] = password;
-                    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-                    
-                    // Save user email
-                    const userEmails = JSON.parse(localStorage.getItem('userEmails') || '{}');
-                    userEmails[username] = email;
-                    localStorage.setItem('userEmails', JSON.stringify(userEmails));
+                // 2. Update user profile with display name
+                await user.updateProfile({
+                    displayName: displayName
+                });
 
-                    // Create user data with ZERO balance
-                    const userData = {
-                        balance: 0.00,
-                        pendingWithdrawals: 0.00,
-                        totalProfit: 0.00,
-                        email: email,
-                        transactions: [{
-                            type: 'Account Created',
-                            amount: 0.00,
-                            status: 'completed',
-                            date: new Date().toISOString(),
-                            details: 'Welcome to X-BET! Contact admins for deposits.'
-                        }],
-                        bets: [],
-                        registeredAt: new Date().toISOString(),
-                        lastLogin: new Date().toISOString()
-                    };
-                    localStorage.setItem('userData_' + username, JSON.stringify(userData));
+                // 3. Create user document in Firestore (hidden from other users)
+                const userData = {
+                    email: email,
+                    displayName: displayName,
+                    balance: 0.00,
+                    profit: 0.00,
+                    status: "active",
+                    isAdmin: false, // Regular users are not admins
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    // Additional fields that won't be shown to other users
+                    uid: user.uid,
+                    emailVerified: false
+                };
 
-                    // Mark registration as successful
-                    localStorage.setItem('registrationSuccess', 'true');
+                await db.collection('users').doc(user.uid).set(userData);
 
-                    // Show debug info
-                    const currentUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-                    debugInfo.innerHTML = `Debug: Saved user "${username}" to localStorage. Total users: ${Object.keys(currentUsers).length}`;
-                    debugInfo.style.display = 'block';
+                // 4. Send email verification
+                await user.sendEmailVerification();
 
-                    // Show success message
-                    successMessage.style.display = 'block';
-                    signupBtn.textContent = 'Account Created!';
+                showNotification('✅ Account created successfully! Please check your email for verification.', 'success');
+                
+                // Redirect to dashboard or login page after successful signup
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html'; // Change to your dashboard page
+                }, 3000);
 
-                    // Redirect to login page after 2 seconds
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2000);
-
-                } catch (error) {
-                    errorMessage.textContent = 'Registration failed: ' + error.message;
-                    errorMessage.style.display = 'block';
-                    signupBtn.textContent = 'Create Free Account';
-                    signupBtn.disabled = false;
+            } catch (error) {
+                console.error('Signup error:', error);
+                
+                let errorMessage = 'Account creation failed. ';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage += 'Email is already registered.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'Invalid email address.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage += 'Password is too weak.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage += 'Network error. Please check your connection.';
+                        break;
+                    default:
+                        errorMessage += error.message;
                 }
-            }, 1500);
+                
+                showNotification(errorMessage, 'error');
+                
+                // Reset form state
+                signupBtn.disabled = false;
+                loading.classList.add('hidden');
+                signupBtn.textContent = 'Create Account';
+            }
         });
 
         // Real-time validation
-        document.getElementById('username').addEventListener('blur', function() {
-            const username = this.value.trim();
-            if (username.length >= 3 && isUsernameTaken(username)) {
-                this.style.borderColor = '#e74c3c';
-            } else if (username.length >= 3) {
-                this.style.borderColor = '#2ecc71';
-            }
-        });
-
-        document.getElementById('email').addEventListener('blur', function() {
-            const email = this.value.trim();
-            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                this.style.borderColor = '#e74c3c';
-            } else if (email && isEmailTaken(email)) {
-                this.style.borderColor = '#e74c3c';
-            } else if (email) {
-                this.style.borderColor = '#2ecc71';
-            }
-        });
-
         document.getElementById('confirmPassword').addEventListener('input', function() {
             const password = document.getElementById('password').value;
             const confirmPassword = this.value;
             
             if (confirmPassword && password !== confirmPassword) {
-                this.style.borderColor = '#e74c3c';
-            } else if (confirmPassword) {
-                this.style.borderColor = '#2ecc71';
+                this.style.borderColor = 'var(--danger)';
+            } else {
+                this.style.borderColor = 'var(--border)';
             }
         });
 
-        // Initialize admin accounts when page loads
-        initializeAdminAccounts();
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Check if user is already logged in
+        auth?.onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in, redirect to dashboard
+                window.location.href = 'dashboard.html';
+            }
+        });
     </script>
 </body>
 </html>
