@@ -111,17 +111,6 @@
             box-shadow: 0 5px 15px rgba(0, 212, 170, 0.3);
         }
         
-        .btn-secondary {
-            background: transparent;
-            color: var(--text);
-            border: 1px solid var(--border);
-            margin-top: 10px;
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
         .notification {
             position: fixed;
             top: 20px;
@@ -134,7 +123,6 @@
         
         .success { background: var(--success); }
         .error { background: var(--danger); }
-        .warning { background: var(--warning); }
         
         .loading {
             text-align: center;
@@ -157,16 +145,24 @@
             text-decoration: none;
         }
         
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-        
         .terms {
             font-size: 12px;
             color: var(--text-muted);
             text-align: center;
             margin-top: 15px;
         }
+        
+        .password-strength {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .strength-weak { background: var(--danger); width: 33%; }
+        .strength-medium { background: var(--warning); width: 66%; }
+        .strength-strong { background: var(--success); width: 100%; }
     </style>
     
     <!-- Firebase SDK -->
@@ -195,6 +191,7 @@
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" class="form-control" id="password" placeholder="Create a password" minlength="6" required>
+                <div class="password-strength" id="password-strength"></div>
             </div>
             
             <div class="form-group">
@@ -221,7 +218,7 @@
     </div>
 
     <script>
-        // Firebase Configuration - Same as admin panel
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
             authDomain: "x-bet-prod-jd.firebaseapp.com",
@@ -242,6 +239,13 @@
                 auth = firebase.auth();
                 db = firebase.firestore();
                 console.log('Firebase initialized successfully');
+                
+                // Check if user is already logged in
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        window.location.href = 'dashboard.html';
+                    }
+                });
             } catch (error) {
                 console.error('Firebase initialization error:', error);
                 showNotification('System error. Please try again later.', 'error');
@@ -285,17 +289,16 @@
                     displayName: displayName
                 });
 
-                // 3. Create user document in Firestore (hidden from other users)
+                // 3. Create user document in Firestore (REGULAR USER - isAdmin: false)
                 const userData = {
                     email: email,
                     displayName: displayName,
                     balance: 0.00,
                     profit: 0.00,
                     status: "active",
-                    isAdmin: false, // Regular users are not admins
+                    isAdmin: false, // IMPORTANT: Regular users are NOT admins
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    // Additional fields that won't be shown to other users
                     uid: user.uid,
                     emailVerified: false
                 };
@@ -307,9 +310,9 @@
 
                 showNotification('✅ Account created successfully! Please check your email for verification.', 'success');
                 
-                // Redirect to dashboard or login page after successful signup
+                // Redirect to dashboard after successful signup
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html'; // Change to your dashboard page
+                    window.location.href = 'dashboard.html';
                 }, 3000);
 
             } catch (error) {
@@ -343,7 +346,31 @@
             }
         });
 
-        // Real-time validation
+        // Password strength indicator
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthBar = document.getElementById('password-strength');
+            
+            let strength = 0;
+            if (password.length >= 6) strength++;
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            strengthBar.className = 'password-strength';
+            if (password.length > 0) {
+                if (strength <= 2) {
+                    strengthBar.classList.add('strength-weak');
+                } else if (strength <= 4) {
+                    strengthBar.classList.add('strength-medium');
+                } else {
+                    strengthBar.classList.add('strength-strong');
+                }
+            }
+        });
+
+        // Real-time password confirmation validation
         document.getElementById('confirmPassword').addEventListener('input', function() {
             const password = document.getElementById('password').value;
             const confirmPassword = this.value;
@@ -366,14 +393,6 @@
                 notification.remove();
             }, 5000);
         }
-
-        // Check if user is already logged in
-        auth?.onAuthStateChanged((user) => {
-            if (user) {
-                // User is signed in, redirect to dashboard
-                window.location.href = 'dashboard.html';
-            }
-        });
     </script>
 </body>
 </html>
