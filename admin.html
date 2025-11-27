@@ -3,20 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET Admin Panel</title>
+    <title>Admin Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <style>
-        :root {
-            --primary: #1a1f36;
-            --secondary: #252b42;
-            --accent: #00d4aa;
-            --danger: #e74c3c;
-            --warning: #f39c12;
-            --success: #2ecc71;
-            --text: #e0e0e0;
-            --text-muted: #a0a0a0;
-            --border: #2d3748;
-        }
-        
         * {
             margin: 0;
             padding: 0;
@@ -25,733 +16,545 @@
         }
         
         body {
-            background-color: #0f1419;
-            color: var(--text);
-            line-height: 1.6;
-            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
         
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            color: var(--accent);
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        .login-section {
-            background: var(--secondary);
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 400px;
-            margin: 50px auto;
-            text-align: center;
-        }
-
-        .login-section h2 {
-            margin-bottom: 20px;
-            color: var(--accent);
-        }
-        
-        .connection-status {
-            background: var(--secondary);
+        header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px;
-            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
-        .status-connected {
-            border-left: 4px solid var(--success);
-        }
-        
-        .status-error {
-            border-left: 4px solid var(--danger);
-        }
-        
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        
-        .btn-primary {
-            background: var(--accent);
-            color: var(--primary);
-        }
-        
-        .btn-secondary {
-            background: var(--primary);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-        
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-        
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: var(--secondary);
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            border-left: 4px solid var(--accent);
-        }
-        
-        .stat-card .value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--accent);
-        }
-        
-        .users-table {
-            background: var(--secondary);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 20px;
-        }
-        
-        .table-header {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 200px;
-            padding: 15px 20px;
-            background: var(--primary);
-            font-weight: 600;
-        }
-        
-        .user-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 200px;
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .user-row:hover {
-            background: rgba(255,255,255,0.05);
-        }
-        
-        .admin-badge {
-            background: var(--warning);
-            color: var(--primary);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: bold;
-            margin-left: 5px;
-        }
-        
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 5px;
-            color: white;
-            z-index: 1000;
-        }
-        
-        .success { background: var(--success); }
-        .error { background: var(--danger); }
-        .warning { background: var(--warning); }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-muted);
-        }
-        
-        .debug-info {
-            background: var(--primary);
-            padding: 15px;
-            border-radius: 5px;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 12px;
-        }
-
-        .hidden {
-            display: none;
-        }
-        
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            background: var(--secondary);
-            padding: 30px;
-            border-radius: 10px;
-            width: 500px;
-            max-width: 90%;
-        }
-        
-        .modal-header {
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border);
         }
         
-        .modal-header h3 {
-            color: var(--accent);
-            margin: 0;
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            color: var(--text);
+        .logo {
             font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logout-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card h2 {
+            margin-bottom: 15px;
+            color: #2a5298;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .balance-card {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #2a5298, #1e3c72);
+            color: white;
+        }
+        
+        .balance-amount {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .admin-list {
+            list-style-type: none;
+        }
+        
+        .admin-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .admin-name {
+            font-weight: 500;
+        }
+        
+        .admin-balance {
+            font-weight: bold;
+            color: #2a5298;
+        }
+        
+        .transfer-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         
         .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--text-muted);
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            background: var(--primary);
-            border: 1px solid var(--border);
-            border-radius: 5px;
-            color: var(--text);
-        }
-        
-        .select-control {
-            width: 100%;
-            padding: 10px;
-            background: var(--primary);
-            border: 1px solid var(--border);
-            border-radius: 5px;
-            color: var(--text);
-        }
-        
-        .form-actions {
             display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 20px;
+            flex-direction: column;
+            gap: 5px;
         }
         
-        .btn-small {
-            padding: 8px 12px;
-            font-size: 12px;
-            margin: 2px;
+        label {
+            font-weight: 500;
+            color: #555;
         }
         
-        .admin-only {
-            border: 1px solid var(--warning);
-            background: rgba(243, 156, 18, 0.1);
-        }
-
-        .user-info {
-            text-align: right;
-            margin-bottom: 20px;
+        select, input {
             padding: 10px;
-            background: var(--secondary);
+            border: 1px solid #ddd;
             border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .transfer-btn {
+            background-color: #2a5298;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .transfer-btn:hover {
+            background-color: #1e3c72;
+        }
+        
+        .transaction-history {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .transaction-amount {
+            font-weight: bold;
+        }
+        
+        .positive {
+            color: #27ae60;
+        }
+        
+        .negative {
+            color: #e74c3c;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2a5298;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .login-btn {
+            background-color: #2a5298;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .login-btn:hover {
+            background-color: #1e3c72;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .success-message {
+            color: #27ae60;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .hidden {
+            display: none;
         }
     </style>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Login Section (Shows when not authenticated) -->
-        <div class="login-section" id="login-section">
-            <h2>Admin Login</h2>
+    <!-- Login Section -->
+    <div id="loginSection" class="login-container">
+        <h2 class="login-title">Admin Login</h2>
+        <form id="loginForm" class="login-form">
             <div class="form-group">
-                <input type="email" class="form-control" id="admin-email" placeholder="Admin Email" value="admin@xbet.com">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="admin@bdet.com" required>
             </div>
             <div class="form-group">
-                <input type="password" class="form-control" id="admin-password" placeholder="Admin Password" value="admin123">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
             </div>
-            <button class="btn btn-primary" onclick="adminLogin()">Login as Admin</button>
-            <div class="loading hidden" id="login-loading">Logging in...</div>
-        </div>
+            <button type="submit" class="login-btn">Login as Admin</button>
+        </form>
+        <div id="loginMessage" class="error-message"></div>
+    </div>
 
-        <!-- Admin Panel (Shows when authenticated) -->
-        <div id="admin-panel" class="hidden">
-            <div class="user-info">
-                Welcome, <strong id="admin-name">Admin</strong> | 
-                <button class="btn btn-secondary btn-small" onclick="adminLogout()">Logout</button>
-            </div>
-
-            <div class="header">
-                <h1>X-BET Admin Panel</h1>
-                <p>Complete Transaction Management System</p>
-            </div>
-
-            <!-- Connection Status -->
-            <div class="connection-status" id="connection-status">
-                <div class="loading">Connecting to Firebase...</div>
-            </div>
-
-            <!-- Controls -->
-            <div class="controls">
-                <button class="btn btn-primary" onclick="loadAllUsers()">Load All Users</button>
-                <button class="btn btn-success" onclick="showCreateUserModal()">Create New User</button>
-                <button class="btn btn-warning" onclick="showCreateAdminModal()">Create New Admin</button>
-                <button class="btn btn-secondary" onclick="checkFirestoreAccess()">Test Permissions</button>
-            </div>
-
-            <!-- Debug Info -->
-            <div class="debug-info" id="debug-info">
-                Click "Test Permissions" to check database access
-            </div>
-
-            <!-- Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="value" id="total-users">0</div>
-                    <div>Total Users</div>
-                </div>
-                <div class="stat-card">
-                    <div class="value" id="total-admins">0</div>
-                    <div>Admin Users</div>
-                </div>
-                <div class="stat-card">
-                    <div class="value">$13,999,999</div>
-                    <div>System Balance</div>
-                </div>
-                <div class="stat-card">
-                    <div class="value" id="active-users">0</div>
-                    <div>Active Users</div>
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="container hidden">
+        <header>
+            <div class="header-content">
+                <div class="logo">Admin Dashboard</div>
+                <div class="user-info">
+                    <span id="currentAdminName">Admin User</span>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
                 </div>
             </div>
+        </header>
 
-            <!-- Users Table -->
-            <div class="users-table">
-                <div class="table-header">
-                    <div>User Information</div>
-                    <div>Balance</div>
-                    <div>Status</div>
-                    <div>Type</div>
-                    <div>Actions</div>
-                </div>
-                <div id="users-container">
-                    <div class="loading">
-                        Click "Load All Users" to see your database users
+        <div class="dashboard">
+            <div class="card balance-card">
+                <h2>Account Balance</h2>
+                <div class="balance-amount" id="adminBalance">$0.00</div>
+                <div id="adminRole">Administrator</div>
+            </div>
+
+            <div class="card">
+                <h2>Admin Users</h2>
+                <ul class="admin-list" id="adminList">
+                    <!-- Admin list will be populated here -->
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Transfer Funds</h2>
+                <form id="transferForm" class="transfer-form">
+                    <div class="form-group">
+                        <label for="recipient">Recipient</label>
+                        <select id="recipient" required>
+                            <option value="">Select a recipient</option>
+                        </select>
                     </div>
-                </div>
+                    <div class="form-group">
+                        <label for="amount">Amount ($)</label>
+                        <input type="number" id="amount" min="0.01" step="0.01" required>
+                    </div>
+                    <button type="submit" class="transfer-btn">Transfer Funds</button>
+                </form>
+                <div id="transferMessage"></div>
             </div>
-        </div>
-    </div>
 
-    <!-- Transfer Modal -->
-    <div class="modal" id="transfer-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">Transfer Funds</h3>
-                <button class="close-modal" onclick="closeModal()">&times;</button>
+            <div class="card">
+                <h2>Transaction History</h2>
+                <div class="transaction-history" id="transactionHistory">
+                    <!-- Transaction history will be populated here -->
+                </div>
             </div>
-            <form id="transfer-form">
-                <div class="form-group">
-                    <label for="from-user">From User</label>
-                    <input type="text" class="form-control" id="from-user" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="to-user-select">To User</label>
-                    <select class="select-control" id="to-user-select" required>
-                        <option value="">Select recipient...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="current-balance">Current Balance</label>
-                    <input type="text" class="form-control" id="current-balance" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="amount">Amount ($)</label>
-                    <input type="number" class="form-control" id="amount" min="0.01" step="0.01" placeholder="Enter amount" required>
-                </div>
-                <div class="form-group">
-                    <label for="transaction-code">Transaction Code</label>
-                    <input type="text" class="form-control" id="transaction-code" placeholder="Enter transaction code" required>
-                </div>
-                <div class="form-group">
-                    <label for="notes">Notes</label>
-                    <textarea class="form-control" id="notes" rows="3" placeholder="Transaction notes"></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Process Transfer</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Create User Modal -->
-    <div class="modal" id="create-user-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Create New User</h3>
-                <button class="close-modal" onclick="closeModal()">&times;</button>
-            </div>
-            <form id="create-user-form">
-                <div class="form-group">
-                    <label for="new-user-name">Full Name</label>
-                    <input type="text" class="form-control" id="new-user-name" placeholder="Enter full name" required>
-                </div>
-                <div class="form-group">
-                    <label for="new-user-email">Email Address</label>
-                    <input type="email" class="form-control" id="new-user-email" placeholder="Enter email" required>
-                </div>
-                <div class="form-group">
-                    <label for="new-user-password">Password</label>
-                    <input type="password" class="form-control" id="new-user-password" placeholder="Enter password" minlength="6" required>
-                </div>
-                <div class="form-group">
-                    <label for="initial-balance">Initial Balance ($)</label>
-                    <input type="number" class="form-control" id="initial-balance" value="0" min="0" step="0.01">
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-success">Create User</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Create Admin Modal -->
-    <div class="modal" id="create-admin-modal">
-        <div class="modal-content admin-only">
-            <div class="modal-header">
-                <h3>Create New Admin</h3>
-                <button class="close-modal" onclick="closeModal()">&times;</button>
-            </div>
-            <form id="create-admin-form">
-                <div class="form-group">
-                    <label for="new-admin-name">Admin Name</label>
-                    <input type="text" class="form-control" id="new-admin-name" placeholder="Enter admin name" required>
-                </div>
-                <div class="form-group">
-                    <label for="new-admin-email">Email Address</label>
-                    <input type="email" class="form-control" id="new-admin-email" placeholder="Enter admin email" required>
-                </div>
-                <div class="form-group">
-                    <label for="new-admin-password">Password</label>
-                    <input type="password" class="form-control" id="new-admin-password" placeholder="Enter password" minlength="6" required>
-                </div>
-                <div class="form-group">
-                    <label for="admin-balance">Admin Balance ($)</label>
-                    <input type="number" class="form-control" id="admin-balance" value="10000" min="0" step="0.01">
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-warning">Create Admin</button>
-                </div>
-            </form>
         </div>
     </div>
 
     <script>
-        // Your Firebase Config
+        // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
-            authDomain: "x-bet-prod-jd.firebaseapp.com",
-            projectId: "x-bet-prod-jd",
-            storageBucket: "x-bet-prod-jd.firebasestorage.app",
-            messagingSenderId: "499334334535",
-            appId: "1:499334334535:web:bebc1bf817e24d9e3c4962",
-            measurementId: "G-PTV4XMYQ6P"
+            apiKey: "your-api-key",
+            authDomain: "your-auth-domain",
+            projectId: "your-project-id",
+            storageBucket: "your-storage-bucket",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id"
         };
 
-        let db;
-        let auth;
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // DOM Elements
+        const loginSection = document.getElementById('loginSection');
+        const dashboardSection = document.getElementById('dashboardSection');
+        const loginForm = document.getElementById('loginForm');
+        const loginMessage = document.getElementById('loginMessage');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const currentAdminName = document.getElementById('currentAdminName');
+        const adminBalance = document.getElementById('adminBalance');
+        const adminList = document.getElementById('adminList');
+        const recipientSelect = document.getElementById('recipient');
+        const transferForm = document.getElementById('transferForm');
+        const transferMessage = document.getElementById('transferMessage');
+        const transactionHistory = document.getElementById('transactionHistory');
+
+        // Admin credentials
+        const adminCredentials = [
+            { email: "manager@bdet.com", password: "Manager123!", name: "Admin Manager", balance: 14000000 },
+            { email: "admin1@bdet.com", password: "Admin1Pass!", name: "Admin One", balance: 0 },
+            { email: "admin2@bdet.com", password: "Admin2Pass!", name: "Admin Two", balance: 0 },
+            { email: "admin3@bdet.com", password: "Admin3Pass!", name: "Admin Three", balance: 0 },
+            { email: "admin4@bdet.com", password: "Admin4Pass!", name: "Admin Four", balance: 0 }
+        ];
+
+        // Current admin
         let currentAdmin = null;
-        let realUsers = [];
-        let currentFromUser = null;
-        let currentAction = '';
 
-        // Initialize Firebase
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeFirebase();
-        });
-
-        // Initialize Firebase
-        function initializeFirebase() {
-            try {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.firestore();
-                auth = firebase.auth();
-                
-                // Check if admin is already logged in
-                auth.onAuthStateChanged(async (user) => {
-                    if (user) {
-                        // Check if this user is an admin
-                        try {
-                            const userDoc = await db.collection('users').doc(user.uid).get();
-                            if (userDoc.exists && userDoc.data().isAdmin) {
-                                currentAdmin = user;
-                                showAdminPanel();
-                                updateConnectionStatus('✅ Connected as Admin: ' + user.email, 'success');
-                                loadAllUsers();
-                            } else {
-                                // Not an admin, log them out
-                                await auth.signOut();
-                                showNotification('❌ Access denied. Admin privileges required.', 'error');
-                            }
-                        } catch (error) {
-                            console.error('Error checking admin status:', error);
-                        }
+        // Initialize the application
+        function init() {
+            // Check if user is already logged in
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // User is signed in
+                    const admin = adminCredentials.find(a => a.email === user.email);
+                    if (admin) {
+                        currentAdmin = admin;
+                        showDashboard();
                     } else {
-                        showLoginPanel();
+                        auth.signOut();
                     }
-                });
-                
-            } catch (error) {
-                updateConnectionStatus('❌ Firebase connection failed: ' + error.message, 'error');
-            }
-        }
-
-        // Admin login function
-        async function adminLogin() {
-            const email = document.getElementById('admin-email').value;
-            const password = document.getElementById('admin-password').value;
-            const loading = document.getElementById('login-loading');
-
-            if (!email || !password) {
-                showNotification('❌ Please enter email and password', 'error');
-                return;
-            }
-
-            loading.classList.remove('hidden');
-
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-
-                // Verify this user is an admin
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (userDoc.exists && userDoc.data().isAdmin) {
-                    currentAdmin = user;
-                    showAdminPanel();
-                    showNotification('✅ Admin login successful!', 'success');
-                    loadAllUsers();
                 } else {
-                    await auth.signOut();
-                    showNotification('❌ Access denied. Admin privileges required.', 'error');
+                    // User is signed out
+                    showLogin();
                 }
-            } catch (error) {
-                console.error('Login error:', error);
-                showNotification('❌ Login failed: ' + error.message, 'error');
-            } finally {
-                loading.classList.add('hidden');
-            }
-        }
+            });
 
-        // Admin logout
-        async function adminLogout() {
-            try {
-                await auth.signOut();
-                currentAdmin = null;
-                showLoginPanel();
-                showNotification('✅ Logged out successfully', 'success');
-            } catch (error) {
-                showNotification('❌ Logout error: ' + error.message, 'error');
-            }
-        }
-
-        // Show/hide panels
-        function showAdminPanel() {
-            document.getElementById('login-section').classList.add('hidden');
-            document.getElementById('admin-panel').classList.remove('hidden');
-            if (currentAdmin) {
-                document.getElementById('admin-name').textContent = currentAdmin.email;
-            }
-        }
-
-        function showLoginPanel() {
-            document.getElementById('login-section').classList.remove('hidden');
-            document.getElementById('admin-panel').classList.add('hidden');
-        }
-
-        // Check Firestore access
-        async function checkFirestoreAccess() {
-            const debugInfo = document.getElementById('debug-info');
-            debugInfo.innerHTML = 'Testing database access...';
+            // Login form handler
+            loginForm.addEventListener('submit', handleLogin);
             
-            try {
-                const usersSnapshot = await db.collection('users').limit(1).get();
-                
-                if (!usersSnapshot.empty) {
-                    debugInfo.innerHTML = '✅ Read access: OK - Users collection exists';
-                    showNotification('✅ Database access confirmed', 'success');
-                } else {
-                    debugInfo.innerHTML = 'ℹ️ Read access: OK - Users collection is empty';
-                    showNotification('✅ Database access confirmed (empty)', 'success');
-                }
-                
-            } catch (error) {
-                if (error.code === 'permission-denied') {
-                    debugInfo.innerHTML = '❌ Permission denied. Please update Firestore rules.';
-                    showNotification('❌ Permission denied - Update Firestore rules', 'error');
-                } else {
-                    debugInfo.innerHTML = '❌ Error: ' + error.message;
-                    showNotification('❌ Database error: ' + error.message, 'error');
-                }
+            // Logout button handler
+            logoutBtn.addEventListener('click', handleLogout);
+            
+            // Transfer form handler
+            transferForm.addEventListener('submit', handleTransfer);
+        }
+
+        // Handle login
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const admin = adminCredentials.find(a => a.email === email && a.password === password);
+            
+            if (admin) {
+                // Simulate Firebase authentication
+                auth.signInWithEmailAndPassword(email, password)
+                    .then(() => {
+                        currentAdmin = admin;
+                        showDashboard();
+                    })
+                    .catch(error => {
+                        loginMessage.textContent = "Authentication error: " + error.message;
+                        loginMessage.className = "error-message";
+                    });
+            } else {
+                loginMessage.textContent = "Invalid email or password";
+                loginMessage.className = "error-message";
             }
         }
 
-        // Load all users (including admins) - ONLY WORKS WHEN LOGGED IN AS ADMIN
-        async function loadAllUsers() {
-            if (!currentAdmin) {
-                showNotification('❌ Please log in as admin first', 'error');
+        // Handle logout
+        function handleLogout() {
+            auth.signOut()
+                .then(() => {
+                    currentAdmin = null;
+                    showLogin();
+                })
+                .catch(error => {
+                    console.error("Logout error:", error);
+                });
+        }
+
+        // Handle transfer
+        function handleTransfer(e) {
+            e.preventDefault();
+            const recipientEmail = recipientSelect.value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            
+            if (!recipientEmail) {
+                showTransferMessage("Please select a recipient", "error");
                 return;
             }
-
-            try {
-                const usersContainer = document.getElementById('users-container');
-                usersContainer.innerHTML = '<div class="loading">Loading all users from Firebase...</div>';
-
-                const usersSnapshot = await db.collection('users').get();
-                
-                if (usersSnapshot.empty) {
-                    usersContainer.innerHTML = '<div class="loading">No users found in database.</div>';
-                    updateUserStats(0, 0);
-                    showNotification('📭 No users found in database', 'warning');
-                    return;
-                }
-
-                realUsers = [];
-                usersSnapshot.forEach(doc => {
-                    const userData = doc.data();
-                    realUsers.push({
-                        id: doc.id,
-                        ...userData
-                    });
-                });
-
-                renderUsers(realUsers);
-                showNotification(`✅ Loaded ${realUsers.length} users (including admins)`, 'success');
-                
-            } catch (error) {
-                if (error.code === 'permission-denied') {
-                    showNotification('❌ Read permission denied. Please update Firestore rules.', 'error');
-                } else {
-                    showNotification('❌ Error loading users: ' + error.message, 'error');
-                }
+            
+            if (amount <= 0) {
+                showTransferMessage("Amount must be greater than 0", "error");
+                return;
             }
+            
+            if (currentAdmin.balance < amount) {
+                showTransferMessage("Insufficient funds", "error");
+                return;
+            }
+            
+            // Find recipient
+            const recipient = adminCredentials.find(a => a.email === recipientEmail);
+            if (!recipient) {
+                showTransferMessage("Recipient not found", "error");
+                return;
+            }
+            
+            // Update balances
+            currentAdmin.balance -= amount;
+            recipient.balance += amount;
+            
+            // Record transaction
+            const transaction = {
+                from: currentAdmin.name,
+                to: recipient.name,
+                amount: amount,
+                timestamp: new Date().toLocaleString()
+            };
+            
+            // Update UI
+            updateDashboard();
+            showTransferMessage(`Successfully transferred $${amount.toFixed(2)} to ${recipient.name}`, "success");
+            
+            // Clear form
+            transferForm.reset();
         }
 
-        // [Rest of the functions remain the same as previous version...]
-        // createNewUser, showCreateUserModal, showCreateAdminModal, renderUsers, etc.
-
-        // For brevity, I'm including the essential functions. The complete working version
-        // would include all the modal and user creation functions from the previous response.
-
-        function showCreateUserModal() {
-            document.getElementById('create-user-modal').style.display = 'flex';
+        // Show login section
+        function showLogin() {
+            loginSection.classList.remove('hidden');
+            dashboardSection.classList.add('hidden');
+            loginForm.reset();
+            loginMessage.textContent = "";
         }
 
-        function showCreateAdminModal() {
-            document.getElementById('create-admin-modal').style.display = 'flex';
+        // Show dashboard
+        function showDashboard() {
+            loginSection.classList.add('hidden');
+            dashboardSection.classList.remove('hidden');
+            updateDashboard();
         }
 
-        function closeModal() {
-            document.getElementById('transfer-modal').style.display = 'none';
-            document.getElementById('create-user-modal').style.display = 'none';
-            document.getElementById('create-admin-modal').style.display = 'none';
-            document.getElementById('transfer-form').reset();
-            document.getElementById('create-user-form').reset();
-            document.getElementById('create-admin-form').reset();
-            currentFromUser = null;
-            currentAction = '';
+        // Update dashboard with current data
+        function updateDashboard() {
+            // Update admin info
+            currentAdminName.textContent = currentAdmin.name;
+            adminBalance.textContent = `$${currentAdmin.balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            
+            // Update admin list
+            adminList.innerHTML = '';
+            adminCredentials.forEach(admin => {
+                const li = document.createElement('li');
+                li.className = 'admin-item';
+                li.innerHTML = `
+                    <span class="admin-name">${admin.name}</span>
+                    <span class="admin-balance">$${admin.balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                `;
+                adminList.appendChild(li);
+            });
+            
+            // Update recipient select
+            recipientSelect.innerHTML = '<option value="">Select a recipient</option>';
+            adminCredentials
+                .filter(admin => admin.email !== currentAdmin.email)
+                .forEach(admin => {
+                    const option = document.createElement('option');
+                    option.value = admin.email;
+                    option.textContent = `${admin.name} ($${admin.balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})})`;
+                    recipientSelect.appendChild(option);
+                });
+            
+            // Update transaction history (simulated)
+            updateTransactionHistory();
         }
 
-        // Update connection status
-        function updateConnectionStatus(message, type) {
-            const statusDiv = document.getElementById('connection-status');
-            statusDiv.innerHTML = message;
-            statusDiv.className = `connection-status status-${type === 'success' ? 'connected' : 'error'}`;
+        // Update transaction history
+        function updateTransactionHistory() {
+            // In a real app, this would fetch from Firestore
+            transactionHistory.innerHTML = '';
+            
+            // Simulate some transactions
+            const transactions = [
+                { from: "Admin Manager", to: currentAdmin.name, amount: 5000, timestamp: "2023-10-15 14:30:22", type: "credit" },
+                { from: currentAdmin.name, to: "Admin One", amount: 1000, timestamp: "2023-10-14 09:15:45", type: "debit" },
+                { from: "Admin Two", to: currentAdmin.name, amount: 2500, timestamp: "2023-10-12 16:45:10", type: "credit" }
+            ];
+            
+            transactions.forEach(transaction => {
+                const div = document.createElement('div');
+                div.className = 'transaction-item';
+                
+                const isCredit = transaction.type === 'credit';
+                const amountClass = isCredit ? 'positive' : 'negative';
+                const amountPrefix = isCredit ? '+' : '-';
+                
+                div.innerHTML = `
+                    <div>
+                        <div>${isCredit ? 'From: ' + transaction.from : 'To: ' + transaction.to}</div>
+                        <div style="font-size: 0.8em; color: #777;">${transaction.timestamp}</div>
+                    </div>
+                    <div class="transaction-amount ${amountClass}">${amountPrefix}$${transaction.amount.toFixed(2)}</div>
+                `;
+                
+                transactionHistory.appendChild(div);
+            });
         }
 
-        // Show notification
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
+        // Show transfer message
+        function showTransferMessage(message, type) {
+            transferMessage.textContent = message;
+            transferMessage.className = type === 'success' ? 'success-message' : 'error-message';
+            
+            // Clear message after 3 seconds
             setTimeout(() => {
-                notification.remove();
-            }, 5000);
+                transferMessage.textContent = '';
+                transferMessage.className = '';
+            }, 3000);
         }
 
-        // Add basic form submit handlers (you can expand these)
-        document.getElementById('transfer-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            showNotification('✅ Transfer functionality would be implemented here', 'success');
-            closeModal();
-        });
-
-        document.getElementById('create-user-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            showNotification('✅ User creation would be implemented here', 'success');
-            closeModal();
-        });
-
-        document.getElementById('create-admin-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            showNotification('✅ Admin creation would be implemented here', 'success');
-            closeModal();
-        });
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
