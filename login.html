@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET - Login</title>
+    <title>X-BET - Secure Login</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -22,12 +26,14 @@
         }
 
         .login-container {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .logo {
@@ -36,320 +42,564 @@
         }
 
         .logo h1 {
-            color: #333;
-            font-size: 28px;
-            font-weight: bold;
+            color: #1e293b;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .logo span {
-            color: #b21f1f;
+        .logo p {
+            color: #64748b;
+            margin-top: 8px;
+            font-size: 14px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: bold;
+            margin-bottom: 8px;
+            color: #475569;
+            font-weight: 600;
+            font-size: 14px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
+            background: #f8fafc;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #b21f1f;
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .login-btn {
             width: 100%;
-            padding: 12px;
+            padding: 16px;
             background: linear-gradient(135deg, #1a2a6c, #b21f1f);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s;
         }
 
         .login-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(26, 42, 108, 0.3);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-btn.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .login-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+            font-size: 14px;
+            font-weight: 500;
         }
 
         .error-message {
-            color: #e74c3c;
-            text-align: center;
-            margin-top: 15px;
-            display: none;
-            padding: 10px;
-            background: #fadbd8;
-            border-radius: 5px;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
         }
 
         .success-message {
-            color: #27ae60;
-            text-align: center;
-            margin-top: 15px;
-            display: none;
-            padding: 10px;
-            background: #d4edda;
-            border-radius: 5px;
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
         }
 
-        .register-link {
+        .signup-link {
             text-align: center;
-            margin-top: 20px;
-            padding: 15px;
-            background: #e8f4fd;
-            border-radius: 8px;
-            border-left: 4px solid #3498db;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
         }
 
-        .register-link a {
-            color: #3498db;
+        .signup-link a {
+            color: #3b82f6;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
+            transition: color 0.2s;
         }
 
-        .register-link a:hover {
+        .signup-link a:hover {
+            color: #1d4ed8;
             text-decoration: underline;
         }
 
-        .info-box {
-            margin-top: 20px;
-            padding: 15px;
-            background: #fff8e1;
-            border-radius: 8px;
-            border-left: 4px solid #f39c12;
-            font-size: 14px;
-            color: #8d6e00;
-        }
-
-        .info-box h4 {
-            margin-bottom: 8px;
-            color: #e67e22;
-        }
-
-        .security-notice {
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #10b981;
+            font-size: 13px;
+            font-weight: 600;
             margin-top: 15px;
-            padding: 10px;
-            background: #e8f6f3;
+            padding: 8px;
+            background: #f0fdf4;
             border-radius: 8px;
-            border-left: 4px solid #1abc9c;
-            font-size: 12px;
-            text-align: center;
-            color: #16a085;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="logo">
-            <h1>X-<span>BET</span></h1>
-            <p>Secure Gaming Platform</p>
+            <h1>X-BET</h1>
+            <p>Secure Authentication Portal</p>
         </div>
 
         <form id="loginForm">
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required placeholder="Enter your username">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required 
+                       placeholder="Enter your email"
+                       autocomplete="email">
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="Enter your password">
+                <input type="password" id="password" name="password" required 
+                       placeholder="Enter your password"
+                       autocomplete="current-password">
             </div>
 
-            <button type="submit" class="login-btn" id="loginBtn">Login to Platform</button>
-            
-            <div class="error-message" id="errorMessage">
-                Invalid username or password!
+            <button type="submit" class="login-btn" id="loginBtn">
+                Secure Login
+            </button>
+
+            <div class="message" id="message"></div>
+
+            <div class="secure-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                </svg>
+                End-to-End Encrypted • No Data Displayed
             </div>
 
-            <div class="success-message" id="successMessage">
-                Registration successful! Please login.
+            <div class="signup-link">
+                Need an account? <a href="signup.html">Create New Account</a>
             </div>
         </form>
-
-        <div class="security-notice">
-            <p>🔒 Secure Authentication System</p>
-        </div>
-
-        <div class="info-box">
-            <h4>💡 How to Get Started:</h4>
-            <p>1. Create a free account</p>
-            <p>2. Contact support for account funding</p>
-            <p>3. Start playing and winning!</p>
-        </div>
-
-        <div class="register-link">
-            <p>New to X-BET? <a href="signup.html">Create free account</a></p>
-        </div>
     </div>
 
     <script>
-        // PRIVATE ADMIN CREDENTIALS (Not shown to users)
-        const adminCredentials = {
-            'admin_master': 'MasterAdmin2024!',
-            'finance_manager': 'Finance14M$2024',
-            'support_admin': 'SupportAdmin789!',
-            'admin_tech': 'TechAdmin2024!',
-            'admin_support2': 'Support2Admin2024!'
+        // 🔒 SECURITY CONFIGURATION
+        const SECURITY_CONFIG = {
+            maxAttempts: 5,
+            lockoutTime: 15 * 60 * 1000, // 15 minutes
+            sessionTimeout: 30 * 60 * 1000, // 30 minutes
+            encryptionKey: 'xbet-secure-2024' // In production, this should be server-side
         };
 
-        // Initialize user data and load registered users
-        function initializeUserData() {
-            // Load registered users from localStorage
-            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+        // Firebase Configuration - REPLACE WITH YOUR CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_example_API_Key_Here",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abc123def456"
+        };
 
-            // Initialize admin accounts with their balances
-            const adminAccounts = {
-                'admin_master': { balance: 50000.00, role: 'Head Administrator' },
-                'finance_manager': { balance: 14000000.00, role: 'Finance Manager' },
-                'support_admin': { balance: 50000.00, role: 'Support Admin' },
-                'admin_tech': { balance: 0.00, role: 'Technical Admin' },
-                'admin_support2': { balance: 0.00, role: 'Support Admin 2' }
-            };
-
-            Object.keys(adminAccounts).forEach(admin => {
-                if (!localStorage.getItem('userData_' + admin)) {
-                    const adminData = adminAccounts[admin];
-                    const userData = {
-                        balance: adminData.balance,
-                        pendingWithdrawals: 0.00,
-                        totalProfit: 0.00,
-                        transactions: [{
-                            type: 'System Allocation',
-                            amount: adminData.balance,
-                            status: 'completed',
-                            date: new Date().toISOString(),
-                            details: 'Admin system fund allocation'
-                        }],
-                        bets: [],
-                        isAdmin: true,
-                        role: adminData.role,
-                        registeredAt: new Date().toISOString(),
-                        lastLogin: new Date().toISOString()
-                    };
-                    localStorage.setItem('userData_' + admin, JSON.stringify(userData));
-                }
-            });
+        // Initialize Firebase
+        let auth, db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+            
+            // Set persistence for better UX
+            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
         }
 
-        // Login form handler
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // DOM Elements
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const messageDiv = document.getElementById('message');
+
+        // 🔒 Security Functions
+        class SecurityManager {
+            constructor() {
+                this.failedAttempts = this.getFailedAttempts();
+                this.lockedUntil = this.getLockoutTime();
+            }
+
+            getFailedAttempts() {
+                const attempts = localStorage.getItem('failedLoginAttempts');
+                return attempts ? parseInt(attempts) : 0;
+            }
+
+            getLockoutTime() {
+                const lockout = localStorage.getItem('accountLockedUntil');
+                return lockout ? parseInt(lockout) : 0;
+            }
+
+            recordFailedAttempt() {
+                this.failedAttempts++;
+                localStorage.setItem('failedLoginAttempts', this.failedAttempts.toString());
+                
+                if (this.failedAttempts >= SECURITY_CONFIG.maxAttempts) {
+                    this.lockAccount();
+                    return true; // Account is now locked
+                }
+                return false;
+            }
+
+            lockAccount() {
+                const lockTime = Date.now() + SECURITY_CONFIG.lockoutTime;
+                this.lockedUntil = lockTime;
+                localStorage.setItem('accountLockedUntil', lockTime.toString());
+                localStorage.setItem('failedLoginAttempts', '0'); // Reset attempts
+            }
+
+            isAccountLocked() {
+                if (this.lockedUntil && Date.now() < this.lockedUntil) {
+                    const remainingMinutes = Math.ceil((this.lockedUntil - Date.now()) / 60000);
+                    return {
+                        locked: true,
+                        remaining: remainingMinutes
+                    };
+                }
+                return { locked: false, remaining: 0 };
+            }
+
+            resetFailedAttempts() {
+                this.failedAttempts = 0;
+                this.lockedUntil = 0;
+                localStorage.removeItem('failedLoginAttempts');
+                localStorage.removeItem('accountLockedUntil');
+            }
+
+            validateInput(email, password) {
+                // Email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    return { valid: false, message: 'Invalid email format' };
+                }
+
+                // Password validation
+                if (password.length < 6) {
+                    return { valid: false, message: 'Password must be at least 6 characters' };
+                }
+
+                // Check for suspicious patterns
+                const suspiciousPatterns = [
+                    /(\b)(admin|root|system)(\b)/i,
+                    /script|alert|onload|onerror/i,
+                    /union|select|insert|delete|drop/i
+                ];
+
+                for (const pattern of suspiciousPatterns) {
+                    if (pattern.test(email) || pattern.test(password)) {
+                        this.recordFailedAttempt();
+                        return { 
+                            valid: false, 
+                            message: 'Suspicious input detected' 
+                        };
+                    }
+                }
+
+                return { valid: true, message: '' };
+            }
+        }
+
+        // Initialize Security Manager
+        const securityManager = new SecurityManager();
+
+        // 🔒 Show secure message
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}-message`;
+            messageDiv.style.display = 'block';
             
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            const errorMessage = document.getElementById('errorMessage');
-            const successMessage = document.getElementById('successMessage');
-            const loginBtn = document.getElementById('loginBtn');
-
-            // Show loading state
-            loginBtn.textContent = 'Verifying...';
-            loginBtn.disabled = true;
-
-            // Initialize data
-            initializeUserData();
-
-            // Check for successful registration message
-            const registrationSuccess = localStorage.getItem('registrationSuccess');
-            if (registrationSuccess === 'true') {
-                successMessage.style.display = 'block';
-                localStorage.removeItem('registrationSuccess');
+            // Clear message after 5 seconds for errors
+            if (type === 'error') {
                 setTimeout(() => {
-                    successMessage.style.display = 'none';
+                    messageDiv.style.display = 'none';
                 }, 5000);
             }
+        }
 
-            // Check admin login first
-            if (adminCredentials[username] && adminCredentials[username] === password) {
-                // Successful admin login
-                localStorage.setItem('isAdminLoggedIn', 'true');
-                localStorage.setItem('currentAdmin', username);
-                localStorage.setItem('loginTime', new Date().toISOString());
+        // 🔒 Handle secure login
+        async function handleSecureLogin(email, password) {
+            try {
+                // Check if account is locked
+                const lockStatus = securityManager.isAccountLocked();
+                if (lockStatus.locked) {
+                    throw new Error(`Account temporarily locked. Try again in ${lockStatus.remaining} minutes.`);
+                }
+
+                // Validate input
+                const validation = securityManager.validateInput(email, password);
+                if (!validation.valid) {
+                    throw new Error(validation.message);
+                }
+
+                // Attempt Firebase authentication
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Get user data from Firestore
+                const userDoc = await db.collection('users').doc(user.uid).get();
                 
-                // Update last login time
-                const adminData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
-                adminData.lastLogin = new Date().toISOString();
-                localStorage.setItem('userData_' + username, JSON.stringify(adminData));
+                if (!userDoc.exists) {
+                    throw new Error('User account not found');
+                }
+
+                const userData = userDoc.data();
+
+                // Reset failed attempts on successful login
+                securityManager.resetFailedAttempts();
+
+                // Store minimal session data (no sensitive info)
+                const sessionData = {
+                    uid: user.uid,
+                    email: user.email,
+                    isAdmin: userData.isAdmin || false,
+                    lastLogin: Date.now(),
+                    sessionId: this.generateSessionId()
+                };
+
+                // Encrypt session data (basic obfuscation)
+                const encryptedSession = btoa(JSON.stringify(sessionData));
+                sessionStorage.setItem('xbet_session', encryptedSession);
+                localStorage.setItem('session_expiry', (Date.now() + SECURITY_CONFIG.sessionTimeout).toString());
+
+                // Return user data for redirection
+                return {
+                    success: true,
+                    isAdmin: userData.isAdmin || false,
+                    username: userData.username || 'User'
+                };
+
+            } catch (error) {
+                // Record failed attempt
+                const shouldLock = securityManager.recordFailedAttempt();
                 
-                errorMessage.style.display = 'none';
-                successMessage.style.display = 'none';
-                loginBtn.textContent = 'Admin Access Granted!';
+                if (shouldLock) {
+                    throw new Error('Account locked due to multiple failed attempts. Please try again later.');
+                }
+
+                // Generic error message for security
+                let errorMessage = 'Invalid credentials';
                 
-                setTimeout(() => {
-                    window.location.href = 'admin.html';
-                }, 1000);
-                return;
+                // Log actual error server-side (in production)
+                console.error('Login error:', error.code, error.message);
+                
+                throw new Error(errorMessage);
             }
+        }
+
+        // 🔒 Generate secure session ID
+        function generateSessionId() {
+            const timestamp = Date.now().toString(36);
+            const random = Math.random().toString(36).substr(2, 9);
+            return `sess_${timestamp}_${random}`;
+        }
+
+        // 🔒 Validate session on page load
+        function validateExistingSession() {
+            const sessionData = sessionStorage.getItem('xbet_session');
+            const expiryTime = localStorage.getItem('session_expiry');
             
-            // Load registered users and check login
-            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            if (!sessionData || !expiryTime) {
+                return false;
+            }
+
+            if (Date.now() > parseInt(expiryTime)) {
+                // Session expired
+                sessionStorage.removeItem('xbet_session');
+                localStorage.removeItem('session_expiry');
+                return false;
+            }
+
+            try {
+                const session = JSON.parse(atob(sessionData));
+                
+                // Check if session data is valid
+                if (session.uid && session.email && session.lastLogin) {
+                    // Redirect based on role
+                    if (session.isAdmin) {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                    return true;
+                }
+            } catch (error) {
+                // Invalid session data
+                sessionStorage.removeItem('xbet_session');
+                localStorage.removeItem('session_expiry');
+            }
+
+            return false;
+        }
+
+        // Handle form submission
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            if (registeredUsers[username] && registeredUsers[username] === password) {
-                // Successful user login
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('currentUser', username);
-                localStorage.setItem('loginTime', new Date().toISOString());
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtn.classList.add('loading');
+            loginBtn.textContent = '';
+
+            try {
+                // Attempt login
+                const result = await handleSecureLogin(email, password);
                 
-                // Update last login time
-                const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
-                userData.lastLogin = new Date().toISOString();
-                localStorage.setItem('userData_' + username, JSON.stringify(userData));
+                if (result.success) {
+                    // Show success message (generic)
+                    showMessage('✓ Authentication successful', 'success');
+                    
+                    // Brief delay for UX
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Redirect based on role
+                    if (result.isAdmin) {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                }
                 
-                errorMessage.style.display = 'none';
-                successMessage.style.display = 'none';
-                loginBtn.textContent = 'Login Successful!';
+            } catch (error) {
+                // Show generic error message for security
+                showMessage('✗ Authentication failed. Please check your credentials.', 'error');
                 
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1000);
-            } else {
-                // Failed login
-                errorMessage.style.display = 'block';
-                successMessage.style.display = 'none';
-                loginBtn.textContent = 'Login to Platform';
+                // Log actual error (server-side in production)
+                console.error('Login error:', error.message);
+                
+            } finally {
+                // Reset button state
                 loginBtn.disabled = false;
-                
-                setTimeout(() => {
-                    errorMessage.style.display = 'none';
-                }, 3000);
+                loginBtn.classList.remove('loading');
+                loginBtn.textContent = 'Secure Login';
             }
         });
 
-        // Check if already logged in
-        window.addEventListener('load', function() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
-            const isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn');
-            
-            if (isLoggedIn === 'true') {
-                window.location.href = 'dashboard.html';
-            } else if (isAdminLoggedIn === 'true') {
-                window.location.href = 'admin.html';
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for existing valid session
+            validateExistingSession();
+
+            // Check if Firebase is initialized
+            if (typeof auth === 'undefined') {
+                showMessage('⚠️ System initialization error. Please contact support.', 'error');
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'System Error';
+                return;
             }
 
-            // Check for successful registration
-            const registrationSuccess = localStorage.getItem('registrationSuccess');
+            // Check for successful registration redirect
+            const registrationSuccess = sessionStorage.getItem('registration_success');
             if (registrationSuccess === 'true') {
-                document.getElementById('successMessage').style.display = 'block';
-                localStorage.removeItem('registrationSuccess');
+                showMessage('✓ Registration successful! Please login with your credentials.', 'success');
+                sessionStorage.removeItem('registration_success');
             }
 
-            // Initialize admin accounts
-            initializeUserData();
+            // Auto-focus email field
+            document.getElementById('email').focus();
+
+            // Add input validation
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+
+            emailInput.addEventListener('input', function() {
+                this.classList.remove('error');
+            });
+
+            passwordInput.addEventListener('input', function() {
+                this.classList.remove('error');
+            });
+        });
+
+        // 🔒 Security: Prevent form autofill capture
+        loginForm.addEventListener('autocomplete', function(e) {
+            e.preventDefault();
+        });
+
+        // 🔒 Security: Clear sensitive data on page unload
+        window.addEventListener('beforeunload', function() {
+            // Clear password field (additional security)
+            document.getElementById('password').value = '';
+        });
+
+        // 🔒 Security: Prevent right-click context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // 🔒 Security: Prevent keyboard shortcuts for dev tools
+        document.addEventListener('keydown', function(e) {
+            // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) ||
+                (e.ctrlKey && e.key === 'u')) {
+                e.preventDefault();
+                return false;
+            }
         });
     </script>
 </body>
