@@ -360,7 +360,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
                 </svg>
-                Secure Registration • 256-bit Encryption
+                Secure Registration • 256-bit Encryption • Ready
             </div>
 
             <div class="login-link">
@@ -376,45 +376,62 @@
     </div>
 
     <script>
-        // Firebase Configuration - USE YOUR ACTUAL FIREBASE CONFIG
+        // ✅ YOUR ACTUAL FIREBASE CONFIGURATION
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY_HERE",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
+            authDomain: "x-bet-prod-jd.firebaseapp.com",
+            projectId: "x-bet-prod-jd",
+            storageBucket: "x-bet-prod-jd.firebasestorage.app",
+            messagingSenderId: "499334334535",
+            appId: "1:499334334535:web:bebc1bf817e24d9e3c4962",
+            measurementId: "G-PTV4XMYQ6P"
         };
 
-        // Initialize Firebase variables
+        // Initialize Firebase
         let auth = null;
         let db = null;
+        let firebaseInitialized = false;
 
-        // Initialize Firebase only if config is provided
-        function initializeFirebase() {
+        // Initialize Firebase on page load
+        document.addEventListener('DOMContentLoaded', function() {
             try {
-                // Check if Firebase config has been updated
-                if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
-                    const app = firebase.initializeApp(firebaseConfig);
-                    auth = firebase.auth();
-                    db = firebase.firestore();
-                    
-                    console.log("Firebase initialized successfully");
-                    enableRegistration();
-                    return true;
-                } else {
-                    console.warn("Please update Firebase configuration with your actual credentials");
-                    showMessage("⚠️ Registration requires Firebase configuration. Contact support.", "error");
-                    disableRegistration();
-                    return false;
-                }
+                // Initialize Firebase
+                firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.firestore();
+                firebaseInitialized = true;
+                
+                console.log("✅ Firebase initialized successfully!");
+                
+                // Enable the registration button
+                document.getElementById('signupBtn').disabled = false;
+                document.getElementById('secureBadge').innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                    </svg>
+                    ✅ Firebase Connected • Ready for Registration
+                `;
+                document.getElementById('secureBadge').style.color = '#10b981';
+                document.getElementById('secureBadge').style.background = '#f0fdf4';
+                
             } catch (error) {
-                console.error("Firebase initialization error:", error);
-                showMessage("⚠️ System initialization error. Using local storage only.", "info");
-                disableRegistration();
-                return false;
+                console.error("❌ Firebase initialization error:", error);
+                showMessage("⚠️ Firebase connection error. Please refresh the page.", "error");
+                document.getElementById('signupBtn').disabled = true;
+                document.getElementById('signupBtn').textContent = 'Registration Disabled';
+                document.getElementById('secureBadge').innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    ❌ Firebase Connection Error
+                `;
+                document.getElementById('secureBadge').style.color = '#ef4444';
+                document.getElementById('secureBadge').style.background = '#fef2f2';
             }
-        }
+
+            // Auto-focus username field
+            document.getElementById('username').focus();
+        });
 
         // DOM Elements
         const signupForm = document.getElementById('signupForm');
@@ -424,35 +441,6 @@
         const confirmPasswordInput = document.getElementById('confirmPassword');
         const passwordMatchDiv = document.getElementById('passwordMatch');
         const passwordStrength = document.getElementById('passwordStrength');
-        const secureBadge = document.getElementById('secureBadge');
-
-        // Enable registration
-        function enableRegistration() {
-            signupBtn.disabled = false;
-            signupBtn.textContent = 'Create Secure Account';
-            secureBadge.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-                </svg>
-                Secure Registration • 256-bit Encryption • Ready
-            `;
-            secureBadge.style.color = '#10b981';
-            secureBadge.style.background = '#f0fdf4';
-        }
-
-        // Disable registration
-        function disableRegistration() {
-            signupBtn.disabled = true;
-            signupBtn.textContent = 'Registration Disabled';
-            secureBadge.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                Registration Requires Firebase Configuration
-            `;
-            secureBadge.style.color = '#f59e0b';
-            secureBadge.style.background = '#fffbeb';
-        }
 
         // Password strength checker
         function checkPasswordStrength(password) {
@@ -562,14 +550,20 @@
             return true;
         }
 
-        // Register user with Firebase
-        async function registerUserWithFirebase(username, email, password) {
+        // Register user in Firebase
+        async function registerUser(username, email, password) {
+            if (!firebaseInitialized || !auth || !db) {
+                throw new Error('Firebase not initialized');
+            }
+
             try {
-                // Create user in Firebase Auth
+                // 1. Create user in Firebase Authentication
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
+                
+                console.log("✅ User created in Firebase Auth:", user.uid);
 
-                // Create user document in Firestore
+                // 2. Create user document in Firestore
                 const userData = {
                     uid: user.uid,
                     username: username,
@@ -584,62 +578,35 @@
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
                     transactions: [],
                     bets: [],
-                    kycStatus: 'pending'
+                    kycStatus: 'pending',
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
                 // Save to Firestore
                 await db.collection('users').doc(user.uid).set(userData);
+                console.log("✅ User data saved to Firestore");
 
-                return { success: true, user: user };
-            } catch (error) {
-                console.error('Firebase registration error:', error);
-                throw error;
-            }
-        }
-
-        // Register user locally (fallback)
-        async function registerUserLocally(username, email, password) {
-            try {
-                // Check if username or email already exists locally
-                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-                const registeredEmails = JSON.parse(localStorage.getItem('registeredEmails') || '{}');
-                
-                if (registeredUsers[username]) {
-                    throw new Error('Username already taken');
-                }
-                
-                if (registeredEmails[email]) {
-                    throw new Error('Email already registered');
-                }
-
-                // Create user data
-                const userData = {
-                    username: username,
-                    email: email,
-                    balance: 0.00,
-                    pendingWithdrawals: 0.00,
-                    totalProfit: 0.00,
-                    isAdmin: false,
-                    isVerified: false,
-                    status: 'active',
+                // 3. Also save locally for compatibility
+                const localUserData = {
+                    ...userData,
                     registeredAt: new Date().toISOString(),
-                    lastLogin: new Date().toISOString(),
-                    transactions: [],
-                    bets: [],
-                    kycStatus: 'pending'
+                    lastLogin: new Date().toISOString()
+                };
+                
+                // Update registered users list locally
+                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+                registeredUsers[username] = email; // Store email instead of password for security
+                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                localStorage.setItem('userData_' + username, JSON.stringify(localUserData));
+
+                return { 
+                    success: true, 
+                    user: user,
+                    message: 'Account created successfully!'
                 };
 
-                // Save locally
-                registeredUsers[username] = password;
-                registeredEmails[email] = username;
-                
-                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-                localStorage.setItem('registeredEmails', JSON.stringify(registeredEmails));
-                localStorage.setItem('userData_' + username, JSON.stringify(userData));
-
-                return { success: true, user: { email: email } };
             } catch (error) {
-                console.error('Local registration error:', error);
+                console.error('Firebase registration error:', error);
                 throw error;
             }
         }
@@ -664,21 +631,20 @@
             signupBtn.textContent = '';
 
             try {
-                let result;
-                
-                // Try Firebase registration first
-                if (auth && db) {
-                    result = await registerUserWithFirebase(username, email, password);
-                } else {
-                    // Fallback to local registration
-                    result = await registerUserLocally(username, email, password);
+                // Check if Firebase is initialized
+                if (!firebaseInitialized) {
+                    throw new Error('Firebase not initialized. Please refresh the page.');
                 }
+
+                // Register user
+                const result = await registerUser(username, email, password);
                 
                 if (result.success) {
                     showMessage('🎉 Account created successfully! Redirecting to login...', 'success');
                     
                     // Store registration success flag
                     sessionStorage.setItem('registration_success', 'true');
+                    sessionStorage.setItem('new_user_email', email);
                     
                     // Redirect to login after 2 seconds
                     setTimeout(() => {
@@ -688,10 +654,9 @@
             } catch (error) {
                 let errorMessage = 'Registration failed. Please try again.';
                 
-                // Handle specific errors
-                switch (error.code || error.message) {
+                // Handle specific Firebase errors
+                switch (error.code) {
                     case 'auth/email-already-in-use':
-                    case 'Email already registered':
                         errorMessage = 'This email is already registered.';
                         break;
                     case 'auth/invalid-email':
@@ -700,19 +665,20 @@
                     case 'auth/weak-password':
                         errorMessage = 'Password is too weak. Please choose a stronger password.';
                         break;
-                    case 'Username already taken':
-                        errorMessage = 'Username already taken. Please choose another.';
-                        break;
                     case 'auth/network-request-failed':
-                        errorMessage = 'Network error. Please check your connection.';
+                        errorMessage = 'Network error. Please check your internet connection.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage = 'Email/password registration is not enabled. Please contact support.';
                         break;
                     default:
                         errorMessage = error.message || 'Registration failed. Please try again.';
                 }
                 
                 showMessage(errorMessage, 'error');
-            } finally {
-                // Reset button state
+                console.error('Registration error details:', error);
+                
+                // Re-enable button on error
                 signupBtn.disabled = false;
                 signupBtn.classList.remove('loading');
                 signupBtn.textContent = 'Create Secure Account';
@@ -750,26 +716,17 @@
             }
         });
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Firebase
-            initializeFirebase();
-
-            // Auto-focus username field
-            usernameInput.focus();
-
-            // Add input validation for email
-            const emailInput = document.getElementById('email');
-            
-            emailInput.addEventListener('blur', function() {
-                const email = this.value.trim();
-                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                    showMessage('Please enter a valid email address', 'error');
-                    this.classList.add('error');
-                } else {
-                    this.classList.remove('error');
-                }
-            });
+        // Email validation on blur
+        const emailInput = document.getElementById('email');
+        
+        emailInput.addEventListener('blur', function() {
+            const email = this.value.trim();
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showMessage('Please enter a valid email address', 'error');
+                this.classList.add('error');
+            } else {
+                this.classList.remove('error');
+            }
         });
     </script>
 </body>
