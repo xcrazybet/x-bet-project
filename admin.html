@@ -791,19 +791,16 @@
                 // Load admin data from localStorage
                 this.adminData = JSON.parse(localStorage.getItem('admin_data_' + this.currentAdmin) || '{}');
                 
-                // Initialize if not exists
-                if (!this.adminData.balance) {
-                    // Always set balance for admin_master
+                // Initialize if not exists - ALWAYS set balance for admin_master
+                if (!this.adminData.balance || this.currentAdmin === 'admin_master') {
                     this.adminData.balance = 14050000.00; // $14,050,000
                 }
                 
                 if (!this.adminData.transactions) this.adminData.transactions = [];
                 if (!this.adminData.users) this.adminData.users = [];
-                if (!this.adminData.transactionCode) {
-                    this.adminData.transactionCode = this.generateAdminTransactionCode();
-                }
                 
                 this.adminBalance = this.adminData.balance;
+                this.saveAdminData(); // Save to ensure balance persists
             }
 
             loadAllUsers() {
@@ -814,11 +811,17 @@
                 for (const [username, email] of Object.entries(registeredUsers)) {
                     const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
                     
+                    // Generate transaction code if not exists (using X-BET format)
+                    if (!userData.transactionCode) {
+                        userData.transactionCode = this.generateUserTransactionCode(username);
+                        localStorage.setItem('userData_' + username, JSON.stringify(userData));
+                    }
+                    
                     this.allUsers.push({
                         username: username,
                         email: email,
                         balance: userData.balance || 0,
-                        transactionCode: userData.transactionCode || this.generateUserTransactionCode(username),
+                        transactionCode: userData.transactionCode,
                         status: userData.status || 'active',
                         lastLogin: userData.lastLogin,
                         isAdmin: userData.isAdmin || false
@@ -867,14 +870,7 @@
                 this.updateTransactionsDisplay();
             }
 
-            // Generate transaction code for ADMIN (different format)
-            generateAdminTransactionCode() {
-                const timestamp = Date.now().toString(36).toUpperCase().substr(-8);
-                const random = Math.random().toString(36).substr(2, 8).toUpperCase();
-                return `ADM-${timestamp.substr(0, 4)}-${timestamp.substr(4, 4)}-${random.substr(0, 4)}`;
-            }
-
-            // Generate transaction code for USERS (standard X-BET format)
+            // Generate transaction code for USERS (standard X-BET format: XBT-XXX-XXXXXXXX-XXXXXXXX)
             generateUserTransactionCode(username) {
                 const prefix = username.substring(0, 3).toUpperCase();
                 const timestamp = Date.now().toString(36).toUpperCase().substr(-8);
@@ -882,7 +878,7 @@
                 return `XBT-${prefix}-${timestamp}-${random}`;
             }
 
-            // Generate transaction code for transfers (using user format)
+            // Generate transaction code for transfers
             generateTransactionCode(username) {
                 return this.generateUserTransactionCode(username);
             }
@@ -1041,7 +1037,7 @@
                 this.updateTransactionsDisplay(type);
             }
 
-            // Transfer functions
+            // Transfer functions - FIXED VERSION
             async processAdminTransfer() {
                 const userCode = document.getElementById('userTransactionCode').value.trim();
                 const amount = parseFloat(document.getElementById('transferAmount').value);
@@ -1057,10 +1053,13 @@
                     return;
                 }
                 
-                // Find user by transaction code
-                const user = this.allUsers.find(u => u.transactionCode === userCode);
+                // Find user by transaction code (case-insensitive)
+                const user = this.allUsers.find(u => 
+                    u.transactionCode.toUpperCase() === userCode.toUpperCase()
+                );
+                
                 if (!user) {
-                    alert('User not found with this transaction code');
+                    alert('User not found with this transaction code. Please check the code and try again.');
                     return;
                 }
                 
@@ -1084,8 +1083,10 @@
                     this.adminBalance -= amount;
                     this.adminData.balance = this.adminBalance;
                     
-                    // Add transaction to user
+                    // Ensure activities array exists
                     if (!userData.activities) userData.activities = [];
+                    
+                    // Add transaction to user
                     userData.activities.push({
                         type: 'deposit',
                         amount: amount,
@@ -1093,7 +1094,8 @@
                         code: transactionCode,
                         title: 'Admin Deposit',
                         from: this.currentAdmin,
-                        description: 'Deposit from admin'
+                        description: 'Deposit from admin',
+                        status: 'completed'
                     });
                     
                     // Add transaction to admin
@@ -1104,7 +1106,8 @@
                         code: transactionCode,
                         title: 'Deposit to User',
                         to: user.username,
-                        description: `Deposit to ${user.username}`
+                        description: `Deposit to ${user.username}`,
+                        status: 'completed'
                     });
                     
                     alert(`✅ Deposit successful!\nAmount: $${amount.toFixed(2)}\nTo: ${user.username}\nTransaction Code: ${transactionCode}`);
@@ -1115,8 +1118,10 @@
                     this.adminBalance += amount;
                     this.adminData.balance = this.adminBalance;
                     
-                    // Add transaction to user
+                    // Ensure activities array exists
                     if (!userData.activities) userData.activities = [];
+                    
+                    // Add transaction to user
                     userData.activities.push({
                         type: 'withdrawal',
                         amount: -amount,
@@ -1124,7 +1129,8 @@
                         code: transactionCode,
                         title: 'Admin Withdrawal',
                         to: this.currentAdmin,
-                        description: 'Withdrawal by admin'
+                        description: 'Withdrawal by admin',
+                        status: 'completed'
                     });
                     
                     // Add transaction to admin
@@ -1135,13 +1141,14 @@
                         code: transactionCode,
                         title: 'Withdrawal from User',
                         from: user.username,
-                        description: `Withdrawal from ${user.username}`
+                        description: `Withdrawal from ${user.username}`,
+                        status: 'completed'
                     });
                     
                     alert(`✅ Withdrawal successful!\nAmount: $${amount.toFixed(2)}\nFrom: ${user.username}\nTransaction Code: ${transactionCode}`);
                 }
                 
-                // Save data
+                // Save updated data
                 localStorage.setItem('userData_' + user.username, JSON.stringify(userData));
                 localStorage.setItem('admin_data_' + this.currentAdmin, JSON.stringify(this.adminData));
                 
@@ -1153,6 +1160,11 @@
                 this.loadAllUsers();
                 this.loadAllTransactions();
                 this.updateDisplay();
+                
+                // Show success message
+                setTimeout(() => {
+                    alert(`💰 Transaction completed!\nUser ${user.username} balance is now: $${userData.balance.toFixed(2)}`);
+                }, 500);
             }
 
             // Save admin data
@@ -1237,10 +1249,13 @@
                 return;
             }
             
-            // Find user and process deposit
-            const user = admin.allUsers.find(u => u.transactionCode === userCode);
+            // Find user and process deposit (case-insensitive)
+            const user = admin.allUsers.find(u => 
+                u.transactionCode.toUpperCase() === userCode.toUpperCase()
+            );
+            
             if (!user) {
-                alert('User not found');
+                alert('User not found with this transaction code');
                 return;
             }
             
@@ -1257,8 +1272,10 @@
             admin.adminBalance -= amount;
             admin.adminData.balance = admin.adminBalance;
             
-            // Add transaction to user
+            // Ensure activities array exists
             if (!userData.activities) userData.activities = [];
+            
+            // Add transaction to user
             userData.activities.push({
                 type: 'deposit',
                 amount: amount,
@@ -1266,7 +1283,8 @@
                 code: transactionCode,
                 title: 'Admin Deposit',
                 from: admin.currentAdmin,
-                description: description || 'Deposit from admin'
+                description: description || 'Deposit from admin',
+                status: 'completed'
             });
             
             // Add transaction to admin
@@ -1277,14 +1295,15 @@
                 code: transactionCode,
                 title: 'Deposit to User',
                 to: user.username,
-                description: description || `Deposit to ${user.username}`
+                description: description || `Deposit to ${user.username}`,
+                status: 'completed'
             });
             
             // Save data
             localStorage.setItem('userData_' + user.username, JSON.stringify(userData));
             localStorage.setItem('admin_data_' + admin.currentAdmin, JSON.stringify(admin.adminData));
             
-            alert(`✅ Deposit successful!\nTransaction Code: ${transactionCode}`);
+            alert(`✅ Deposit successful!\nTransaction Code: ${transactionCode}\nUser ${user.username} new balance: $${userData.balance.toFixed(2)}`);
             
             closeDepositModal();
             admin.loadAllUsers();
@@ -1302,13 +1321,16 @@
                 return;
             }
             
-            // Find withdrawal transaction
+            // Find withdrawal transaction (case-insensitive)
             let found = false;
             
             for (const user of admin.allUsers) {
                 const userData = JSON.parse(localStorage.getItem('userData_' + user.username) || '{}');
                 if (userData.activities) {
-                    const transaction = userData.activities.find(t => t.code === withdrawalCode && t.type === 'withdraw');
+                    const transaction = userData.activities.find(t => 
+                        t.code && t.code.toUpperCase() === withdrawalCode.toUpperCase() && 
+                        t.type === 'withdraw'
+                    );
                     if (transaction) {
                         transaction.status = status;
                         
@@ -1383,7 +1405,8 @@
                     code: admin.generateTransactionCode(username),
                     title: 'Initial Deposit',
                     from: admin.currentAdmin,
-                    description: 'Account creation deposit'
+                    description: 'Account creation deposit',
+                    status: 'completed'
                 });
             }
             
