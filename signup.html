@@ -3,11 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET - Create Account</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <title>X-BET - Sign Up</title>
     <style>
         * {
             margin: 0;
@@ -16,716 +12,280 @@
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
+        :root {
+            --primary: #3b82f6;
+            --secondary: #1d4ed8;
+            --danger: #ef4444;
+            --success: #10b981;
+            --dark: #0f172a;
+            --light: #f8fafc;
+        }
+
         body {
-            background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
+            background: linear-gradient(135deg, var(--dark), #1e293b);
+            color: var(--light);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 1rem;
         }
 
-        .signup-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        .container {
             width: 100%;
-            max-width: 450px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 400px;
         }
 
         .logo {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 2rem;
         }
 
         .logo h1 {
-            color: #1e293b;
-            font-size: 32px;
+            font-size: 2.5rem;
             font-weight: 800;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--primary);
+        }
+
+        .logo span {
+            color: var(--success);
         }
 
         .logo p {
-            color: #64748b;
-            margin-top: 8px;
-            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 0.5rem;
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--light);
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 1.5rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: #475569;
-            font-weight: 600;
-            font-size: 14px;
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
         .form-group input {
             width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e2e8f0;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 10px;
-            font-size: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
             transition: all 0.3s;
-            background: #f8fafc;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #3b82f6;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
-        .form-group input.error {
-            border-color: #ef4444;
-            background: #fef2f2;
-        }
-
-        .password-strength {
-            height: 4px;
-            background: #e2e8f0;
-            border-radius: 2px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-
-        .password-strength-fill {
-            height: 100%;
-            width: 0%;
-            transition: all 0.3s;
-        }
-
-        .strength-weak { background: #ef4444; width: 25%; }
-        .strength-fair { background: #f59e0b; width: 50%; }
-        .strength-good { background: #10b981; width: 75%; }
-        .strength-strong { background: #10b981; width: 100%; }
-
-        .password-requirements {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 6px;
-        }
-
-        .requirement {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 4px;
-        }
-
-        .requirement.valid {
-            color: #10b981;
-        }
-
-        .requirement.invalid {
-            color: #64748b;
-        }
-
-        .requirement-icon {
-            font-size: 10px;
-        }
-
-        .signup-btn {
+        .btn {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-            color: white;
+            padding: 1rem;
             border: none;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 10px;
         }
 
-        .signup-btn:hover:not(:disabled) {
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(26, 42, 108, 0.3);
         }
 
-        .signup-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            background: #94a3b8;
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            margin-top: 1rem;
         }
 
-        .signup-btn.loading {
-            position: relative;
-            color: transparent;
-        }
-
-        .signup-btn.loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
             text-align: center;
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 8px;
             display: none;
-            font-size: 14px;
-            font-weight: 500;
         }
 
-        .error-message {
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
+        .success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
-        .success-message {
-            background: #f0fdf4;
-            color: #16a34a;
-            border: 1px solid #bbf7d0;
-        }
-
-        .info-message {
-            background: #eff6ff;
-            color: #2563eb;
-            border: 1px solid #dbeafe;
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
         .login-link {
             text-align: center;
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
+            margin-top: 1.5rem;
+            color: #94a3b8;
         }
 
         .login-link a {
-            color: #3b82f6;
+            color: var(--primary);
             text-decoration: none;
             font-weight: 600;
-            transition: color 0.2s;
         }
 
         .login-link a:hover {
-            color: #1d4ed8;
             text-decoration: underline;
-        }
-
-        .terms {
-            font-size: 12px;
-            color: #64748b;
-            text-align: center;
-            margin-top: 20px;
-            line-height: 1.5;
-        }
-
-        .terms a {
-            color: #3b82f6;
-            text-decoration: none;
-        }
-
-        .terms a:hover {
-            text-decoration: underline;
-        }
-
-        .secure-badge {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: #10b981;
-            font-size: 13px;
-            font-weight: 600;
-            margin-top: 15px;
-            padding: 8px;
-            background: #f0fdf4;
-            border-radius: 8px;
-        }
-
-        .password-match {
-            font-size: 12px;
-            margin-top: 6px;
-            display: none;
-        }
-
-        .match-valid {
-            color: #10b981;
-        }
-
-        .match-invalid {
-            color: #dc2626;
-        }
-
-        @media (max-width: 480px) {
-            .signup-container {
-                padding: 30px 20px;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="signup-container">
+    <div class="container">
         <div class="logo">
-            <h1>X-BET</h1>
-            <p>Create Your Secure Account</p>
+            <h1>X<span>-BET</span></h1>
+            <p>Create your account</p>
         </div>
 
-        <form id="signupForm">
+        <div class="form-card">
+            <h2 class="form-title">Sign Up</h2>
+            
+            <div id="message" class="message"></div>
+            
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required 
-                       placeholder="Choose a unique username"
-                       minlength="3"
-                       maxlength="20"
-                       pattern="[A-Za-z0-9_]+"
-                       title="Only letters, numbers, and underscores allowed">
+                <input type="text" id="username" placeholder="Enter username" required>
             </div>
-
+            
             <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required 
-                       placeholder="Enter your valid email"
-                       autocomplete="email">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Enter email" required>
             </div>
-
+            
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required 
-                       placeholder="Create a strong password"
-                       minlength="8"
-                       autocomplete="new-password">
-                <div class="password-strength">
-                    <div class="password-strength-fill" id="passwordStrength"></div>
-                </div>
-                <div class="password-requirements" id="passwordRequirements">
-                    <div class="requirement invalid" id="reqLength">
-                        <span class="requirement-icon">○</span>
-                        At least 8 characters
-                    </div>
-                    <div class="requirement invalid" id="reqUppercase">
-                        <span class="requirement-icon">○</span>
-                        One uppercase letter
-                    </div>
-                    <div class="requirement invalid" id="reqLowercase">
-                        <span class="requirement-icon">○</span>
-                        One lowercase letter
-                    </div>
-                    <div class="requirement invalid" id="reqNumber">
-                        <span class="requirement-icon">○</span>
-                        One number
-                    </div>
-                    <div class="requirement invalid" id="reqSpecial">
-                        <span class="requirement-icon">○</span>
-                        One special character
-                    </div>
-                </div>
+                <input type="password" id="password" placeholder="Enter password" required>
             </div>
-
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" required 
-                       placeholder="Re-enter your password"
-                       autocomplete="new-password">
-                <div class="password-match" id="passwordMatch"></div>
-            </div>
-
-            <button type="submit" class="signup-btn" id="signupBtn">
-                Create Secure Account
-            </button>
-
-            <div class="message" id="message"></div>
-
-            <div class="secure-badge" id="secureBadge">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-                </svg>
-                Secure Registration • 256-bit Encryption • Ready
-            </div>
-
+            
+            <button class="btn btn-primary" onclick="signup()">Create Account</button>
+            <button class="btn btn-secondary" onclick="autoFill()">Auto Fill Test Account</button>
+            
             <div class="login-link">
-                Already have an account? <a href="login.html">Sign In</a>
+                Already have an account? <a href="login.html">Login here</a>
             </div>
-
-            <div class="terms">
-                By creating an account, you agree to our 
-                <a href="#">Terms of Service</a> and 
-                <a href="#">Privacy Policy</a>. Must be 18+ to register.
-            </div>
-        </form>
+        </div>
     </div>
 
     <script>
-        // ✅ YOUR ACTUAL FIREBASE CONFIGURATION
-        const firebaseConfig = {
-            apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
-            authDomain: "x-bet-prod-jd.firebaseapp.com",
-            projectId: "x-bet-prod-jd",
-            storageBucket: "x-bet-prod-jd.firebasestorage.app",
-            messagingSenderId: "499334334535",
-            appId: "1:499334334535:web:bebc1bf817e24d9e3c4962",
-            measurementId: "G-PTV4XMYQ6P"
-        };
-
-        // Initialize Firebase
-        let auth = null;
-        let db = null;
-        let firebaseInitialized = false;
-
-        // Initialize Firebase on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                // Initialize Firebase
-                firebase.initializeApp(firebaseConfig);
-                auth = firebase.auth();
-                db = firebase.firestore();
-                firebaseInitialized = true;
-                
-                console.log("✅ Firebase initialized successfully!");
-                
-                // Enable the registration button
-                document.getElementById('signupBtn').disabled = false;
-                document.getElementById('secureBadge').innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-                    </svg>
-                    ✅ Firebase Connected • Ready for Registration
-                `;
-                document.getElementById('secureBadge').style.color = '#10b981';
-                document.getElementById('secureBadge').style.background = '#f0fdf4';
-                
-            } catch (error) {
-                console.error("❌ Firebase initialization error:", error);
-                showMessage("⚠️ Firebase connection error. Please refresh the page.", "error");
-                document.getElementById('signupBtn').disabled = true;
-                document.getElementById('signupBtn').textContent = 'Registration Disabled';
-                document.getElementById('secureBadge').innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                    </svg>
-                    ❌ Firebase Connection Error
-                `;
-                document.getElementById('secureBadge').style.color = '#ef4444';
-                document.getElementById('secureBadge').style.background = '#fef2f2';
-            }
-
-            // Auto-focus username field
-            document.getElementById('username').focus();
-        });
-
-        // DOM Elements
-        const signupForm = document.getElementById('signupForm');
-        const signupBtn = document.getElementById('signupBtn');
-        const messageDiv = document.getElementById('message');
-        const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirmPassword');
-        const passwordMatchDiv = document.getElementById('passwordMatch');
-        const passwordStrength = document.getElementById('passwordStrength');
-
-        // Password strength checker
-        function checkPasswordStrength(password) {
-            let strength = 0;
-            const requirements = {
-                length: password.length >= 8,
-                uppercase: /[A-Z]/.test(password),
-                lowercase: /[a-z]/.test(password),
-                number: /[0-9]/.test(password),
-                special: /[^A-Za-z0-9]/.test(password)
-            };
-
-            // Update requirement indicators
-            Object.keys(requirements).forEach((req, index) => {
-                const element = document.getElementById(`req${req.charAt(0).toUpperCase() + req.slice(1)}`);
-                if (element) {
-                    element.className = requirements[req] ? 'requirement valid' : 'requirement invalid';
-                    element.querySelector('.requirement-icon').textContent = requirements[req] ? '✓' : '○';
-                }
-            });
-
-            // Calculate strength
-            if (requirements.length) strength += 25;
-            if (requirements.uppercase) strength += 20;
-            if (requirements.lowercase) strength += 20;
-            if (requirements.number) strength += 20;
-            if (requirements.special) strength += 15;
-
-            // Update strength bar
-            let strengthClass = 'strength-weak';
-            if (strength >= 60) strengthClass = 'strength-fair';
-            if (strength >= 75) strengthClass = 'strength-good';
-            if (strength >= 90) strengthClass = 'strength-strong';
-
-            passwordStrength.className = `password-strength-fill ${strengthClass}`;
-            
-            return strength >= 60; // Minimum strength requirement
+        function generateTransactionCode(username) {
+            const prefix = username.substring(0, 3).toUpperCase();
+            const timestamp = Date.now().toString(36).toUpperCase().substr(-8);
+            const random = Math.random().toString(36).substr(2, 8).toUpperCase();
+            return `XBT-${prefix}-${timestamp}-${random}`;
         }
 
-        // Check password match
-        function checkPasswordMatch() {
-            const password = passwordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
-            
-            if (confirmPassword.length === 0) {
-                passwordMatchDiv.style.display = 'none';
-                return true;
-            }
-            
-            if (password === confirmPassword) {
-                passwordMatchDiv.textContent = '✓ Passwords match';
-                passwordMatchDiv.className = 'password-match match-valid';
-                passwordMatchDiv.style.display = 'block';
-                confirmPasswordInput.classList.remove('error');
-                return true;
-            } else {
-                passwordMatchDiv.textContent = '✗ Passwords do not match';
-                passwordMatchDiv.className = 'password-match match-invalid';
-                passwordMatchDiv.style.display = 'block';
-                confirmPasswordInput.classList.add('error');
-                return false;
-            }
-        }
-
-        // Show message
         function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
             messageDiv.textContent = text;
-            messageDiv.className = `message ${type}-message`;
+            messageDiv.className = `message ${type}`;
             messageDiv.style.display = 'block';
-            
-            // Auto-hide success messages after 5 seconds
-            if (type === 'success') {
-                setTimeout(() => {
-                    messageDiv.style.display = 'none';
-                }, 5000);
-            }
         }
 
-        // Validate form
-        function validateForm(username, email, password, confirmPassword) {
-            // Username validation
-            const usernameRegex = /^[A-Za-z0-9_]{3,20}$/;
-            if (!usernameRegex.test(username)) {
-                showMessage('Username must be 3-20 characters (letters, numbers, underscores only)', 'error');
-                return false;
-            }
-
-            // Email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showMessage('Please enter a valid email address', 'error');
-                return false;
-            }
-
-            // Password strength
-            if (!checkPasswordStrength(password)) {
-                showMessage('Password is too weak. Please meet all requirements.', 'error');
-                return false;
-            }
-
-            // Password match
-            if (!checkPasswordMatch()) {
-                showMessage('Passwords do not match', 'error');
-                return false;
-            }
-
-            return true;
+        function autoFill() {
+            document.getElementById('username').value = 'tandore';
+            document.getElementById('email').value = 'tandore@example.com';
+            document.getElementById('password').value = 'password123';
         }
 
-        // Register user in Firebase
-        async function registerUser(username, email, password) {
-            if (!firebaseInitialized || !auth || !db) {
-                throw new Error('Firebase not initialized');
-            }
-
-            try {
-                // 1. Create user in Firebase Authentication
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                console.log("✅ User created in Firebase Auth:", user.uid);
-
-                // 2. Create user document in Firestore
-                const userData = {
-                    uid: user.uid,
-                    username: username,
-                    email: email,
-                    balance: 0.00,
-                    pendingWithdrawals: 0.00,
-                    totalProfit: 0.00,
-                    isAdmin: false,
-                    isVerified: false,
-                    status: 'active',
-                    registeredAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    transactions: [],
-                    bets: [],
-                    kycStatus: 'pending',
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                // Save to Firestore
-                await db.collection('users').doc(user.uid).set(userData);
-                console.log("✅ User data saved to Firestore");
-
-                // 3. Also save locally for compatibility
-                const localUserData = {
-                    ...userData,
-                    registeredAt: new Date().toISOString(),
-                    lastLogin: new Date().toISOString()
-                };
-                
-                // Update registered users list locally
-                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-                registeredUsers[username] = email; // Store email instead of password for security
-                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-                localStorage.setItem('userData_' + username, JSON.stringify(localUserData));
-
-                return { 
-                    success: true, 
-                    user: user,
-                    message: 'Account created successfully!'
-                };
-
-            } catch (error) {
-                console.error('Firebase registration error:', error);
-                throw error;
-            }
-        }
-
-        // Handle form submission
-        signupForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
+        function signup() {
             const username = document.getElementById('username').value.trim();
             const email = document.getElementById('email').value.trim();
-            const password = passwordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
+            const password = document.getElementById('password').value;
 
-            // Validate form
-            if (!validateForm(username, email, password, confirmPassword)) {
+            if (!username || !email || !password) {
+                showMessage('Please fill all fields', 'error');
                 return;
             }
 
-            // Show loading state
-            signupBtn.disabled = true;
-            signupBtn.classList.add('loading');
-            signupBtn.textContent = '';
-
-            try {
-                // Check if Firebase is initialized
-                if (!firebaseInitialized) {
-                    throw new Error('Firebase not initialized. Please refresh the page.');
-                }
-
-                // Register user
-                const result = await registerUser(username, email, password);
-                
-                if (result.success) {
-                    showMessage('🎉 Account created successfully! Redirecting to login...', 'success');
-                    
-                    // Store registration success flag
-                    sessionStorage.setItem('registration_success', 'true');
-                    sessionStorage.setItem('new_user_email', email);
-                    
-                    // Redirect to login after 2 seconds
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2000);
-                }
-            } catch (error) {
-                let errorMessage = 'Registration failed. Please try again.';
-                
-                // Handle specific Firebase errors
-                switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        errorMessage = 'This email is already registered.';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage = 'Please enter a valid email address.';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage = 'Password is too weak. Please choose a stronger password.';
-                        break;
-                    case 'auth/network-request-failed':
-                        errorMessage = 'Network error. Please check your internet connection.';
-                        break;
-                    case 'auth/operation-not-allowed':
-                        errorMessage = 'Email/password registration is not enabled. Please contact support.';
-                        break;
-                    default:
-                        errorMessage = error.message || 'Registration failed. Please try again.';
-                }
-                
-                showMessage(errorMessage, 'error');
-                console.error('Registration error details:', error);
-                
-                // Re-enable button on error
-                signupBtn.disabled = false;
-                signupBtn.classList.remove('loading');
-                signupBtn.textContent = 'Create Secure Account';
-            }
-        });
-
-        // Real-time validation
-        passwordInput.addEventListener('input', function() {
-            checkPasswordStrength(this.value);
-            checkPasswordMatch();
-        });
-
-        confirmPasswordInput.addEventListener('input', checkPasswordMatch);
-
-        // Username availability check
-        const usernameInput = document.getElementById('username');
-        let usernameCheckTimeout;
-        
-        usernameInput.addEventListener('input', function() {
-            clearTimeout(usernameCheckTimeout);
+            // Load existing users
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
             
-            const username = this.value.trim();
-            if (username.length >= 3) {
-                usernameCheckTimeout = setTimeout(() => {
-                    // Check local storage for existing username
-                    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-                    if (registeredUsers[username]) {
-                        showMessage('Username already taken. Please choose another.', 'error');
-                        this.classList.add('error');
-                    } else {
-                        this.classList.remove('error');
-                        messageDiv.style.display = 'none';
-                    }
-                }, 500);
+            // Check if username already exists
+            if (registeredUsers[username]) {
+                showMessage('Username already exists', 'error');
+                return;
             }
-        });
 
-        // Email validation on blur
-        const emailInput = document.getElementById('email');
-        
-        emailInput.addEventListener('blur', function() {
-            const email = this.value.trim();
-            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                showMessage('Please enter a valid email address', 'error');
-                this.classList.add('error');
-            } else {
-                this.classList.remove('error');
+            // Generate transaction code
+            const transactionCode = generateTransactionCode(username);
+
+            // Create user data - MATCHING FORMAT WITH ADMIN
+            const userData = {
+                username: username,
+                email: email,
+                password: password,
+                balance: 0,
+                transactionCode: transactionCode,
+                isAdmin: false,
+                status: 'active',
+                registeredAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                activities: []  // Empty array for transactions
+            };
+
+            // Save user
+            registeredUsers[username] = email;
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+            localStorage.setItem('userData_' + username, JSON.stringify(userData));
+
+            // Create session
+            const userSession = btoa(JSON.stringify({
+                username: username,
+                loginTime: Date.now()
+            }));
+            
+            sessionStorage.setItem('user_session', userSession);
+            localStorage.setItem('user_session_expiry', Date.now() + 86400000); // 24 hours
+
+            showMessage('Account created successfully! Redirecting...', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        }
+
+        // Allow form submission with Enter key
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                signup();
             }
         });
     </script>
