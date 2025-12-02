@@ -3,558 +3,1416 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <title>X-BET - Admin Control Panel</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
-        
+
+        :root {
+            --admin-primary: #3b82f6;
+            --admin-secondary: #1d4ed8;
+            --admin-danger: #ef4444;
+            --admin-success: #10b981;
+            --admin-warning: #f59e0b;
+            --admin-dark: #0f172a;
+            --admin-light: #f8fafc;
+            --admin-gray: #64748b;
+        }
+
         body {
-            background-color: #f5f7fa;
-            color: #333;
+            background: linear-gradient(135deg, var(--admin-dark), #1e293b);
+            color: var(--admin-light);
+            min-height: 100vh;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+
+        /* Admin Header */
+        .admin-header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            border-bottom: 3px solid var(--admin-primary);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
-        
-        header {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .header-content {
+
+        .admin-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
-        .user-info {
+
+        .admin-logo {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
-        
-        .logout-btn {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+
+        .admin-logo h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--admin-primary);
         }
-        
-        .logout-btn:hover {
-            background-color: #c0392b;
+
+        .admin-logo span {
+            color: var(--admin-success);
         }
-        
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+
+        .admin-badge {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .admin-user-info {
+            display: flex;
+            align-items: center;
             gap: 20px;
         }
-        
-        .card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        .card h2 {
-            margin-bottom: 15px;
-            color: #2a5298;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        
-        .balance-card {
-            grid-column: 1 / -1;
-            background: linear-gradient(135deg, #2a5298, #1e3c72);
-            color: white;
-        }
-        
-        .balance-amount {
-            font-size: 36px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        
-        .admin-list {
-            list-style-type: none;
-        }
-        
-        .admin-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .admin-name {
-            font-weight: 500;
-        }
-        
+
         .admin-balance {
-            font-weight: bold;
-            color: #2a5298;
+            background: rgba(16, 185, 129, 0.15);
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
-        
-        .transfer-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+
+        .balance-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+
+        .balance-amount {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #10b981;
+            margin-top: 4px;
         }
-        
-        label {
-            font-weight: 500;
-            color: #555;
-        }
-        
-        select, input {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        
-        .transfer-btn {
-            background-color: #2a5298;
+
+        .admin-logout-btn {
+            background: var(--admin-danger);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 5px;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        .transfer-btn:hover {
-            background-color: #1e3c72;
+
+        .admin-logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
         }
-        
-        .transaction-history {
-            max-height: 300px;
+
+        /* Main Container */
+        .admin-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Admin Stats Grid */
+        .admin-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .admin-stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .admin-stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--admin-primary);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+        }
+
+        .stat-positive { color: var(--admin-success); }
+        .stat-negative { color: var(--admin-danger); }
+        .stat-primary { color: var(--admin-primary); }
+
+        /* Admin Actions */
+        .admin-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .admin-action-btn {
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+            color: white;
+            border: none;
+            padding: 1.5rem;
+            border-radius: 14px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-weight: 600;
+        }
+
+        .admin-action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .admin-action-btn.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .admin-action-btn.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        /* Admin Sections */
+        .admin-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--admin-light);
+        }
+
+        .search-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            color: white;
+            width: 300px;
+            font-size: 0.9rem;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--admin-primary);
+        }
+
+        /* Transfer Section */
+        .transfer-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+            margin-bottom: 2rem;
+        }
+
+        .admin-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .admin-form-group label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-form-group input, .admin-form-group select {
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .admin-form-group input:focus, .admin-form-group select:focus {
+            outline: none;
+            border-color: var(--admin-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .admin-transfer-btn {
+            background: var(--admin-success);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 600;
+            height: fit-content;
+        }
+
+        .admin-transfer-btn:hover {
+            background: #059669;
+        }
+
+        /* Users Table */
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .users-table th {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .users-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .users-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .user-action-btn {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--admin-primary);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .user-action-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+
+        /* Transactions Log */
+        .transactions-log {
+            max-height: 400px;
             overflow-y: auto;
         }
-        
+
         .transaction-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 10px;
+            border-left: 4px solid;
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
+            align-items: center;
         }
-        
-        .transaction-amount {
-            font-weight: bold;
+
+        .transaction-deposit { border-left-color: var(--admin-success); }
+        .transaction-withdrawal { border-left-color: var(--admin-danger); }
+        .transaction-transfer { border-left-color: var(--admin-primary); }
+
+        .transaction-code {
+            background: rgba(59, 130, 246, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            border: 1px solid rgba(59, 130, 246, 0.3);
         }
-        
-        .positive {
-            color: #27ae60;
-        }
-        
-        .negative {
-            color: #e74c3c;
-        }
-        
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .login-title {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #2a5298;
-        }
-        
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .login-btn {
-            background-color: #2a5298;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        
-        .login-btn:hover {
-            background-color: #1e3c72;
-        }
-        
-        .error-message {
-            color: #e74c3c;
-            text-align: center;
-            margin-top: 10px;
-        }
-        
-        .success-message {
-            color: #27ae60;
-            text-align: center;
-            margin-top: 10px;
-        }
-        
-        .hidden {
+
+        /* Modal */
+        .admin-modal {
             display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .admin-modal-content {
+            background: rgba(15, 23, 42, 0.95);
+            margin: 5% auto;
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            border: 2px solid var(--admin-primary);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 1.5rem;
+            top: 1.5rem;
+            color: #94a3b8;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .admin-container {
+                padding: 1.5rem;
+            }
+            
+            .transfer-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .admin-user-info {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .admin-balance {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .users-table {
+                display: block;
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Login Section -->
-    <div id="loginSection" class="login-container">
-        <h2 class="login-title">Admin Login</h2>
-        <form id="loginForm" class="login-form">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" placeholder="admin@bdet.com" required>
+    <!-- Admin Header -->
+    <header class="admin-header">
+        <nav class="admin-nav">
+            <div class="admin-logo">
+                <h1>X<span>-BET</span> ADMIN</h1>
+                <div class="admin-badge">CONTROL PANEL</div>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" required>
+            
+            <div class="admin-user-info">
+                <div class="admin-balance">
+                    <div class="balance-label">Admin Balance</div>
+                    <div class="balance-amount" id="adminBalance">$0.00</div>
+                </div>
+                <div style="color: #94a3b8;">Logged in as: <strong id="adminUsername">Loading...</strong></div>
+                <button class="admin-logout-btn" onclick="adminLogout()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                    </svg>
+                    Logout
+                </button>
             </div>
-            <button type="submit" class="login-btn">Login as Admin</button>
-        </form>
-        <div id="loginMessage" class="error-message"></div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <main class="admin-container">
+        <!-- Admin Stats -->
+        <div class="admin-stats-grid">
+            <div class="admin-stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Total Admin Balance</div>
+                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.2);">💰</div>
+                </div>
+                <div class="stat-value stat-positive" id="totalBalance">$0.00</div>
+                <div style="color: #94a3b8; font-size: 0.9rem;">Available funds for management</div>
+            </div>
+
+            <div class="admin-stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Total Users</div>
+                    <div class="stat-icon" style="background: rgba(59, 130, 246, 0.2);">👥</div>
+                </div>
+                <div class="stat-value stat-primary" id="totalUsers">0</div>
+                <div style="color: #94a3b8; font-size: 0.9rem;">Registered platform users</div>
+            </div>
+
+            <div class="admin-stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Total Transactions</div>
+                    <div class="stat-icon" style="background: rgba(139, 92, 246, 0.2);">📊</div>
+                </div>
+                <div class="stat-value stat-primary" id="totalTransactions">0</div>
+                <div style="color: #94a3b8; font-size: 0.9rem;">All platform transactions</div>
+            </div>
+
+            <div class="admin-stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Pending Withdrawals</div>
+                    <div class="stat-icon" style="background: rgba(239, 68, 68, 0.2);">⏳</div>
+                </div>
+                <div class="stat-value stat-negative" id="pendingWithdrawals">$0.00</div>
+                <div style="color: #94a3b8; font-size: 0.9rem;">Awaiting processing</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="admin-actions">
+            <button class="admin-action-btn" onclick="openDepositModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                Deposit to User
+            </button>
+            <button class="admin-action-btn" onclick="openWithdrawModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+                Process Withdrawal
+            </button>
+            <button class="admin-action-btn success" onclick="openCreateUserModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                Create New User
+            </button>
+            <button class="admin-action-btn danger" onclick="openResetModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                </svg>
+                System Reset
+            </button>
+        </div>
+
+        <!-- Transfer Section -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h2 class="section-title">💸 Admin Fund Transfer</h2>
+            </div>
+            
+            <div class="transfer-controls">
+                <div class="admin-form-group">
+                    <label for="userTransactionCode">User Transaction Code</label>
+                    <input type="text" id="userTransactionCode" placeholder="Enter user's transaction code" list="userCodes">
+                    <datalist id="userCodes">
+                        <!-- User codes will be populated here -->
+                    </datalist>
+                </div>
+                
+                <div class="admin-form-group">
+                    <label for="transferAmount">Amount ($)</label>
+                    <input type="number" id="transferAmount" min="0.01" step="0.01" placeholder="0.00">
+                </div>
+                
+                <div class="admin-form-group">
+                    <label for="transferType">Transaction Type</label>
+                    <select id="transferType">
+                        <option value="deposit">Deposit to User</option>
+                        <option value="withdrawal">Withdrawal from User</option>
+                        <option value="transfer">Admin Transfer</option>
+                    </select>
+                </div>
+                
+                <button class="admin-transfer-btn" onclick="processAdminTransfer()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                    Execute Transfer
+                </button>
+            </div>
+            
+            <div style="margin-top: 1rem; color: #94a3b8; font-size: 0.9rem;">
+                💡 Admin Privilege: You can deposit to or withdraw from any user account using their transaction code.
+            </div>
+        </div>
+
+        <!-- Users Management -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h2 class="section-title">👥 Users Management</h2>
+                <input type="text" class="search-box" placeholder="Search users..." oninput="searchUsers(this.value)">
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Balance</th>
+                            <th>Transaction Code</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- Users will be loaded here -->
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 3rem; color: #94a3b8;">
+                                Loading users data...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Transactions Log -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h2 class="section-title">📋 All Transactions Log</h2>
+                <select class="search-box" onchange="filterTransactions(this.value)">
+                    <option value="all">All Transactions</option>
+                    <option value="deposit">Deposits</option>
+                    <option value="withdrawal">Withdrawals</option>
+                    <option value="transfer">Transfers</option>
+                </select>
+            </div>
+            
+            <div class="transactions-log" id="transactionsLog">
+                <!-- Transactions will be loaded here -->
+                <div style="text-align: center; padding: 3rem; color: #94a3b8;">
+                    Loading transactions...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Deposit Modal -->
+    <div id="depositModal" class="admin-modal">
+        <div class="admin-modal-content">
+            <span class="modal-close" onclick="closeDepositModal()">&times;</span>
+            <h2 style="margin-bottom: 1.5rem; color: var(--admin-success);">💰 Deposit to User</h2>
+            
+            <div class="admin-form-group">
+                <label>User Transaction Code</label>
+                <input type="text" id="depositUserCode" placeholder="Enter user transaction code">
+            </div>
+            
+            <div class="admin-form-group">
+                <label>Amount ($)</label>
+                <input type="number" id="depositAmount" min="0.01" step="0.01" placeholder="0.00">
+            </div>
+            
+            <div class="admin-form-group">
+                <label>Description</label>
+                <input type="text" id="depositDescription" placeholder="Reason for deposit">
+            </div>
+            
+            <button class="admin-transfer-btn" onclick="processUserDeposit()" style="width: 100%; margin-top: 1.5rem;">
+                Deposit Funds
+            </button>
+        </div>
     </div>
 
-    <!-- Dashboard Section -->
-    <div id="dashboardSection" class="container hidden">
-        <header>
-            <div class="header-content">
-                <div class="logo">Admin Dashboard</div>
-                <div class="user-info">
-                    <span id="currentAdminName">Admin User</span>
-                    <button id="logoutBtn" class="logout-btn">Logout</button>
+    <!-- Withdrawal Modal -->
+    <div id="withdrawModal" class="admin-modal">
+        <div class="admin-modal-content">
+            <span class="modal-close" onclick="closeWithdrawModal()">&times;</span>
+            <h2 style="margin-bottom: 1.5rem; color: var(--admin-danger);">💰 Process Withdrawal</h2>
+            
+            <div style="background: rgba(239, 68, 68, 0.1); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                <h4 style="color: #ef4444; margin-bottom: 0.5rem;">Pending Withdrawals</h4>
+                <div id="pendingWithdrawalsList">
+                    <!-- Pending withdrawals will be loaded here -->
                 </div>
             </div>
-        </header>
-
-        <div class="dashboard">
-            <div class="card balance-card">
-                <h2>Account Balance</h2>
-                <div class="balance-amount" id="adminBalance">$0.00</div>
-                <div id="adminRole">Administrator</div>
+            
+            <div class="admin-form-group">
+                <label>Withdrawal Transaction Code</label>
+                <input type="text" id="withdrawalCode" placeholder="Enter withdrawal transaction code">
             </div>
-
-            <div class="card">
-                <h2>Admin Users</h2>
-                <ul class="admin-list" id="adminList">
-                    <!-- Admin list will be populated here -->
-                </ul>
+            
+            <div class="admin-form-group">
+                <label>Status Update</label>
+                <select id="withdrawalStatus">
+                    <option value="completed">✅ Complete</option>
+                    <option value="rejected">❌ Reject</option>
+                    <option value="processing">⏳ Processing</option>
+                </select>
             </div>
+            
+            <button class="admin-transfer-btn" onclick="processWithdrawalStatus()" style="width: 100%; margin-top: 1.5rem; background: var(--admin-danger);">
+                Update Status
+            </button>
+        </div>
+    </div>
 
-            <div class="card">
-                <h2>Transfer Funds</h2>
-                <form id="transferForm" class="transfer-form">
-                    <div class="form-group">
-                        <label for="recipient">Recipient</label>
-                        <select id="recipient" required>
-                            <option value="">Select a recipient</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="amount">Amount ($)</label>
-                        <input type="number" id="amount" min="0.01" step="0.01" required>
-                    </div>
-                    <button type="submit" class="transfer-btn">Transfer Funds</button>
-                </form>
-                <div id="transferMessage"></div>
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="admin-modal">
+        <div class="admin-modal-content">
+            <span class="modal-close" onclick="closeCreateUserModal()">&times;</span>
+            <h2 style="margin-bottom: 1.5rem; color: var(--admin-success);">👤 Create New User</h2>
+            
+            <div class="admin-form-group">
+                <label>Username</label>
+                <input type="text" id="newUsername" placeholder="Enter username">
             </div>
-
-            <div class="card">
-                <h2>Transaction History</h2>
-                <div class="transaction-history" id="transactionHistory">
-                    <!-- Transaction history will be populated here -->
-                </div>
+            
+            <div class="admin-form-group">
+                <label>Email</label>
+                <input type="email" id="newUserEmail" placeholder="Enter email">
             </div>
+            
+            <div class="admin-form-group">
+                <label>Initial Balance ($)</label>
+                <input type="number" id="initialBalance" min="0" step="0.01" placeholder="0.00">
+            </div>
+            
+            <div class="admin-form-group">
+                <label>Password</label>
+                <input type="password" id="newUserPassword" placeholder="Enter password">
+            </div>
+            
+            <div class="admin-form-group">
+                <label>Transaction Code (Optional)</label>
+                <input type="text" id="customTransactionCode" placeholder="Leave empty for auto-generation">
+            </div>
+            
+            <button class="admin-transfer-btn" onclick="createNewUser()" style="width: 100%; margin-top: 1.5rem;">
+                Create User Account
+            </button>
         </div>
     </div>
 
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "your-api-key",
-            authDomain: "your-auth-domain",
-            projectId: "your-project-id",
-            storageBucket: "your-storage-bucket",
-            messagingSenderId: "your-sender-id",
-            appId: "your-app-id"
-        };
+        // 🔐 ADMIN PANEL SYSTEM
+        class AdminPanel {
+            constructor() {
+                this.currentAdmin = null;
+                this.adminData = null;
+                this.allUsers = [];
+                this.allTransactions = [];
+                this.adminBalance = 14050000.00; // $14,050,000
+            }
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+            init() {
+                this.checkAdminAuth();
+                this.loadAdminData();
+                this.loadAllUsers();
+                this.loadAllTransactions();
+                this.updateDisplay();
+                this.setupEventListeners();
+            }
 
-        // DOM Elements
-        const loginSection = document.getElementById('loginSection');
-        const dashboardSection = document.getElementById('dashboardSection');
-        const loginForm = document.getElementById('loginForm');
-        const loginMessage = document.getElementById('loginMessage');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const currentAdminName = document.getElementById('currentAdminName');
-        const adminBalance = document.getElementById('adminBalance');
-        const adminList = document.getElementById('adminList');
-        const recipientSelect = document.getElementById('recipient');
-        const transferForm = document.getElementById('transferForm');
-        const transferMessage = document.getElementById('transferMessage');
-        const transactionHistory = document.getElementById('transactionHistory');
-
-        // Admin credentials
-        const adminCredentials = [
-            { email: "manager@bdet.com", password: "Manager123!", name: "Admin Manager", balance: 14000000 },
-            { email: "admin1@bdet.com", password: "Admin1Pass!", name: "Admin One", balance: 0 },
-            { email: "admin2@bdet.com", password: "Admin2Pass!", name: "Admin Two", balance: 0 },
-            { email: "admin3@bdet.com", password: "Admin3Pass!", name: "Admin Three", balance: 0 },
-            { email: "admin4@bdet.com", password: "Admin4Pass!", name: "Admin Four", balance: 0 }
-        ];
-
-        // Current admin
-        let currentAdmin = null;
-
-        // Initialize the application
-        function init() {
-            // Check if user is already logged in
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    // User is signed in
-                    const admin = adminCredentials.find(a => a.email === user.email);
-                    if (admin) {
-                        currentAdmin = admin;
-                        showDashboard();
-                    } else {
-                        auth.signOut();
-                    }
-                } else {
-                    // User is signed out
-                    showLogin();
+            checkAdminAuth() {
+                // Check admin session
+                const adminSession = sessionStorage.getItem('admin_session');
+                const expiryTime = localStorage.getItem('admin_session_expiry');
+                
+                if (!adminSession || !expiryTime || Date.now() > parseInt(expiryTime)) {
+                    // Redirect to admin login
+                    window.location.href = 'admin.login.html';
+                    return;
                 }
-            });
+                
+                try {
+                    const session = JSON.parse(atob(adminSession));
+                    this.currentAdmin = session.username;
+                    
+                    // Display admin info
+                    document.getElementById('adminUsername').textContent = this.currentAdmin;
+                    
+                } catch (error) {
+                    console.error('Session error:', error);
+                    window.location.href = 'admin.login.html';
+                }
+            }
 
-            // Login form handler
-            loginForm.addEventListener('submit', handleLogin);
-            
-            // Logout button handler
-            logoutBtn.addEventListener('click', handleLogout);
-            
-            // Transfer form handler
-            transferForm.addEventListener('submit', handleTransfer);
-        }
+            loadAdminData() {
+                // Load admin data from localStorage
+                this.adminData = JSON.parse(localStorage.getItem('admin_data_' + this.currentAdmin) || '{}');
+                
+                // Initialize if not exists
+                if (!this.adminData.balance) {
+                    this.adminData.balance = this.currentAdmin === 'finance_manager' ? 14050000.00 : 0.00;
+                }
+                
+                if (!this.adminData.transactions) this.adminData.transactions = [];
+                if (!this.adminData.users) this.adminData.users = [];
+                
+                this.adminBalance = this.adminData.balance;
+            }
 
-        // Handle login
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            const admin = adminCredentials.find(a => a.email === email && a.password === password);
-            
-            if (admin) {
-                // Simulate Firebase authentication
-                auth.signInWithEmailAndPassword(email, password)
-                    .then(() => {
-                        currentAdmin = admin;
-                        showDashboard();
-                    })
-                    .catch(error => {
-                        loginMessage.textContent = "Authentication error: " + error.message;
-                        loginMessage.className = "error-message";
+            loadAllUsers() {
+                // Load all registered users
+                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+                this.allUsers = [];
+                
+                for (const [username, email] of Object.entries(registeredUsers)) {
+                    const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
+                    
+                    this.allUsers.push({
+                        username: username,
+                        email: email,
+                        balance: userData.balance || 0,
+                        transactionCode: userData.transactionCode || this.generateTransactionCode(username),
+                        status: userData.status || 'active',
+                        lastLogin: userData.lastLogin,
+                        isAdmin: userData.isAdmin || false
                     });
-            } else {
-                loginMessage.textContent = "Invalid email or password";
-                loginMessage.className = "error-message";
+                }
+                
+                // Update datalist for transaction codes
+                const datalist = document.getElementById('userCodes');
+                datalist.innerHTML = this.allUsers.map(user => 
+                    `<option value="${user.transactionCode}">${user.username} (${user.email})</option>`
+                ).join('');
+                
+                this.updateUsersTable();
             }
-        }
 
-        // Handle logout
-        function handleLogout() {
-            auth.signOut()
-                .then(() => {
-                    currentAdmin = null;
-                    showLogin();
-                })
-                .catch(error => {
-                    console.error("Logout error:", error);
+            loadAllTransactions() {
+                // Collect all transactions from all users
+                this.allTransactions = [];
+                
+                for (const user of this.allUsers) {
+                    const userData = JSON.parse(localStorage.getItem('userData_' + user.username) || '{}');
+                    if (userData.activities) {
+                        userData.activities.forEach(activity => {
+                            this.allTransactions.push({
+                                ...activity,
+                                user: user.username
+                            });
+                        });
+                    }
+                }
+                
+                // Add admin transactions
+                if (this.adminData.transactions) {
+                    this.adminData.transactions.forEach(transaction => {
+                        this.allTransactions.push({
+                            ...transaction,
+                            user: this.currentAdmin,
+                            isAdmin: true
+                        });
+                    });
+                }
+                
+                // Sort by date (newest first)
+                this.allTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                this.updateTransactionsDisplay();
+            }
+
+            generateTransactionCode(username) {
+                const prefix = username.substring(0, 3).toUpperCase();
+                const timestamp = Date.now().toString(36).substr(-4);
+                const random = Math.random().toString(36).substr(2, 4);
+                return `ADM-${prefix}-${timestamp}-${random}`.toUpperCase();
+            }
+
+            updateDisplay() {
+                // Update admin balance
+                document.getElementById('adminBalance').textContent = `$${this.adminBalance.toFixed(2)}`;
+                document.getElementById('totalBalance').textContent = `$${this.adminBalance.toFixed(2)}`;
+                
+                // Update stats
+                document.getElementById('totalUsers').textContent = this.allUsers.length;
+                document.getElementById('totalTransactions').textContent = this.allTransactions.length;
+                
+                // Calculate pending withdrawals
+                const pendingWithdrawals = this.allTransactions
+                    .filter(t => t.type === 'withdraw' && t.status === 'pending')
+                    .reduce((sum, t) => sum + Math.abs(t.amount || 0), 0);
+                
+                document.getElementById('pendingWithdrawals').textContent = `$${pendingWithdrawals.toFixed(2)}`;
+            }
+
+            updateUsersTable() {
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '';
+                
+                if (this.allUsers.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 3rem; color: #94a3b8;">
+                                No users found
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                this.allUsers.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td>$${user.balance.toFixed(2)}</td>
+                        <td><span class="transaction-code">${user.transactionCode}</span></td>
+                        <td><span style="color: ${user.status === 'active' ? '#10b981' : '#ef4444'}">${user.status}</span></td>
+                        <td>
+                            <button class="user-action-btn" onclick="admin.viewUser('${user.username}')">View</button>
+                            <button class="user-action-btn" onclick="admin.depositToUser('${user.username}')">Deposit</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
                 });
+            }
+
+            updateTransactionsDisplay(filter = 'all') {
+                const container = document.getElementById('transactionsLog');
+                let transactions = this.allTransactions;
+                
+                if (filter !== 'all') {
+                    transactions = transactions.filter(t => t.type === filter);
+                }
+                
+                if (transactions.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: #94a3b8;">
+                            No transactions found
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Show latest 20 transactions
+                const recentTransactions = transactions.slice(0, 20);
+                
+                container.innerHTML = recentTransactions.map(transaction => {
+                    const amount = transaction.amount || 0;
+                    const isPositive = amount >= 0;
+                    const typeClass = `transaction-${transaction.type}`;
+                    const amountClass = isPositive ? 'stat-positive' : 'stat-negative';
+                    const amountSign = isPositive ? '+' : '-';
+                    const userPrefix = transaction.isAdmin ? '👑 ' : '👤 ';
+                    
+                    return `
+                        <div class="transaction-item ${typeClass}">
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 0.25rem;">
+                                    ${userPrefix}${transaction.user} • ${transaction.title || transaction.type}
+                                </div>
+                                <div style="font-size: 0.85rem; color: #94a3b8;">
+                                    ${new Date(transaction.date).toLocaleString()}
+                                    ${transaction.code ? ` • Code: <span class="transaction-code">${transaction.code}</span>` : ''}
+                                    ${transaction.description ? ` • ${transaction.description}` : ''}
+                                </div>
+                            </div>
+                            <div class="stat-value ${amountClass}" style="font-size: 1.1rem;">
+                                ${amountSign}$${Math.abs(amount).toFixed(2)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // User actions
+            viewUser(username) {
+                const user = this.allUsers.find(u => u.username === username);
+                if (user) {
+                    alert(`👤 User Details:\n\nUsername: ${user.username}\nEmail: ${user.email}\nBalance: $${user.balance.toFixed(2)}\nTransaction Code: ${user.transactionCode}\nStatus: ${user.status}`);
+                }
+            }
+
+            depositToUser(username) {
+                const user = this.allUsers.find(u => u.username === username);
+                if (user) {
+                    document.getElementById('depositUserCode').value = user.transactionCode;
+                    openDepositModal();
+                }
+            }
+
+            searchUsers(query) {
+                if (!query) {
+                    this.updateUsersTable();
+                    return;
+                }
+                
+                const filteredUsers = this.allUsers.filter(user => 
+                    user.username.toLowerCase().includes(query.toLowerCase()) ||
+                    user.email.toLowerCase().includes(query.toLowerCase()) ||
+                    user.transactionCode.toLowerCase().includes(query.toLowerCase())
+                );
+                
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '';
+                
+                filteredUsers.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td>$${user.balance.toFixed(2)}</td>
+                        <td><span class="transaction-code">${user.transactionCode}</span></td>
+                        <td><span style="color: ${user.status === 'active' ? '#10b981' : '#ef4444'}">${user.status}</span></td>
+                        <td>
+                            <button class="user-action-btn" onclick="admin.viewUser('${user.username}')">View</button>
+                            <button class="user-action-btn" onclick="admin.depositToUser('${user.username}')">Deposit</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            filterTransactions(type) {
+                this.updateTransactionsDisplay(type);
+            }
+
+            // Transfer functions
+            async processAdminTransfer() {
+                const userCode = document.getElementById('userTransactionCode').value.trim();
+                const amount = parseFloat(document.getElementById('transferAmount').value);
+                const type = document.getElementById('transferType').value;
+                
+                if (!userCode) {
+                    alert('Please enter user transaction code');
+                    return;
+                }
+                
+                if (!amount || amount <= 0) {
+                    alert('Please enter a valid amount');
+                    return;
+                }
+                
+                // Find user by transaction code
+                const user = this.allUsers.find(u => u.transactionCode === userCode);
+                if (!user) {
+                    alert('User not found with this transaction code');
+                    return;
+                }
+                
+                if (type === 'withdrawal' && user.balance < amount) {
+                    alert('User has insufficient balance');
+                    return;
+                }
+                
+                if (type === 'deposit' && this.adminBalance < amount) {
+                    alert('Admin has insufficient balance');
+                    return;
+                }
+                
+                // Process the transfer
+                const userData = JSON.parse(localStorage.getItem('userData_' + user.username) || '{}');
+                const transactionCode = this.generateTransactionCode(user.username);
+                
+                if (type === 'deposit') {
+                    // Deposit to user
+                    userData.balance = (userData.balance || 0) + amount;
+                    this.adminBalance -= amount;
+                    this.adminData.balance = this.adminBalance;
+                    
+                    // Add transaction to user
+                    if (!userData.activities) userData.activities = [];
+                    userData.activities.push({
+                        type: 'deposit',
+                        amount: amount,
+                        date: new Date().toISOString(),
+                        code: transactionCode,
+                        title: 'Admin Deposit',
+                        from: this.currentAdmin,
+                        description: 'Deposit from admin'
+                    });
+                    
+                    // Add transaction to admin
+                    this.adminData.transactions.push({
+                        type: 'transfer',
+                        amount: -amount,
+                        date: new Date().toISOString(),
+                        code: transactionCode,
+                        title: 'Deposit to User',
+                        to: user.username,
+                        description: `Deposit to ${user.username}`
+                    });
+                    
+                    alert(`✅ Deposit successful!\nAmount: $${amount.toFixed(2)}\nTo: ${user.username}\nTransaction Code: ${transactionCode}`);
+                    
+                } else if (type === 'withdrawal') {
+                    // Withdraw from user
+                    userData.balance = (userData.balance || 0) - amount;
+                    this.adminBalance += amount;
+                    this.adminData.balance = this.adminBalance;
+                    
+                    // Add transaction to user
+                    if (!userData.activities) userData.activities = [];
+                    userData.activities.push({
+                        type: 'withdrawal',
+                        amount: -amount,
+                        date: new Date().toISOString(),
+                        code: transactionCode,
+                        title: 'Admin Withdrawal',
+                        to: this.currentAdmin,
+                        description: 'Withdrawal by admin'
+                    });
+                    
+                    // Add transaction to admin
+                    this.adminData.transactions.push({
+                        type: 'transfer',
+                        amount: amount,
+                        date: new Date().toISOString(),
+                        code: transactionCode,
+                        title: 'Withdrawal from User',
+                        from: user.username,
+                        description: `Withdrawal from ${user.username}`
+                    });
+                    
+                    alert(`✅ Withdrawal successful!\nAmount: $${amount.toFixed(2)}\nFrom: ${user.username}\nTransaction Code: ${transactionCode}`);
+                }
+                
+                // Save data
+                localStorage.setItem('userData_' + user.username, JSON.stringify(userData));
+                localStorage.setItem('admin_data_' + this.currentAdmin, JSON.stringify(this.adminData));
+                
+                // Clear form
+                document.getElementById('userTransactionCode').value = '';
+                document.getElementById('transferAmount').value = '';
+                
+                // Refresh data
+                this.loadAllUsers();
+                this.loadAllTransactions();
+                this.updateDisplay();
+            }
+
+            // Save admin data
+            saveAdminData() {
+                localStorage.setItem('admin_data_' + this.currentAdmin, JSON.stringify(this.adminData));
+            }
+
+            setupEventListeners() {
+                // Auto-refresh every 30 seconds
+                setInterval(() => {
+                    this.loadAllUsers();
+                    this.loadAllTransactions();
+                    this.updateDisplay();
+                }, 30000);
+            }
         }
 
-        // Handle transfer
-        function handleTransfer(e) {
-            e.preventDefault();
-            const recipientEmail = recipientSelect.value;
-            const amount = parseFloat(document.getElementById('amount').value);
+        // Initialize Admin Panel
+        const admin = new AdminPanel();
+        admin.init();
+
+        // Modal Functions
+        function openDepositModal() {
+            document.getElementById('depositModal').style.display = 'block';
+        }
+
+        function closeDepositModal() {
+            document.getElementById('depositModal').style.display = 'none';
+        }
+
+        function openWithdrawModal() {
+            // Load pending withdrawals
+            const pendingList = document.getElementById('pendingWithdrawalsList');
+            const pendingWithdrawals = admin.allTransactions
+                .filter(t => t.type === 'withdraw' && t.status === 'pending');
             
-            if (!recipientEmail) {
-                showTransferMessage("Please select a recipient", "error");
+            if (pendingWithdrawals.length === 0) {
+                pendingList.innerHTML = '<div style="color: #94a3b8;">No pending withdrawals</div>';
+            } else {
+                pendingList.innerHTML = pendingWithdrawals.map(t => `
+                    <div style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <div><strong>${t.user}</strong> • $${Math.abs(t.amount).toFixed(2)}</div>
+                        <div style="font-size: 0.8rem; color: #94a3b8;">Code: ${t.code}</div>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('withdrawModal').style.display = 'block';
+        }
+
+        function closeWithdrawModal() {
+            document.getElementById('withdrawModal').style.display = 'none';
+        }
+
+        function openCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'block';
+        }
+
+        function closeCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'none';
+        }
+
+        function openResetModal() {
+            if (confirm('⚠️ WARNING: This will reset all system data. Are you sure?')) {
+                if (confirm('⚠️ FINAL WARNING: This action cannot be undone. Type "RESET" to confirm:')) {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    alert('System reset complete. Redirecting to admin login...');
+                    window.location.href = 'admin.login.html';
+                }
+            }
+        }
+
+        // Process user deposit from modal
+        function processUserDeposit() {
+            const userCode = document.getElementById('depositUserCode').value.trim();
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const description = document.getElementById('depositDescription').value.trim();
+            
+            if (!userCode || !amount || amount <= 0) {
+                alert('Please fill all fields correctly');
                 return;
             }
             
-            if (amount <= 0) {
-                showTransferMessage("Amount must be greater than 0", "error");
+            // Find user and process deposit
+            const user = admin.allUsers.find(u => u.transactionCode === userCode);
+            if (!user) {
+                alert('User not found');
                 return;
             }
             
-            if (currentAdmin.balance < amount) {
-                showTransferMessage("Insufficient funds", "error");
+            if (admin.adminBalance < amount) {
+                alert('Admin has insufficient balance');
                 return;
             }
             
-            // Find recipient
-            const recipient = adminCredentials.find(a => a.email === recipientEmail);
-            if (!recipient) {
-                showTransferMessage("Recipient not found", "error");
-                return;
-            }
+            // Process deposit
+            const userData = JSON.parse(localStorage.getItem('userData_' + user.username) || '{}');
+            const transactionCode = admin.generateTransactionCode(user.username);
             
-            // Update balances
-            currentAdmin.balance -= amount;
-            recipient.balance += amount;
+            userData.balance = (userData.balance || 0) + amount;
+            admin.adminBalance -= amount;
+            admin.adminData.balance = admin.adminBalance;
             
-            // Record transaction
-            const transaction = {
-                from: currentAdmin.name,
-                to: recipient.name,
+            // Add transaction to user
+            if (!userData.activities) userData.activities = [];
+            userData.activities.push({
+                type: 'deposit',
                 amount: amount,
-                timestamp: new Date().toLocaleString()
+                date: new Date().toISOString(),
+                code: transactionCode,
+                title: 'Admin Deposit',
+                from: admin.currentAdmin,
+                description: description || 'Deposit from admin'
+            });
+            
+            // Add transaction to admin
+            admin.adminData.transactions.push({
+                type: 'transfer',
+                amount: -amount,
+                date: new Date().toISOString(),
+                code: transactionCode,
+                title: 'Deposit to User',
+                to: user.username,
+                description: description || `Deposit to ${user.username}`
+            });
+            
+            // Save data
+            localStorage.setItem('userData_' + user.username, JSON.stringify(userData));
+            localStorage.setItem('admin_data_' + admin.currentAdmin, JSON.stringify(admin.adminData));
+            
+            alert(`✅ Deposit successful!\nTransaction Code: ${transactionCode}`);
+            
+            closeDepositModal();
+            admin.loadAllUsers();
+            admin.loadAllTransactions();
+            admin.updateDisplay();
+        }
+
+        // Process withdrawal status
+        function processWithdrawalStatus() {
+            const withdrawalCode = document.getElementById('withdrawalCode').value.trim();
+            const status = document.getElementById('withdrawalStatus').value;
+            
+            if (!withdrawalCode) {
+                alert('Please enter withdrawal transaction code');
+                return;
+            }
+            
+            // Find withdrawal transaction
+            let found = false;
+            
+            for (const user of admin.allUsers) {
+                const userData = JSON.parse(localStorage.getItem('userData_' + user.username) || '{}');
+                if (userData.activities) {
+                    const transaction = userData.activities.find(t => t.code === withdrawalCode && t.type === 'withdraw');
+                    if (transaction) {
+                        transaction.status = status;
+                        
+                        if (status === 'completed') {
+                            // Mark as completed
+                            transaction.completedAt = new Date().toISOString();
+                        } else if (status === 'rejected') {
+                            // Refund amount if rejected
+                            userData.balance = (userData.balance || 0) + Math.abs(transaction.amount || 0);
+                        }
+                        
+                        localStorage.setItem('userData_' + user.username, JSON.stringify(userData));
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (found) {
+                alert(`✅ Withdrawal ${status} successfully!`);
+                closeWithdrawModal();
+                admin.loadAllUsers();
+                admin.loadAllTransactions();
+                admin.updateDisplay();
+            } else {
+                alert('Withdrawal transaction not found');
+            }
+        }
+
+        // Create new user
+        function createNewUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const email = document.getElementById('newUserEmail').value.trim();
+            const balance = parseFloat(document.getElementById('initialBalance').value) || 0;
+            const password = document.getElementById('newUserPassword').value;
+            const customCode = document.getElementById('customTransactionCode').value.trim();
+            
+            if (!username || !email || !password) {
+                alert('Please fill all required fields');
+                return;
+            }
+            
+            // Check if username exists
+            const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+            if (existingUsers[username]) {
+                alert('Username already exists');
+                return;
+            }
+            
+            // Generate transaction code
+            const transactionCode = customCode || admin.generateTransactionCode(username);
+            
+            // Create user data
+            const userData = {
+                username: username,
+                email: email,
+                balance: balance,
+                transactionCode: transactionCode,
+                isAdmin: false,
+                status: 'active',
+                registeredAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                activities: []
             };
             
-            // Update UI
-            updateDashboard();
-            showTransferMessage(`Successfully transferred $${amount.toFixed(2)} to ${recipient.name}`, "success");
-            
-            // Clear form
-            transferForm.reset();
-        }
-
-        // Show login section
-        function showLogin() {
-            loginSection.classList.remove('hidden');
-            dashboardSection.classList.add('hidden');
-            loginForm.reset();
-            loginMessage.textContent = "";
-        }
-
-        // Show dashboard
-        function showDashboard() {
-            loginSection.classList.add('hidden');
-            dashboardSection.classList.remove('hidden');
-            updateDashboard();
-        }
-
-        // Update dashboard with current data
-        function updateDashboard() {
-            // Update admin info
-            currentAdminName.textContent = currentAdmin.name;
-            adminBalance.textContent = `$${currentAdmin.balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            
-            // Update admin list
-            adminList.innerHTML = '';
-            adminCredentials.forEach(admin => {
-                const li = document.createElement('li');
-                li.className = 'admin-item';
-                li.innerHTML = `
-                    <span class="admin-name">${admin.name}</span>
-                    <span class="admin-balance">$${admin.balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                `;
-                adminList.appendChild(li);
-            });
-            
-            // Update recipient select
-            recipientSelect.innerHTML = '<option value="">Select a recipient</option>';
-            adminCredentials
-                .filter(admin => admin.email !== currentAdmin.email)
-                .forEach(admin => {
-                    const option = document.createElement('option');
-                    option.value = admin.email;
-                    option.textContent = `${admin.name} ($${admin.balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})})`;
-                    recipientSelect.appendChild(option);
+            // Add initial deposit if balance > 0
+            if (balance > 0) {
+                userData.activities.push({
+                    type: 'deposit',
+                    amount: balance,
+                    date: new Date().toISOString(),
+                    code: `INIT-${Date.now().toString(36)}`,
+                    title: 'Initial Deposit',
+                    from: admin.currentAdmin,
+                    description: 'Account creation deposit'
                 });
+            }
             
-            // Update transaction history (simulated)
-            updateTransactionHistory();
+            // Save user
+            existingUsers[username] = email;
+            localStorage.setItem('registeredUsers', JSON.stringify(existingUsers));
+            localStorage.setItem('userData_' + username, JSON.stringify(userData));
+            
+            alert(`✅ User created successfully!\nUsername: ${username}\nTransaction Code: ${transactionCode}\nInitial Balance: $${balance.toFixed(2)}`);
+            
+            closeCreateUserModal();
+            admin.loadAllUsers();
+            admin.loadAllTransactions();
+            admin.updateDisplay();
         }
 
-        // Update transaction history
-        function updateTransactionHistory() {
-            // In a real app, this would fetch from Firestore
-            transactionHistory.innerHTML = '';
-            
-            // Simulate some transactions
-            const transactions = [
-                { from: "Admin Manager", to: currentAdmin.name, amount: 5000, timestamp: "2023-10-15 14:30:22", type: "credit" },
-                { from: currentAdmin.name, to: "Admin One", amount: 1000, timestamp: "2023-10-14 09:15:45", type: "debit" },
-                { from: "Admin Two", to: currentAdmin.name, amount: 2500, timestamp: "2023-10-12 16:45:10", type: "credit" }
-            ];
-            
-            transactions.forEach(transaction => {
-                const div = document.createElement('div');
-                div.className = 'transaction-item';
+        // Admin logout
+        function adminLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                // Clear admin session
+                sessionStorage.removeItem('admin_session');
+                sessionStorage.removeItem('admin_username');
+                sessionStorage.removeItem('admin_login_time');
+                localStorage.removeItem('isAdminLoggedIn');
+                localStorage.removeItem('currentAdmin');
+                localStorage.removeItem('admin_session_expiry');
                 
-                const isCredit = transaction.type === 'credit';
-                const amountClass = isCredit ? 'positive' : 'negative';
-                const amountPrefix = isCredit ? '+' : '-';
-                
-                div.innerHTML = `
-                    <div>
-                        <div>${isCredit ? 'From: ' + transaction.from : 'To: ' + transaction.to}</div>
-                        <div style="font-size: 0.8em; color: #777;">${transaction.timestamp}</div>
-                    </div>
-                    <div class="transaction-amount ${amountClass}">${amountPrefix}$${transaction.amount.toFixed(2)}</div>
-                `;
-                
-                transactionHistory.appendChild(div);
+                // Redirect to admin login
+                window.location.href = 'admin.login.html';
+            }
+        }
+
+        // Close modals on outside click
+        window.onclick = function(event) {
+            const modals = ['depositModal', 'withdrawModal', 'createUserModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
             });
-        }
+        };
 
-        // Show transfer message
-        function showTransferMessage(message, type) {
-            transferMessage.textContent = message;
-            transferMessage.className = type === 'success' ? 'success-message' : 'error-message';
-            
-            // Clear message after 3 seconds
-            setTimeout(() => {
-                transferMessage.textContent = '';
-                transferMessage.className = '';
-            }, 3000);
-        }
-
-        // Initialize the app when DOM is loaded
-        document.addEventListener('DOMContentLoaded', init);
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDepositModal();
+                closeWithdrawModal();
+                closeCreateUserModal();
+            }
+        });
     </script>
 </body>
 </html>
