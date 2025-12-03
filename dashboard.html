@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET | Dashboard</title>
+    <title>X-BET | User Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         // SESSION CHECK - MUST BE FIRST
@@ -15,6 +15,12 @@
             if (protectedPages.includes(currentPage) && !token) {
                 alert('Please login to access your dashboard');
                 window.location.href = 'login.html';
+            }
+            
+            // Check if admin trying to access user dashboard
+            const userData = JSON.parse(localStorage.getItem('xbet_user') || '{}');
+            if (userData.user_type === 'admin') {
+                window.location.href = 'admin.html';
             }
         })();
     </script>
@@ -88,13 +94,22 @@
             font-size: 0.8rem;
         }
         
+        .user-code {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            color: var(--accent);
+        }
+        
         .top-right {
             display: flex;
             align-items: center;
             gap: 1rem;
         }
         
-        .notification-btn, .language-btn {
+        .notification-btn {
             background: rgba(255, 255, 255, 0.05);
             border: none;
             color: var(--gray);
@@ -106,11 +121,27 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
         }
         
-        .notification-btn:hover, .language-btn:hover {
+        .notification-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             color: var(--light);
+        }
+        
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         /* ===== MAIN NAVIGATION ===== */
@@ -322,15 +353,15 @@
             gap: 1rem;
         }
         
-        /* ===== STATS GRID ===== */
-        .stats-grid {
+        /* ===== BALANCE CARDS ===== */
+        .balance-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
             margin-bottom: 3rem;
         }
         
-        .stat-card {
+        .balance-card {
             background: var(--card-bg);
             border-radius: 16px;
             padding: 2rem;
@@ -340,87 +371,92 @@
             overflow: hidden;
         }
         
-        .stat-card::before {
+        .balance-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
         }
         
-        .stat-card:hover {
+        .balance-card.total::before {
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+        
+        .balance-card.received::before {
+            background: linear-gradient(90deg, var(--success), var(--secondary));
+        }
+        
+        .balance-card.sent::before {
+            background: linear-gradient(90deg, var(--danger), #f87171);
+        }
+        
+        .balance-card.won::before {
+            background: linear-gradient(90deg, var(--warning), #fbbf24);
+        }
+        
+        .balance-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
         }
         
-        .stat-icon {
-            width: 60px;
-            height: 60px;
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            margin-bottom: 1.5rem;
         }
         
-        .stat-icon.balance {
+        .total .card-icon {
             background: rgba(255, 107, 53, 0.1);
             color: var(--primary);
         }
         
-        .stat-icon.received {
+        .received .card-icon {
             background: rgba(16, 185, 129, 0.1);
             color: var(--success);
         }
         
-        .stat-icon.sent {
+        .sent .card-icon {
             background: rgba(239, 68, 68, 0.1);
             color: var(--danger);
         }
         
-        .stat-icon.won {
+        .won .card-icon {
             background: rgba(245, 158, 11, 0.1);
             color: var(--warning);
         }
         
-        .stat-amount {
+        .card-amount {
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
             color: white;
         }
         
-        .stat-amount.zero {
-            color: var(--gray);
-        }
-        
-        .stat-label {
+        .card-label {
             color: var(--gray);
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         
-        .stat-change {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-        
-        .stat-change.positive {
-            color: var(--success);
-        }
-        
-        .stat-change.negative {
-            color: var(--danger);
-        }
-        
-        .stat-change.neutral {
+        .card-footer {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.85rem;
             color: var(--gray);
         }
         
@@ -445,30 +481,33 @@
             color: white;
         }
         
-        /* ===== ACTIVITY LIST ===== */
-        .activity-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+        /* ===== TRANSACTIONS TABLE ===== */
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
         }
         
-        .activity-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .transactions-table th {
+            text-align: left;
             padding: 1rem;
-            background: rgba(10, 14, 23, 0.5);
-            border-radius: 10px;
-            border-left: 4px solid var(--primary);
+            color: var(--gray);
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         
-        .activity-info {
+        .transactions-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .transaction-type {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 10px;
         }
         
-        .activity-icon {
+        .type-icon {
             width: 40px;
             height: 40px;
             border-radius: 10px;
@@ -478,38 +517,87 @@
             font-size: 1rem;
         }
         
-        .activity-details h4 {
-            font-size: 1rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .activity-time {
-            color: var(--gray);
-            font-size: 0.8rem;
-        }
-        
-        .activity-amount {
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-        
-        .activity-amount.positive {
+        .type-deposit .type-icon {
+            background: rgba(16, 185, 129, 0.1);
             color: var(--success);
         }
         
-        .activity-amount.negative {
+        .type-withdrawal .type-icon {
+            background: rgba(239, 68, 68, 0.1);
             color: var(--danger);
         }
         
-        /* ===== QUICK DEPOSIT ===== */
-        .deposit-options {
+        .type-bet .type-icon {
+            background: rgba(255, 107, 53, 0.1);
+            color: var(--primary);
+        }
+        
+        .type-win .type-icon {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .type-bonus .type-icon {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+        
+        .transaction-amount {
+            font-weight: 600;
+        }
+        
+        .amount-positive {
+            color: var(--success);
+        }
+        
+        .amount-negative {
+            color: var(--danger);
+        }
+        
+        .transaction-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .status-failed {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        /* ===== NO TRANSACTIONS ===== */
+        .no-transactions {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray);
+        }
+        
+        .no-transactions i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--gray);
+        }
+        
+        /* ===== QUICK ACTIONS ===== */
+        .quick-actions-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
             margin-top: 1.5rem;
         }
         
-        .deposit-method {
+        .action-card {
             background: rgba(10, 14, 23, 0.5);
             border-radius: 10px;
             padding: 1.5rem;
@@ -517,29 +605,19 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             cursor: pointer;
             transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
         }
         
-        .deposit-method:hover {
+        .action-card:hover {
             border-color: var(--primary);
             transform: translateY(-3px);
         }
         
-        .deposit-method i {
+        .action-card i {
             font-size: 2rem;
             margin-bottom: 0.5rem;
-        }
-        
-        /* ===== NO ACTIVITY ===== */
-        .no-activity {
-            text-align: center;
-            padding: 3rem;
-            color: var(--gray);
-        }
-        
-        .no-activity i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: var(--gray);
+            color: var(--primary);
         }
         
         /* ===== MODAL ===== */
@@ -580,7 +658,7 @@
                 padding: 0 1rem;
             }
             
-            .stats-grid {
+            .balance-cards {
                 grid-template-columns: 1fr;
             }
             
@@ -593,8 +671,13 @@
                 display: none;
             }
             
-            .deposit-options {
-                grid-template-columns: repeat(2, 1fr);
+            .quick-actions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .transactions-table {
+                display: block;
+                overflow-x: auto;
             }
         }
     </style>
@@ -610,13 +693,14 @@
                 <i class="fas fa-wallet"></i>
                 <span id="balanceAmount">$0.00</span>
             </div>
+            <div class="user-code" id="userCodeDisplay">
+                xBT-USER-CODE
+            </div>
         </div>
         <div class="top-right">
-            <button class="notification-btn" title="Notifications">
+            <button class="notification-btn" onclick="showNotifications()">
                 <i class="fas fa-bell"></i>
-            </button>
-            <button class="language-btn" title="Language">
-                <i class="fas fa-globe"></i>
+                <span class="notification-count" id="notificationCount">0</span>
             </button>
             <div class="user-menu" id="userMenuContainer">
                 <!-- User menu will be loaded here -->
@@ -652,7 +736,7 @@
         <!-- Welcome Section -->
         <div class="dashboard-header">
             <div class="welcome-section">
-                <h1>Dashboard Overview</h1>
+                <h1>User Dashboard</h1>
                 <div class="user-id">
                     <i class="fas fa-id-card"></i>
                     User ID: <span id="userIdDisplay">loading...</span>
@@ -660,146 +744,143 @@
             </div>
             
             <div class="quick-actions">
-                <button class="btn btn-primary" onclick="openDepositModal()">
-                    <i class="fas fa-plus-circle"></i> Deposit
+                <button class="btn btn-primary" onclick="requestDeposit()">
+                    <i class="fas fa-coins"></i> Request Deposit
                 </button>
-                <button class="btn btn-secondary" onclick="refreshBalance()">
-                    <i class="fas fa-sync-alt"></i> Refresh
+                <button class="btn btn-secondary" onclick="checkAdminUpdates()">
+                    <i class="fas fa-sync-alt"></i> Check Updates
                 </button>
-                <button class="btn btn-secondary" onclick="checkDeposits()">
-                    <i class="fas fa-search-dollar"></i> Check Deposits
+                <button class="btn btn-secondary" onclick="viewTransactionHistory()">
+                    <i class="fas fa-history"></i> All Transactions
                 </button>
             </div>
         </div>
 
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon balance">
-                    <i class="fas fa-wallet"></i>
+        <!-- Balance Cards -->
+        <div class="balance-cards">
+            <div class="balance-card total">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
                 </div>
-                <div class="stat-amount zero" id="totalBalance">$0.00</div>
-                <div class="stat-label">Total Balance</div>
-                <div class="stat-change neutral">
-                    <i class="fas fa-info-circle"></i> Make your first deposit
-                </div>
+                <div class="card-amount" id="totalBalance">$0.00</div>
+                <div class="card-label">TOTAL REMAINING BALANCE</div>
+                <div class="card-footer">Available for use</div>
             </div>
             
-            <div class="stat-card">
-                <div class="stat-icon received">
-                    <i class="fas fa-download"></i>
+            <div class="balance-card received">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
                 </div>
-                <div class="stat-amount zero" id="receivedBalance">$0.00</div>
-                <div class="stat-label">Received Balance</div>
-                <div class="stat-change neutral">
-                    <i class="fas fa-info-circle"></i> No deposits yet
-                </div>
+                <div class="card-amount" id="receivedBalance">$0.00</div>
+                <div class="card-label">RECEIVED BALANCE</div>
+                <div class="card-footer">From admins & users</div>
             </div>
             
-            <div class="stat-card">
-                <div class="stat-icon sent">
-                    <i class="fas fa-upload"></i>
+            <div class="balance-card sent">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-upload"></i>
+                    </div>
                 </div>
-                <div class="stat-amount zero" id="sentBalance">$0.00</div>
-                <div class="stat-label">Sent Balance</div>
-                <div class="stat-change neutral">
-                    <i class="fas fa-info-circle"></i> No withdrawals yet
-                </div>
+                <div class="card-amount" id="sentBalance">$0.00</div>
+                <div class="card-label">SENT BALANCE</div>
+                <div class="card-footer">To other users</div>
             </div>
             
-            <div class="stat-card">
-                <div class="stat-icon won">
-                    <i class="fas fa-trophy"></i>
+            <div class="balance-card won">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
                 </div>
-                <div class="stat-amount zero" id="wonBalance">$0.00</div>
-                <div class="stat-label">Won Balance</div>
-                <div class="stat-change neutral">
-                    <i class="fas fa-info-circle"></i> Start playing to win
-                </div>
+                <div class="card-amount" id="wonBalance">$0.00</div>
+                <div class="card-label">WON BALANCE</div>
+                <div class="card-footer">From games & bets</div>
             </div>
         </div>
 
-        <!-- Recent Activity -->
+        <!-- Recent Transactions -->
         <div class="dashboard-section">
             <div class="section-header">
-                <h2>Recent Activity</h2>
-                <a href="bets.html" class="btn btn-secondary" style="padding: 0.5rem 1rem;">
-                    View All <i class="fas fa-arrow-right"></i>
+                <h2>Recent Transactions</h2>
+                <button class="btn btn-secondary" onclick="refreshTransactions()" style="padding: 0.5rem 1rem;">
+                    <i class="fas fa-redo"></i> Refresh
+                </button>
+            </div>
+            
+            <div id="transactionsContainer">
+                <table class="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Transaction ID</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTable">
+                        <!-- Transactions will be loaded here -->
+                    </tbody>
+                </table>
+                <div class="no-transactions" id="noTransactions">
+                    <i class="fas fa-exchange-alt"></i>
+                    <h3>No Transactions Yet</h3>
+                    <p>Your transaction history will appear here</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Quick Actions</h2>
+            </div>
+            
+            <div class="quick-actions-grid">
+                <a href="games.html" class="action-card">
+                    <i class="fas fa-gamepad"></i>
+                    <h4>Play Games</h4>
+                    <p>Start playing and betting</p>
                 </a>
-            </div>
-            
-            <div class="activity-list" id="activityList">
-                <div class="no-activity">
-                    <i class="fas fa-history"></i>
-                    <h3>No Activity Yet</h3>
-                    <p>Make your first deposit or play a game to see activity here</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Deposit -->
-        <div class="dashboard-section">
-            <div class="section-header">
-                <h2>Quick Deposit</h2>
-                <span style="color: var(--gray);">Instant deposits, no fees</span>
-            </div>
-            
-            <div class="deposit-options">
-                <div class="deposit-method" onclick="quickDeposit(10)">
-                    <i class="fas fa-coins" style="color: var(--accent);"></i>
-                    <h4>Deposit $10</h4>
-                    <small>Minimum deposit</small>
+                
+                <a href="bets.html" class="action-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h4>My Bets</h4>
+                    <p>View betting history</p>
+                </a>
+                
+                <div class="action-card" onclick="requestDeposit()">
+                    <i class="fas fa-coins"></i>
+                    <h4>Request Deposit</h4>
+                    <p>Contact admin to add funds</p>
                 </div>
                 
-                <div class="deposit-method" onclick="quickDeposit(50)">
-                    <i class="fas fa-gem" style="color: var(--primary);"></i>
-                    <h4>Deposit $50</h4>
-                    <small>Popular choice</small>
-                </div>
-                
-                <div class="deposit-method" onclick="quickDeposit(100)">
-                    <i class="fas fa-crown" style="color: var(--warning);"></i>
-                    <h4>Deposit $100</h4>
-                    <small>Get +$10 bonus</small>
-                </div>
-                
-                <div class="deposit-method" onclick="openDepositModal()">
-                    <i class="fas fa-plus-circle" style="color: var(--success);"></i>
-                    <h4>Custom Amount</h4>
-                    <small>Choose your amount</small>
+                <div class="action-card" onclick="showSupport()">
+                    <i class="fas fa-headset"></i>
+                    <h4>Support</h4>
+                    <p>Need help? Contact us</p>
                 </div>
             </div>
         </div>
 
-        <!-- How to Start -->
+        <!-- Check for Deposits -->
         <div class="dashboard-section">
             <div class="section-header">
-                <h2>How to Start Playing</h2>
+                <h2>Deposit Requests</h2>
+                <button class="btn btn-primary" onclick="checkDeposits()">
+                    <i class="fas fa-search-dollar"></i> Check for Deposits
+                </button>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                <div style="text-align: center; padding: 1.5rem; background: rgba(255,107,53,0.05); border-radius: 10px;">
-                    <div style="width: 50px; height: 50px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white;">
-                        <i class="fas fa-1"></i>
-                    </div>
-                    <h4>1. Make a Deposit</h4>
-                    <p style="color: var(--gray); font-size: 0.9rem;">Deposit funds to your account (Minimum: $10)</p>
-                </div>
-                
-                <div style="text-align: center; padding: 1.5rem; background: rgba(0,201,183,0.05); border-radius: 10px;">
-                    <div style="width: 50px; height: 50px; background: var(--secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white;">
-                        <i class="fas fa-2"></i>
-                    </div>
-                    <h4>2. Choose a Game</h4>
-                    <p style="color: var(--gray); font-size: 0.9rem;">Browse our games section and pick your favorite</p>
-                </div>
-                
-                <div style="text-align: center; padding: 1.5rem; background: rgba(255,209,102,0.05); border-radius: 10px;">
-                    <div style="width: 50px; height: 50px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: var(--dark);">
-                        <i class="fas fa-3"></i>
-                    </div>
-                    <h4>3. Start Playing</h4>
-                    <p style="color: var(--gray); font-size: 0.9rem;">Place bets and enjoy the thrill of winning</p>
-                </div>
+            <div id="pendingDeposits">
+                <p style="color: var(--gray); text-align: center; padding: 2rem;">
+                    No pending deposit requests. Admins will add funds to your account.
+                </p>
             </div>
         </div>
     </main>
@@ -812,26 +893,37 @@
         </p>
     </footer>
 
-    <!-- ===== DEPOSIT MODAL ===== -->
+    <!-- ===== DEPOSIT REQUEST MODAL ===== -->
     <div class="modal" id="depositModal">
         <div class="modal-content">
-            <h2 style="margin-bottom: 1.5rem;">Deposit Funds</h2>
-            <p style="color: var(--gray); margin-bottom: 1.5rem;">Enter the amount you want to deposit to your account</p>
+            <h2 style="margin-bottom: 1.5rem;">Request Deposit</h2>
+            <p style="color: var(--gray); margin-bottom: 1.5rem;">Enter the amount you want to request from admin</p>
             
             <input type="number" id="depositAmount" placeholder="Enter amount ($)" style="width: 100%; padding: 1rem; margin-bottom: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--primary); border-radius: 8px; color: white; font-size: 1.2rem;">
             
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1.5rem;">
                 <button onclick="setDepositAmount(10)" class="btn btn-secondary">$10</button>
-                <button onclick="setDepositAmount(25)" class="btn btn-secondary">$25</button>
                 <button onclick="setDepositAmount(50)" class="btn btn-secondary">$50</button>
                 <button onclick="setDepositAmount(100)" class="btn btn-secondary">$100</button>
-                <button onclick="setDepositAmount(250)" class="btn btn-secondary">$250</button>
                 <button onclick="setDepositAmount(500)" class="btn btn-secondary">$500</button>
+                <button onclick="setDepositAmount(1000)" class="btn btn-secondary">$1000</button>
+                <button onclick="setDepositAmount(5000)" class="btn btn-secondary">$5000</button>
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: var(--gray); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Payment Method</label>
+                <select id="paymentMethod" style="width: 100%; padding: 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white;">
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="crypto">Cryptocurrency</option>
+                    <option value="paypal">PayPal</option>
+                    <option value="skrill">Skrill</option>
+                    <option value="neteller">Neteller</option>
+                </select>
             </div>
             
             <div style="display: flex; gap: 1rem;">
-                <button onclick="processDeposit()" class="btn btn-primary" style="flex: 1;">
-                    <i class="fas fa-check"></i> Confirm Deposit
+                <button onclick="submitDepositRequest()" class="btn btn-primary" style="flex: 1;">
+                    <i class="fas fa-paper-plane"></i> Submit Request
                 </button>
                 <button onclick="closeDepositModal()" class="btn btn-secondary">
                     Cancel
@@ -840,37 +932,72 @@
         </div>
     </div>
 
+    <!-- ===== NOTIFICATIONS MODAL ===== -->
+    <div class="modal" id="notificationsModal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1.5rem;">Notifications</h2>
+            <div id="notificationsList">
+                <div style="text-align: center; padding: 2rem; color: var(--gray);">
+                    <i class="fas fa-bell-slash" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <p>No notifications</p>
+                </div>
+            </div>
+            <div style="margin-top: 1.5rem; display: flex; justify-content: space-between;">
+                <button onclick="markAllAsRead()" class="btn btn-secondary">
+                    Mark All as Read
+                </button>
+                <button onclick="closeNotificationsModal()" class="btn btn-primary">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // ===== GLOBAL VARIABLES =====
+        let userData = {};
+        let transactions = [];
+        let notifications = [];
+
         // ===== GET USER DATA =====
         function getUserData() {
             const userStr = localStorage.getItem('xbet_user');
             if (userStr) {
-                return JSON.parse(userStr);
+                userData = JSON.parse(userStr);
+                return userData;
             }
             return {
                 username: 'Guest',
                 balance: 0,
                 user_id: 'guest_001',
+                user_type: 'user',
+                user_code: 'xBT-USER-CODE',
+                received_balance: 0,
+                sent_balance: 0,
+                won_balance: 0,
                 isLoggedIn: false
             };
         }
 
         // ===== UPDATE USER DISPLAY =====
         function updateUserDisplay() {
-            const user = getUserData();
+            userData = getUserData();
             
             // Update top bar
-            document.getElementById('usernameDisplay').textContent = user.username;
-            document.getElementById('balanceAmount').textContent = `$${user.balance.toFixed(2)}`;
+            document.getElementById('usernameDisplay').textContent = userData.username;
+            document.getElementById('balanceAmount').textContent = `$${userData.balance.toFixed(2)}`;
+            document.getElementById('userCodeDisplay').textContent = userData.user_code || 'xBT-USER-CODE';
             
             // Update dashboard
-            document.getElementById('userIdDisplay').textContent = user.user_id;
-            document.getElementById('footerUserId').textContent = user.user_id;
-            document.getElementById('footerBalance').textContent = `$${user.balance.toFixed(2)}`;
+            document.getElementById('userIdDisplay').textContent = userData.user_id;
+            document.getElementById('footerUserId').textContent = userData.user_id;
+            document.getElementById('footerBalance').textContent = `$${userData.balance.toFixed(2)}`;
             
             // Update balances
-            document.getElementById('totalBalance').textContent = `$${user.balance.toFixed(2)}`;
-            document.getElementById('receivedBalance').textContent = `$${user.balance.toFixed(2)}`;
+            document.getElementById('totalBalance').textContent = `$${userData.balance.toFixed(2)}`;
+            document.getElementById('receivedBalance').textContent = `$${(userData.received_balance || 0).toFixed(2)}`;
+            document.getElementById('sentBalance').textContent = `$${(userData.sent_balance || 0).toFixed(2)}`;
+            document.getElementById('wonBalance').textContent = `$${(userData.won_balance || 0).toFixed(2)}`;
             
             // Update last updated time
             document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
@@ -878,33 +1005,30 @@
             // Update user menu
             updateUserMenu();
             
-            // Style zero balances
-            if (user.balance === 0) {
-                const balances = ['totalBalance', 'receivedBalance', 'sentBalance', 'wonBalance'];
-                balances.forEach(id => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        element.classList.add('zero');
-                    }
-                });
-            }
+            // Load transactions
+            loadTransactions();
+            
+            // Check for admin updates
+            checkForAdminUpdates();
         }
 
         // ===== UPDATE USER MENU =====
         function updateUserMenu() {
-            const user = getUserData();
             const userMenuContainer = document.getElementById('userMenuContainer');
             
             userMenuContainer.innerHTML = `
                 <a href="#" class="btn btn-secondary" onclick="toggleUserMenu(event)" style="padding: 0.5rem 1rem;">
-                    <i class="fas fa-user-circle"></i> ${user.username}
+                    <i class="fas fa-user-circle"></i> ${userData.username}
                     <i class="fas fa-chevron-down"></i>
                 </a>
                 <div class="user-dropdown" id="userDropdown">
                     <div class="user-info">
-                        <strong>${user.username}</strong>
+                        <strong>${userData.username}</strong>
                         <div style="font-size: 0.85rem; color: var(--gray); margin-top: 0.25rem;">
-                            Balance: $${user.balance.toFixed(2)}
+                            Balance: $${userData.balance.toFixed(2)}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--gray); margin-top: 0.25rem;">
+                            ${userData.user_code || 'No code'}
                         </div>
                     </div>
                     <a href="dashboard.html" class="dropdown-link">
@@ -949,8 +1073,185 @@
             }
         }
 
-        // ===== DEPOSIT FUNCTIONS =====
-        function openDepositModal() {
+        // ===== LOAD TRANSACTIONS =====
+        function loadTransactions() {
+            // Get transactions from localStorage or create default
+            const storedTransactions = localStorage.getItem(`xbet_transactions_${userData.user_id}`);
+            if (storedTransactions) {
+                transactions = JSON.parse(storedTransactions);
+            } else {
+                // Create initial transaction
+                transactions = [
+                    {
+                        id: 'TXN-' + Date.now(),
+                        type: 'bonus',
+                        description: 'Welcome Bonus',
+                        amount: 0,
+                        date: new Date().toISOString(),
+                        status: 'completed',
+                        user_id: userData.user_id
+                    }
+                ];
+                localStorage.setItem(`xbet_transactions_${userData.user_id}`, JSON.stringify(transactions));
+            }
+            
+            displayTransactions();
+        }
+
+        // ===== DISPLAY TRANSACTIONS =====
+        function displayTransactions() {
+            const transactionsTable = document.getElementById('transactionsTable');
+            const noTransactions = document.getElementById('noTransactions');
+            
+            if (transactions.length === 0) {
+                noTransactions.style.display = 'block';
+                transactionsTable.innerHTML = '';
+                return;
+            }
+            
+            noTransactions.style.display = 'none';
+            
+            // Sort transactions by date (newest first)
+            const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Show only last 10 transactions
+            const recentTransactions = sortedTransactions.slice(0, 10);
+            
+            let tableHTML = '';
+            
+            recentTransactions.forEach(transaction => {
+                const date = new Date(transaction.date).toLocaleString();
+                const amountClass = transaction.amount > 0 ? 'amount-positive' : 'amount-negative';
+                const amountSign = transaction.amount > 0 ? '+' : '';
+                
+                let typeClass = '';
+                let typeIcon = '';
+                
+                switch(transaction.type) {
+                    case 'deposit':
+                        typeClass = 'type-deposit';
+                        typeIcon = 'fa-download';
+                        break;
+                    case 'withdrawal':
+                        typeClass = 'type-withdrawal';
+                        typeIcon = 'fa-upload';
+                        break;
+                    case 'bet':
+                        typeClass = 'type-bet';
+                        typeIcon = 'fa-gamepad';
+                        break;
+                    case 'win':
+                        typeClass = 'type-win';
+                        typeIcon = 'fa-trophy';
+                        break;
+                    case 'bonus':
+                        typeClass = 'type-bonus';
+                        typeIcon = 'fa-gift';
+                        break;
+                    default:
+                        typeClass = 'type-deposit';
+                        typeIcon = 'fa-exchange-alt';
+                }
+                
+                tableHTML += `
+                    <tr>
+                        <td>
+                            <div class="transaction-type ${typeClass}">
+                                <div class="type-icon">
+                                    <i class="fas ${typeIcon}"></i>
+                                </div>
+                                <span>${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</span>
+                            </div>
+                        </td>
+                        <td>${transaction.description}</td>
+                        <td class="transaction-amount ${amountClass}">${amountSign}$${Math.abs(transaction.amount).toFixed(2)}</td>
+                        <td>${date}</td>
+                        <td><span class="transaction-status status-${transaction.status}">${transaction.status}</span></td>
+                        <td style="font-family: monospace; font-size: 0.85rem;">${transaction.id}</td>
+                    </tr>
+                `;
+            });
+            
+            transactionsTable.innerHTML = tableHTML;
+        }
+
+        // ===== ADD TRANSACTION =====
+        function addTransaction(type, amount, description, status = 'completed') {
+            const transaction = {
+                id: 'TXN-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase(),
+                type: type,
+                description: description,
+                amount: amount,
+                date: new Date().toISOString(),
+                status: status,
+                user_id: userData.user_id
+            };
+            
+            transactions.unshift(transaction);
+            localStorage.setItem(`xbet_transactions_${userData.user_id}`, JSON.stringify(transactions));
+            
+            // Update user balance based on transaction type
+            switch(type) {
+                case 'deposit':
+                case 'win':
+                case 'bonus':
+                    userData.balance += amount;
+                    if (type === 'deposit') userData.received_balance = (userData.received_balance || 0) + amount;
+                    if (type === 'win') userData.won_balance = (userData.won_balance || 0) + amount;
+                    break;
+                case 'withdrawal':
+                case 'bet':
+                    userData.balance -= Math.abs(amount);
+                    if (type === 'withdrawal') userData.sent_balance = (userData.sent_balance || 0) + Math.abs(amount);
+                    break;
+            }
+            
+            localStorage.setItem('xbet_user', JSON.stringify(userData));
+            updateUserDisplay();
+            
+            // Show notification
+            showNotification(`New ${type}: ${description} - $${Math.abs(amount).toFixed(2)}`);
+        }
+
+        // ===== CHECK FOR ADMIN UPDATES =====
+        function checkForAdminUpdates() {
+            // Check if admin has sent any updates for this user
+            const adminUpdates = localStorage.getItem('xbet_admin_updates');
+            if (adminUpdates) {
+                const updates = JSON.parse(adminUpdates);
+                const userUpdates = updates.filter(update => update.user_id === userData.user_id && !update.read);
+                
+                if (userUpdates.length > 0) {
+                    // Process updates
+                    userUpdates.forEach(update => {
+                        if (update.type === 'balance_update') {
+                            // Update user balance
+                            const oldBalance = userData.balance;
+                            userData.balance = update.new_balance;
+                            
+                            // Add transaction
+                            addTransaction('deposit', update.amount, update.description || 'Admin deposit');
+                            
+                            // Mark as read
+                            update.read = true;
+                            update.read_at = new Date().toISOString();
+                            
+                            // Show notification
+                            showNotification(`Admin updated your balance: $${update.amount.toFixed(2)} added. New balance: $${update.new_balance.toFixed(2)}`);
+                        }
+                    });
+                    
+                    // Save updated updates
+                    localStorage.setItem('xbet_admin_updates', JSON.stringify(updates));
+                    
+                    // Update notification count
+                    updateNotificationCount();
+                }
+            }
+        }
+
+        // ===== DEPOSIT REQUEST FUNCTIONS =====
+        function requestDeposit() {
             document.getElementById('depositModal').style.display = 'flex';
         }
 
@@ -962,13 +1263,9 @@
             document.getElementById('depositAmount').value = amount;
         }
 
-        function quickDeposit(amount) {
-            setDepositAmount(amount);
-            openDepositModal();
-        }
-
-        function processDeposit() {
+        function submitDepositRequest() {
             const amount = parseFloat(document.getElementById('depositAmount').value);
+            const paymentMethod = document.getElementById('paymentMethod').value;
             
             if (!amount || amount < 10) {
                 alert('Minimum deposit amount is $10');
@@ -980,85 +1277,216 @@
                 return;
             }
             
-            const user = getUserData();
-            user.balance += amount;
+            // Create deposit request
+            const depositRequest = {
+                id: 'DEP-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase(),
+                user_id: userData.user_id,
+                username: userData.username,
+                amount: amount,
+                payment_method: paymentMethod,
+                status: 'pending',
+                requested_at: new Date().toISOString(),
+                user_code: userData.user_code
+            };
             
-            // Update localStorage
-            localStorage.setItem('xbet_user', JSON.stringify(user));
+            // Save to deposit requests
+            const depositRequests = JSON.parse(localStorage.getItem('xbet_deposit_requests') || '[]');
+            depositRequests.push(depositRequest);
+            localStorage.setItem('xbet_deposit_requests', JSON.stringify(depositRequests));
             
-            // Update display
-            updateUserDisplay();
+            // Add transaction record
+            addTransaction('deposit', 0, `Deposit request: $${amount.toFixed(2)} via ${paymentMethod}`, 'pending');
             
-            // Show success
-            alert(`Successfully deposited $${amount.toFixed(2)}! New balance: $${user.balance.toFixed(2)}`);
+            // Show success message
+            alert(`Deposit request submitted! Request ID: ${depositRequest.id}\n\nAn admin will process your request shortly.`);
+            
             closeDepositModal();
             
-            // Add to activity
-            addActivity('deposit', amount, 'Deposit processed');
-        }
-
-        // ===== ADD ACTIVITY =====
-        function addActivity(type, amount, description) {
-            const activityList = document.getElementById('activityList');
-            
-            // Remove no activity message if present
-            if (activityList.querySelector('.no-activity')) {
-                activityList.innerHTML = '';
-            }
-            
-            const icon = type === 'deposit' ? 'fa-download' : 
-                        type === 'withdrawal' ? 'fa-upload' : 
-                        type === 'game' ? 'fa-gamepad' : 'fa-info-circle';
-            
-            const iconColor = type === 'deposit' ? 'var(--success)' : 
-                            type === 'withdrawal' ? 'var(--danger)' : 
-                            type === 'game' ? 'var(--primary)' : 'var(--warning)';
-            
-            const bgColor = type === 'deposit' ? 'rgba(16, 185, 129, 0.1)' : 
-                          type === 'withdrawal' ? 'rgba(239, 68, 68, 0.1)' : 
-                          type === 'game' ? 'rgba(255, 107, 53, 0.1)' : 'rgba(245, 158, 11, 0.1)';
-            
-            const newActivity = `
-                <div class="activity-item">
-                    <div class="activity-info">
-                        <div class="activity-icon" style="background: ${bgColor}; color: ${iconColor};">
-                            <i class="fas ${icon}"></i>
-                        </div>
-                        <div class="activity-details">
-                            <h4>${description}</h4>
-                            <div class="activity-time">Just now • completed</div>
-                        </div>
-                    </div>
-                    <div class="activity-amount ${amount > 0 ? 'positive' : 'negative'}">
-                        ${amount > 0 ? '+' : ''}$${Math.abs(amount).toFixed(2)}
-                    </div>
-                </div>
-            `;
-            
-            activityList.innerHTML = newActivity + activityList.innerHTML;
-        }
-
-        // ===== REFRESH BALANCE =====
-        function refreshBalance() {
-            const user = getUserData();
-            
-            // Simulate balance refresh
-            const now = new Date().toLocaleTimeString();
-            document.getElementById('lastUpdated').textContent = now;
-            
             // Show notification
-            alert(`Balance refreshed at ${now}. Current balance: $${user.balance.toFixed(2)}`);
+            showNotification(`Deposit request submitted: $${amount.toFixed(2)}`);
         }
 
         // ===== CHECK DEPOSITS =====
         function checkDeposits() {
-            const user = getUserData();
+            // Check for approved deposits
+            const adminUpdates = localStorage.getItem('xbet_admin_updates');
+            let hasUpdates = false;
             
-            if (user.balance > 0) {
-                alert(`Your current balance is $${user.balance.toFixed(2)}. No pending deposits found.`);
-            } else {
-                alert('No deposits found in your account. Please make a deposit to start playing.');
+            if (adminUpdates) {
+                const updates = JSON.parse(adminUpdates);
+                const userUpdates = updates.filter(update => 
+                    update.user_id === userData.user_id && 
+                    update.type === 'balance_update' &&
+                    !update.read
+                );
+                
+                if (userUpdates.length > 0) {
+                    hasUpdates = true;
+                    checkForAdminUpdates(); // This will process the updates
+                }
             }
+            
+            if (!hasUpdates) {
+                alert('No new deposits found. Your deposit requests are pending admin approval.');
+            }
+        }
+
+        // ===== NOTIFICATION FUNCTIONS =====
+        function showNotifications() {
+            loadNotifications();
+            document.getElementById('notificationsModal').style.display = 'flex';
+        }
+
+        function closeNotificationsModal() {
+            document.getElementById('notificationsModal').style.display = 'none';
+        }
+
+        function loadNotifications() {
+            const notificationsList = document.getElementById('notificationsList');
+            
+            // Get notifications from localStorage
+            const storedNotifications = localStorage.getItem(`xbet_notifications_${userData.user_id}`);
+            if (storedNotifications) {
+                notifications = JSON.parse(storedNotifications);
+            }
+            
+            // Filter unread notifications
+            const unreadNotifications = notifications.filter(n => !n.read);
+            
+            if (unreadNotifications.length === 0) {
+                notificationsList.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--gray);">
+                        <i class="fas fa-bell-slash" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <p>No notifications</p>
+                    </div>
+                `;
+            } else {
+                let notificationsHTML = '';
+                
+                unreadNotifications.forEach(notification => {
+                    const timeAgo = getTimeAgo(notification.timestamp);
+                    notificationsHTML += `
+                        <div style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div>
+                                    <strong>${notification.title}</strong>
+                                    <p style="color: var(--gray); margin-top: 0.5rem; font-size: 0.9rem;">${notification.message}</p>
+                                </div>
+                                <span style="color: var(--gray); font-size: 0.8rem;">${timeAgo}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                notificationsList.innerHTML = notificationsHTML;
+            }
+            
+            updateNotificationCount();
+        }
+
+        function showNotification(message, title = 'Notification') {
+            const notification = {
+                id: 'NOTIF-' + Date.now(),
+                title: title,
+                message: message,
+                timestamp: new Date().toISOString(),
+                read: false
+            };
+            
+            notifications.unshift(notification);
+            localStorage.setItem(`xbet_notifications_${userData.user_id}`, JSON.stringify(notifications));
+            
+            updateNotificationCount();
+            
+            // Show toast notification
+            showToast(message);
+        }
+
+        function updateNotificationCount() {
+            const unreadCount = notifications.filter(n => !n.read).length;
+            document.getElementById('notificationCount').textContent = unreadCount;
+        }
+
+        function markAllAsRead() {
+            notifications.forEach(notification => {
+                notification.read = true;
+            });
+            
+            localStorage.setItem(`xbet_notifications_${userData.user_id}`, JSON.stringify(notifications));
+            loadNotifications();
+        }
+
+        function getTimeAgo(timestamp) {
+            const now = new Date();
+            const past = new Date(timestamp);
+            const diff = now - past;
+            
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            return `${days}d ago`;
+        }
+
+        function showToast(message) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--primary);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                z-index: 10000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                animation: slideIn 0.3s ease;
+            `;
+            
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-bell"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // ===== OTHER FUNCTIONS =====
+        function refreshTransactions() {
+            loadTransactions();
+            showToast('Transactions refreshed');
+        }
+
+        function viewTransactionHistory() {
+            // In a real system, this would open a full transaction history page
+            alert('Full transaction history would open in a separate page.\nTotal transactions: ' + transactions.length);
+        }
+
+        function checkAdminUpdates() {
+            checkForAdminUpdates();
+            showToast('Checked for admin updates');
+        }
+
+        function showSupport() {
+            alert('For support, please contact:\n\nEmail: support@xbet.com\nTelegram: @xbet_support\n\nYour User ID: ' + userData.user_id);
+        }
+
+        function refreshBalance() {
+            updateUserDisplay();
+            showToast('Balance refreshed');
         }
 
         // ===== SET ACTIVE NAV LINK =====
@@ -1082,29 +1510,43 @@
                 return;
             }
             
-            // Load user data
+            // Check if admin
+            const userData = getUserData();
+            if (userData.user_type === 'admin') {
+                window.location.href = 'admin.html';
+                return;
+            }
+            
+            // Initialize
             updateUserDisplay();
             setActiveNavLink();
+            loadNotifications();
             
-            // Auto-refresh every 30 seconds
-            setInterval(updateUserDisplay, 30000);
+            // Auto-check for updates every 30 seconds
+            setInterval(checkForAdminUpdates, 30000);
             
-            // Check if user has zero balance
-            const user = getUserData();
-            if (user.balance === 0) {
-                // Show deposit suggestion after 3 seconds
-                setTimeout(() => {
-                    if (confirm('Your balance is $0.00. Would you like to make a deposit to start playing?')) {
-                        openDepositModal();
-                    }
-                }, 3000);
-            }
+            // Auto-refresh display every minute
+            setInterval(updateUserDisplay, 60000);
         });
 
         // ===== PREVENT ACCIDENTAL LOGOUT =====
         window.addEventListener('beforeunload', function(e) {
             // Don't clear session on refresh
         });
+
+        // Add CSS for animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
