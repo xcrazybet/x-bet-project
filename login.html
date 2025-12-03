@@ -3,11 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET - Secure Login</title>
-    <!-- Firebase SDK with crossorigin -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js" crossorigin="anonymous"></script>
+    <title>X-BET - Login</title>
     <style>
         * {
             margin: 0;
@@ -16,648 +12,275 @@
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
+        :root {
+            --primary: #3b82f6;
+            --secondary: #1d4ed8;
+            --danger: #ef4444;
+            --success: #10b981;
+            --dark: #0f172a;
+            --light: #f8fafc;
+        }
+
         body {
-            background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
+            background: linear-gradient(135deg, var(--dark), #1e293b);
+            color: var(--light);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 1rem;
         }
 
-        .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        .container {
             width: 100%;
-            max-width: 450px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 400px;
         }
 
         .logo {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 2rem;
         }
 
         .logo h1 {
-            color: #1e293b;
-            font-size: 32px;
+            font-size: 2.5rem;
             font-weight: 800;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--primary);
+        }
+
+        .logo span {
+            color: var(--success);
         }
 
         .logo p {
-            color: #64748b;
-            margin-top: 8px;
-            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 0.5rem;
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--light);
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 1.5rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: #475569;
-            font-weight: 600;
-            font-size: 14px;
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
         .form-group input {
             width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e2e8f0;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 10px;
-            font-size: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
             transition: all 0.3s;
-            background: #f8fafc;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #3b82f6;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
-        .login-btn {
+        .btn {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-            color: white;
+            padding: 1rem;
             border: none;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
         }
 
-        .login-btn:hover:not(:disabled) {
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(26, 42, 108, 0.3);
         }
 
-        .login-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            margin-top: 1rem;
         }
 
-        .login-btn.loading {
-            position: relative;
-            color: transparent;
-        }
-
-        .login-btn.loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
             text-align: center;
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 8px;
             display: none;
-            font-size: 14px;
-            font-weight: 500;
         }
 
-        .error-message {
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
+        .success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
-        .success-message {
-            background: #f0fdf4;
-            color: #16a34a;
-            border: 1px solid #bbf7d0;
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
         .signup-link {
             text-align: center;
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
+            margin-top: 1.5rem;
+            color: #94a3b8;
         }
 
         .signup-link a {
-            color: #3b82f6;
+            color: var(--primary);
             text-decoration: none;
             font-weight: 600;
-            transition: color 0.2s;
         }
 
         .signup-link a:hover {
-            color: #1d4ed8;
             text-decoration: underline;
         }
 
-        .secure-badge {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: #10b981;
-            font-size: 13px;
-            font-weight: 600;
-            margin-top: 15px;
-            padding: 8px;
-            background: #f0fdf4;
-            border-radius: 8px;
+        .admin-link {
+            text-align: center;
+            margin-top: 1rem;
+            color: #94a3b8;
+            font-size: 0.9rem;
         }
 
-        @media (max-width: 480px) {
-            .login-container {
-                padding: 30px 20px;
-            }
+        .admin-link a {
+            color: #ef4444;
+            text-decoration: none;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div class="container">
         <div class="logo">
-            <h1>X-BET</h1>
-            <p>Secure Authentication</p>
+            <h1>X<span>-BET</span></h1>
+            <p>Welcome back</p>
         </div>
 
-        <form id="loginForm">
+        <div class="form-card">
+            <h2 class="form-title">Login</h2>
+            
+            <div id="message" class="message"></div>
+            
             <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="text" id="email" name="email" required 
-                       placeholder="Enter your email or username"
-                       autocomplete="email">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter username" required>
             </div>
-
+            
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required 
-                       placeholder="Enter your password"
-                       autocomplete="current-password">
+                <input type="password" id="password" placeholder="Enter password" required>
             </div>
-
-            <button type="submit" class="login-btn" id="loginBtn">
-                Secure Login
-            </button>
-
-            <div class="message" id="message"></div>
-
-            <div class="secure-badge" id="secureBadge">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-                </svg>
-                Loading Authentication...
-            </div>
-
+            
+            <button class="btn btn-primary" onclick="login()">Login</button>
+            <button class="btn btn-secondary" onclick="autoFillTest()">Auto Fill Test User</button>
+            
             <div class="signup-link">
-                Don't have an account? <a href="signup.html">Sign Up Now</a>
+                Don't have an account? <a href="signup.html">Sign up here</a>
             </div>
-        </form>
+            
+            <div class="admin-link">
+                Admin access? <a href="admin.login.html">Login as admin</a>
+            </div>
+        </div>
     </div>
 
     <script>
-        // ✅ FIREBASE CONFIGURATION (YOUR ACTUAL CONFIG)
-        const firebaseConfig = {
-            apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
-            authDomain: "x-bet-prod-jd.firebaseapp.com",
-            projectId: "x-bet-prod-jd",
-            storageBucket: "x-bet-prod-jd.firebasestorage.app",
-            messagingSenderId: "499334334535",
-            appId: "1:499334334535:web:bebc1bf817e24d9e3c4962",
-            measurementId: "G-PTV4XMYQ6P"
-        };
-
-        // Global variables
-        let auth = null;
-        let db = null;
-        let firebaseInitialized = false;
-
-        // DOM Elements
-        const loginForm = document.getElementById('loginForm');
-        const loginBtn = document.getElementById('loginBtn');
-        const messageDiv = document.getElementById('message');
-        const secureBadge = document.getElementById('secureBadge');
-
-        // Initialize Firebase for all browsers
-        function initializeFirebase() {
-            try {
-                // Check if Firebase is already initialized
-                if (!firebase.apps.length) {
-                    // Initialize Firebase
-                    firebase.initializeApp(firebaseConfig);
-                    console.log("✅ Firebase initialized successfully!");
-                } else {
-                    // Use existing app
-                    console.log("✅ Firebase already initialized");
-                }
-                
-                // Get auth and firestore instances
-                auth = firebase.auth();
-                db = firebase.firestore();
-                firebaseInitialized = true;
-                
-                // Update UI
-                secureBadge.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-                    </svg>
-                    ✅ Authentication Ready • All Browsers Supported
-                `;
-                secureBadge.style.color = '#10b981';
-                secureBadge.style.background = '#f0fdf4';
-                
-                // Enable login button
-                loginBtn.disabled = false;
-                
-                // Check for existing session
-                checkExistingSession();
-                
-            } catch (error) {
-                console.error("❌ Firebase initialization error:", error);
-                secureBadge.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                    </svg>
-                    ⚠️ Using Local Authentication Only
-                `;
-                secureBadge.style.color = '#f59e0b';
-                secureBadge.style.background = '#fffbeb';
-            }
-        }
-
-        // Show message
         function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
             messageDiv.textContent = text;
-            messageDiv.className = `message ${type}-message`;
+            messageDiv.className = `message ${type}`;
             messageDiv.style.display = 'block';
-            
-            if (type === 'success') {
-                setTimeout(() => {
-                    messageDiv.style.display = 'none';
-                }, 3000);
-            }
         }
 
-        // Check for existing session
-        function checkExistingSession() {
-            if (auth && firebaseInitialized) {
-                auth.onAuthStateChanged((user) => {
-                    if (user) {
-                        // User is already signed in
-                        console.log("User already signed in:", user.email);
-                        // Check if they're admin or regular user
-                        checkUserRoleAndRedirect(user);
-                    }
-                });
-            }
-            
-            // Also check local storage for backward compatibility
-            const localUser = localStorage.getItem('currentUser');
-            const localSession = sessionStorage.getItem('xbet_session');
-            
-            if (localUser || localSession) {
-                // Pre-fill email if available
-                if (localUser) {
-                    document.getElementById('email').value = localUser;
-                }
-            }
+        function autoFillTest() {
+            document.getElementById('username').value = 'tandore';
+            document.getElementById('password').value = 'password123';
         }
 
-        // Check user role and redirect
-        async function checkUserRoleAndRedirect(user) {
-            try {
-                // Get user data from Firestore
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                let isAdmin = false;
-                
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    isAdmin = userData.isAdmin || false;
-                }
-                
-                // Create session data
-                const sessionData = {
-                    uid: user.uid,
-                    email: user.email,
-                    username: user.email.split('@')[0],
-                    isAdmin: isAdmin,
-                    lastLogin: new Date().toISOString()
-                };
-                
-                // Store session (compatible with all browsers)
-                sessionStorage.setItem('xbet_session', btoa(JSON.stringify(sessionData)));
-                localStorage.setItem('currentUser', sessionData.username);
-                
-                // Redirect based on role
-                if (isAdmin) {
-                    window.location.href = 'admin.html';
-                } else {
-                    window.location.href = 'index.html';
-                }
-                
-            } catch (error) {
-                console.error("Error checking user role:", error);
-                // Fallback to regular user
-                const sessionData = {
-                    uid: user.uid || 'local_' + Date.now(),
-                    email: user.email,
-                    username: user.email.split('@')[0],
-                    isAdmin: false,
-                    lastLogin: new Date().toISOString()
-                };
-                
-                sessionStorage.setItem('xbet_session', btoa(JSON.stringify(sessionData)));
-                localStorage.setItem('currentUser', sessionData.username);
-                window.location.href = 'index.html';
-            }
-        }
-
-        // Login with Firebase
-        async function loginWithFirebase(email, password) {
-            if (!firebaseInitialized) {
-                throw new Error('Firebase not initialized');
-            }
-
-            try {
-                // First, try to sign in with email/password
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                console.log("✅ Firebase login successful:", user.email);
-                
-                // Get user data from Firestore
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                
-                if (!userDoc.exists) {
-                    // Create user document if it doesn't exist
-                    await db.collection('users').doc(user.uid).set({
-                        uid: user.uid,
-                        email: user.email,
-                        username: user.email.split('@')[0],
-                        balance: 0.00,
-                        isAdmin: false,
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                        registeredAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                
-                return {
-                    success: true,
-                    user: user,
-                    userData: userDoc.exists ? userDoc.data() : null
-                };
-                
-            } catch (error) {
-                console.error("Firebase login error:", error.code, error.message);
-                throw error;
-            }
-        }
-
-        // Login with local storage (fallback for Firefox users)
-        async function loginWithLocalStorage(email, password) {
-            try {
-                // Check if user exists in local storage
-                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-                
-                // Find user by email or username
-                let foundUser = null;
-                for (const [username, userEmail] of Object.entries(registeredUsers)) {
-                    if (userEmail === email || username === email) {
-                        foundUser = username;
-                        break;
-                    }
-                }
-                
-                if (!foundUser) {
-                    throw new Error('User not found');
-                }
-                
-                // Get user data
-                const userData = JSON.parse(localStorage.getItem('userData_' + foundUser) || '{}');
-                
-                // Simple password check (in production, this should be hashed)
-                if (!userData.email) {
-                    throw new Error('Invalid user data');
-                }
-                
-                return {
-                    success: true,
-                    user: { 
-                        email: userData.email, 
-                        uid: 'local_' + foundUser 
-                    },
-                    userData: userData,
-                    isLocal: true
-                };
-                
-            } catch (error) {
-                console.error("Local login error:", error);
-                throw error;
-            }
-        }
-
-        // Handle form submission
-        loginForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const emailInput = document.getElementById('email').value.trim();
+        function login() {
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
-            
-            // Basic validation
-            if (!emailInput || !password) {
-                showMessage('Please enter both email and password', 'error');
+
+            if (!username || !password) {
+                showMessage('Please fill all fields', 'error');
                 return;
             }
-            
-            // Show loading state
-            loginBtn.disabled = true;
-            loginBtn.classList.add('loading');
-            loginBtn.textContent = '';
 
-            try {
-                let result;
-                
-                // Try Firebase login first
-                if (firebaseInitialized) {
-                    try {
-                        result = await loginWithFirebase(emailInput, password);
-                    } catch (firebaseError) {
-                        console.log("Firebase login failed, trying local...", firebaseError.message);
-                        
-                        // Check specific Firebase errors
-                        if (firebaseError.code === 'auth/user-not-found' || 
-                            firebaseError.code === 'auth/wrong-password') {
-                            // Try local storage for migrated users
-                            result = await loginWithLocalStorage(emailInput, password);
-                        } else {
-                            throw firebaseError;
-                        }
-                    }
-                } else {
-                    // Use local storage only
-                    result = await loginWithLocalStorage(emailInput, password);
-                }
-                
-                if (result.success) {
-                    showMessage('✅ Login successful! Redirecting...', 'success');
-                    
-                    // Create session data
-                    const sessionData = {
-                        uid: result.user.uid,
-                        email: result.user.email,
-                        username: result.user.email.split('@')[0] || emailInput.split('@')[0],
-                        isAdmin: result.userData?.isAdmin || false,
-                        lastLogin: new Date().toISOString()
-                    };
-                    
-                    // Store session for all browsers
-                    sessionStorage.setItem('xbet_session', btoa(JSON.stringify(sessionData)));
-                    localStorage.setItem('currentUser', sessionData.username);
-                    
-                    // Also store user data locally for compatibility
-                    if (result.userData) {
-                        localStorage.setItem('userData_' + sessionData.username, JSON.stringify(result.userData));
-                    }
-                    
-                    // Redirect after short delay
-                    setTimeout(() => {
-                        if (sessionData.isAdmin) {
-                            window.location.href = 'admin.html';
-                        } else {
-                            window.location.href = 'index.html';
-                        }
-                    }, 1000);
-                }
-                
-            } catch (error) {
-                console.error('Login error:', error);
-                
-                // User-friendly error messages
-                let errorMessage = 'Invalid email or password';
-                
-                if (error.code) {
-                    switch (error.code) {
-                        case 'auth/user-not-found':
-                            errorMessage = 'No account found with this email. Please sign up first.';
-                            break;
-                        case 'auth/wrong-password':
-                            errorMessage = 'Incorrect password. Please try again.';
-                            break;
-                        case 'auth/too-many-requests':
-                            errorMessage = 'Too many failed attempts. Try again later.';
-                            break;
-                        case 'auth/network-request-failed':
-                            errorMessage = 'Network error. Check your connection and try again.';
-                            break;
-                        case 'auth/invalid-email':
-                            errorMessage = 'Please enter a valid email address.';
-                            break;
-                    }
-                } else if (error.message.includes('not found')) {
-                    errorMessage = 'Account not found. Please sign up first.';
-                }
-                
-                showMessage('✗ ' + errorMessage, 'error');
-                
-                // Re-enable button
-                loginBtn.disabled = false;
-                loginBtn.classList.remove('loading');
-                loginBtn.textContent = 'Secure Login';
+            // Load user data
+            const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
+            
+            // Check if user exists and password matches
+            if (!userData.username || userData.password !== password) {
+                showMessage('Invalid username or password', 'error');
+                return;
+            }
+
+            // Update last login
+            userData.lastLogin = new Date().toISOString();
+            localStorage.setItem('userData_' + username, JSON.stringify(userData));
+
+            // Create session
+            const userSession = btoa(JSON.stringify({
+                username: username,
+                loginTime: Date.now()
+            }));
+            
+            sessionStorage.setItem('user_session', userSession);
+            localStorage.setItem('user_session_expiry', Date.now() + 86400000); // 24 hours
+
+            showMessage('Login successful! Redirecting...', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+
+        // Allow form submission with Enter key
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
             }
         });
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log("Initializing Firebase for browser:", navigator.userAgent);
-            
-            // Initialize Firebase
-            initializeFirebase();
-            
-            // Check for successful registration redirect
-            const registrationSuccess = sessionStorage.getItem('registration_success');
-            if (registrationSuccess === 'true') {
-                showMessage('✅ Registration successful! Please login with your credentials.', 'success');
-                sessionStorage.removeItem('registration_success');
-                
-                // Pre-fill email if available
-                const newUserEmail = sessionStorage.getItem('new_user_email');
-                if (newUserEmail) {
-                    document.getElementById('email').value = newUserEmail;
-                    sessionStorage.removeItem('new_user_email');
-                }
+        // Auto-fill for testing
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('test') === '1') {
+                autoFillTest();
             }
-            
-            // Auto-focus email field
-            document.getElementById('email').focus();
-            
-            // Add browser-specific fixes
-            fixBrowserIssues();
-        });
-
-        // Browser-specific fixes
-        function fixBrowserIssues() {
-            const browser = detectBrowser();
-            console.log("Detected browser:", browser);
-            
-            // Firefox specific fixes
-            if (browser === 'firefox') {
-                // Force re-initialization if Firebase fails
-                setTimeout(() => {
-                    if (!firebaseInitialized) {
-                        console.log("Firefox: Re-trying Firebase initialization...");
-                        initializeFirebase();
-                    }
-                }, 1000);
-            }
-            
-            // Safari specific fixes
-            if (browser === 'safari') {
-                // Safari has strict CORS policies
-                console.log("Safari: Applying CORS workarounds...");
-            }
-        }
-
-        // Detect browser
-        function detectBrowser() {
-            const userAgent = navigator.userAgent.toLowerCase();
-            if (userAgent.includes('firefox')) return 'firefox';
-            if (userAgent.includes('safari') && !userAgent.includes('chrome')) return 'safari';
-            if (userAgent.includes('chrome')) return 'chrome';
-            if (userAgent.includes('edge')) return 'edge';
-            return 'unknown';
-        }
-
-        // Test credentials for development (remove in production)
-        function testLogin(email = 'test@example.com', password = 'Test123!') {
-            document.getElementById('email').value = email;
-            document.getElementById('password').value = password;
-            loginForm.dispatchEvent(new Event('submit'));
-        }
-        
-        // Uncomment for testing
-        // window.testLogin = testLogin;
+        };
     </script>
 </body>
 </html>
