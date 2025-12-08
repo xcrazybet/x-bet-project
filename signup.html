@@ -4,119 +4,194 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>X-BET - Sign Up</title>
+    <!-- Use the same CSS from index.html -->
     <style>
-        /* Keep all your existing styles */
-        /* Just remove Firebase scripts */
+        /* [COPY THE SAME CSS FROM INDEX.HTML] */
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Keep all your existing HTML structure -->
-    </div>
+    <header class="header">
+        <div class="nav-container">
+            <nav class="nav">
+                <div class="logo">
+                    <h1>X<span>-BET</span></h1>
+                </div>
+
+                <div class="nav-links" id="navLinks">
+                    <a href="index.html">Home</a>
+                    <a href="games.html">Games</a>
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="bets.html">Bets</a>
+                    <a href="bits.html">Bits</a>
+                    <a href="aboutus.html">About</a>
+                    <a href="contact.html">Contact</a>
+                    
+                    <div id="guestActions">
+                        <a href="login.html" class="btn-secondary">Login</a>
+                        <a href="signup.html" class="btn-primary active">Sign Up</a>
+                    </div>
+                </div>
+
+                <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div style="max-width: 400px; margin: 60px auto;">
+            <div class="feature-card">
+                <h2 style="text-align: center; margin-bottom: 20px;">Create Account</h2>
+                
+                <div id="message" class="message" style="display: none; margin-bottom: 20px;"></div>
+                
+                <form id="signupForm">
+                    <div class="form-group" style="margin-bottom: 20px; text-align: left;">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" placeholder="Choose a username" required
+                               style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid var(--card-border); border-radius: 10px; color: white;">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px; text-align: left;">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="Enter your email" required
+                               style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid var(--card-border); border-radius: 10px; color: white;">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px; text-align: left;">
+                        <label for="password">Password (min 6 characters)</label>
+                        <input type="password" id="password" placeholder="Create a password" minlength="6" required
+                               style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid var(--card-border); border-radius: 10px; color: white;">
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" style="width: 100%; padding: 14px; font-size: 16px; margin-bottom: 15px;">
+                        Create Account
+                    </button>
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <a href="login.html" style="color: var(--accent); text-decoration: none;">
+                            Already have an account? Login here
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="main-container">
+            <p style="text-align: center; color: var(--gray); font-size: 14px;">
+                © 2024 X-BET Gaming Platform. All rights reserved.
+            </p>
+        </div>
+    </footer>
 
     <script>
-        // Remove Firebase initialization
-        // Keep all your existing functions but remove Firebase references
-        
-        function generateTransactionCode(username) {
-            const prefix = username.substring(0, 3).toUpperCase();
-            const timestamp = Date.now().toString(36).toUpperCase().substr(-8);
-            const random = Math.random().toString(36).substr(2, 8).toUpperCase();
-            return `XBT-${prefix}-${timestamp}-${random}`;
-        }
-
-        function showMessage(text, type) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = text;
-            messageDiv.className = `message ${type}`;
-            messageDiv.style.display = 'block';
-        }
-
-        function autoFill() {
-            document.getElementById('username').value = 'tandore';
-            document.getElementById('email').value = 'tandore@example.com';
-            document.getElementById('password').value = 'password123';
-        }
-
-        function signup() {
-            const username = document.getElementById('username').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-
-            if (!username || !email || !password) {
-                showMessage('Please fill all fields', 'error');
-                return;
-            }
-
-            if (password.length < 6) {
-                showMessage('Password must be at least 6 characters', 'error');
-                return;
-            }
-
-            // Load existing users
-            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile Menu
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const navLinks = document.getElementById('navLinks');
             
-            // Check if username already exists
-            if (registeredUsers[username]) {
-                showMessage('Username already exists', 'error');
-                return;
+            if (mobileMenuBtn && navLinks) {
+                mobileMenuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    navLinks.classList.toggle('active');
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!navLinks.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                        navLinks.classList.remove('active');
+                    }
+                });
             }
-
-            // Check if email already exists
-            for (const existingEmail of Object.values(registeredUsers)) {
-                if (existingEmail === email) {
-                    showMessage('Email already registered', 'error');
+            
+            // Signup Form
+            const signupForm = document.getElementById('signupForm');
+            const messageDiv = document.getElementById('message');
+            
+            function showMessage(text, type) {
+                messageDiv.textContent = text;
+                messageDiv.className = `message ${type}-message`;
+                messageDiv.style.display = 'block';
+            }
+            
+            function generateTransactionCode(username) {
+                const prefix = username.substring(0, 3).toUpperCase();
+                const timestamp = Date.now().toString(36).toUpperCase().substr(-8);
+                const random = Math.random().toString(36).substr(2, 8).toUpperCase();
+                return `XBT-${prefix}-${timestamp}-${random}`;
+            }
+            
+            signupForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                
+                if (!username || !email || !password) {
+                    showMessage('Please fill all fields', 'error');
                     return;
                 }
-            }
-
-            // Generate transaction code
-            const transactionCode = generateTransactionCode(username);
-
-            // Create user data
-            const userData = {
-                username: username,
-                email: email,
-                password: password,
-                balance: 0,
-                transactionCode: transactionCode,
-                isAdmin: false,
-                status: 'active',
-                registeredAt: new Date().toISOString(),
-                lastLogin: new Date().toISOString(),
-                activities: []
-            };
-
-            // Save user
-            registeredUsers[username] = email;
-            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-            localStorage.setItem('userData_' + username, JSON.stringify(userData));
-
-            // Create session
-            const sessionData = {
-                username: username,
-                email: email,
-                isAdmin: false,
-                transactionCode: transactionCode,
-                loginTime: Date.now()
-            };
-            
-            sessionStorage.setItem('user_session', btoa(JSON.stringify(sessionData)));
-            sessionStorage.setItem('registration_success', 'true');
-            sessionStorage.setItem('new_user_email', email);
-
-            showMessage('✅ Account created successfully! Redirecting...', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 1500);
-        }
-
-        // Allow form submission with Enter key
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                signup();
-            }
+                
+                if (password.length < 6) {
+                    showMessage('Password must be at least 6 characters', 'error');
+                    return;
+                }
+                
+                // Check if user already exists
+                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+                
+                if (registeredUsers[username]) {
+                    showMessage('Username already taken', 'error');
+                    return;
+                }
+                
+                // Check if email already registered
+                for (const existingEmail of Object.values(registeredUsers)) {
+                    if (existingEmail === email) {
+                        showMessage('Email already registered', 'error');
+                        return;
+                    }
+                }
+                
+                // Create user
+                const transactionCode = generateTransactionCode(username);
+                const userData = {
+                    username: username,
+                    email: email,
+                    password: password,
+                    balance: 0,
+                    transactionCode: transactionCode,
+                    isAdmin: false,
+                    status: 'active',
+                    registeredAt: new Date().toISOString(),
+                    lastLogin: new Date().toISOString(),
+                    transactions: []
+                };
+                
+                // Save user
+                registeredUsers[username] = email;
+                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                localStorage.setItem('userData_' + username, JSON.stringify(userData));
+                
+                // Create session
+                const sessionData = {
+                    username: username,
+                    email: email,
+                    isAdmin: false,
+                    balance: 0,
+                    loginTime: Date.now()
+                };
+                
+                sessionStorage.setItem('xbet_session', btoa(JSON.stringify(sessionData)));
+                localStorage.setItem('currentUser', username);
+                
+                showMessage('Account created successfully! Redirecting...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            });
         });
     </script>
 </body>
