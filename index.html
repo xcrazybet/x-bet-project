@@ -3,20 +3,910 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET - Games</title>
+    <title>X-BET - Premium Gaming Platform</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
     <style>
-        /* COPY THE CSS FROM INDEX.HTML */
+        /* ===== BASE STYLES ===== */
+        :root {
+            --primary: #1a2a6c;
+            --secondary: #b21f1f;
+            --accent: #f7b500;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --success: #10b981;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark), #1e293b);
+            color: var(--light);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* ===== HEADER & NAVIGATION ===== */
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0 15px;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        /* Navigation Links */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .nav-links a.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 12px rgba(26, 42, 108, 0.3);
+        }
+        
+        /* Action Buttons */
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 42, 108, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* Balance Display */
+        .balance-display {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-left: 10px;
+        }
+        
+        .balance-amount {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 16px;
+        }
+        
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+        
+        .mobile-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* ===== MAIN CONTENT ===== */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, rgba(26, 42, 108, 0.2), rgba(178, 31, 31, 0.2));
+            border-radius: 20px;
+            margin-bottom: 60px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(26, 42, 108, 0.3) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero p {
+            font-size: 18px;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .hero-buttons .btn {
+            padding: 15px 30px;
+            font-size: 16px;
+            min-width: 180px;
+        }
+        
+        /* Features Section */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 28px;
+        }
+        
+        .feature-card h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: var(--light);
+        }
+        
+        .feature-card p {
+            color: var(--gray);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        /* Games Preview */
+        .games-preview {
+            margin-bottom: 60px;
+        }
+        
+        .games-preview h2 {
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--light);
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-image {
+            height: 160px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        
+        .game-info {
+            padding: 20px;
+        }
+        
+        .game-info h3 {
+            color: var(--light);
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .game-info p {
+            color: var(--gray);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .game-play {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        /* Call to Action */
+        .cta-section {
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, rgba(26, 42, 108, 0.1), rgba(178, 31, 31, 0.1));
+            border-radius: 20px;
+            margin-top: 60px;
+        }
+        
+        .cta-section h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: var(--light);
+        }
+        
+        .cta-section p {
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto 30px;
+            font-size: 18px;
+        }
+        
+        /* ===== FOOTER ===== */
+        .footer {
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 20px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+        }
+        
+        .footer-logo h2 {
+            font-size: 24px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+        
+        .footer-links h3 {
+            color: var(--light);
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .footer-links ul {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: var(--gray);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .hero h1 {
+                font-size: 40px;
+            }
+            
+            .features {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+            
+            .games-grid {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            /* Mobile Navigation */
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: var(--dark);
+                flex-direction: column;
+                padding: 20px;
+                gap: 10px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                z-index: 999;
+            }
+            
+            .nav-links.active {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            /* Hero Section */
+            .hero {
+                padding: 40px 20px;
+            }
+            
+            .hero h1 {
+                font-size: 32px;
+            }
+            
+            .hero p {
+                font-size: 16px;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .hero-buttons .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            /* Features & Games */
+            .features,
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .feature-card,
+            .game-card {
+                padding: 20px;
+            }
+            
+            /* CTA Section */
+            .cta-section {
+                padding: 30px 20px;
+            }
+            
+            .cta-section h2 {
+                font-size: 28px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px;
+            }
+            
+            .hero-buttons .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
+            .feature-card h3 {
+                font-size: 20px;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+        
+        /* ===== UTILITY CLASSES ===== */
+        .hidden {
+            display: none !important;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-4 { margin-top: 1rem; }
+        .mt-8 { margin-top: 2rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
     </style>
 </head>
 <body>
-    <!-- COPY THE HEADER FROM INDEX.HTML -->
+    <!-- HEADER -->
+    <header class="header">
+        <div class="nav-container">
+            <nav class="nav">
+                <div class="logo">
+                    <h1>X<span>-BET</span></h1>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="nav-links" id="navLinks">
+                    <a href="index.html" class="active">🏠 Home</a>
+                    <a href="games.html">🎮 Games</a>
+                    <a href="dashboard.html">📊 Dashboard</a>
+                    <a href="bets.html">⚡ Bets</a>
+                    <a href="deposit.html">💰 Deposit</a>
+                    <a href="withdraw.html">🏧 Withdraw</a>
+                    <a href="aboutus.html">ℹ️ About</a>
+                    <a href="contact.html">📞 Contact</a>
+                    
+                    <!-- Balance Display (Hidden by default) -->
+                    <div class="balance-display" id="balanceContainer" style="display: none;">
+                        <span>Balance:</span>
+                        <span class="balance-amount" id="userBalance">$0.00</span>
+                    </div>
+                </div>
+
+                <!-- User Actions -->
+                <div class="nav-buttons">
+                    <!-- Logged In Actions (Hidden by default) -->
+                    <div id="loggedInActions" style="display: none;">
+                        <a href="profile.html" class="btn-secondary">👤 Profile</a>
+                        <a href="logout.html" class="btn-primary" id="logoutBtn">Logout</a>
+                    </div>
+                    
+                    <!-- Guest Actions -->
+                    <div id="guestActions">
+                        <a href="login.html" class="btn-secondary">Login</a>
+                        <a href="signup.html" class="btn-primary">Sign Up</a>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
     <main class="main-container">
-        <h1>Games</h1>
-        <p>Game content here...</p>
+        <!-- Hero Section -->
+        <section class="hero animate-fade-in">
+            <h1>Welcome to X-BET Gaming</h1>
+            <p>Experience the ultimate gaming platform with secure transactions, instant withdrawals, and exclusive rewards. Join thousands of players worldwide!</p>
+            <div class="hero-buttons">
+                <a href="games.html" class="btn btn-primary">
+                    🎮 Play Games Now
+                </a>
+                <a href="signup.html" class="btn btn-secondary">
+                    ✨ Create Free Account
+                </a>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features">
+            <div class="feature-card animate-fade-in">
+                <div class="feature-icon">🔒</div>
+                <h3>Bank-Level Security</h3>
+                <p>Your funds and data are protected with military-grade encryption and secure protocols.</p>
+            </div>
+            
+            <div class="feature-card animate-fade-in">
+                <div class="feature-icon">⚡</div>
+                <h3>Instant Withdrawals</h3>
+                <p>Get your winnings instantly. No delays, no hidden fees, just pure convenience.</p>
+            </div>
+            
+            <div class="feature-card animate-fade-in">
+                <div class="feature-icon">🎯</div>
+                <h3>Premium Games</h3>
+                <p>Access our exclusive collection of games with high payout rates and fair play.</p>
+            </div>
+            
+            <div class="feature-card animate-fade-in">
+                <div class="feature-icon">💰</div>
+                <h3>Big Bonuses</h3>
+                <p>New players get welcome bonuses and regular promotions to boost your winnings.</p>
+            </div>
+        </section>
+
+        <!-- Games Preview -->
+        <section class="games-preview">
+            <h2>Popular Games</h2>
+            <div class="games-grid">
+                <a href="games.html#slots" class="game-card animate-fade-in">
+                    <div class="game-image">🎰</div>
+                    <div class="game-info">
+                        <h3>Slot Machines</h3>
+                        <p>Spin and win with our exclusive collection of slot games</p>
+                        <span class="game-play">Play Now →</span>
+                    </div>
+                </a>
+                
+                <a href="games.html#roulette" class="game-card animate-fade-in">
+                    <div class="game-image">🎲</div>
+                    <div class="game-info">
+                        <h3>Roulette</h3>
+                        <p>Classic casino roulette with live betting options</p>
+                        <span class="game-play">Play Now →</span>
+                    </div>
+                </a>
+                
+                <a href="games.html#blackjack" class="game-card animate-fade-in">
+                    <div class="game-image">🃏</div>
+                    <div class="game-info">
+                        <h3>Blackjack</h3>
+                        <p>Beat the dealer in this classic card game</p>
+                        <span class="game-play">Play Now →</span>
+                    </div>
+                </a>
+                
+                <a href="games.html#poker" class="game-card animate-fade-in">
+                    <div class="game-image">♠️</div>
+                    <div class="game-info">
+                        <h3>Video Poker</h3>
+                        <p>Test your poker skills against the machine</p>
+                        <span class="game-play">Play Now →</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="cta-section animate-fade-in">
+            <h2>Ready to Start Winning?</h2>
+            <p>Join X-BET today and get access to exclusive games, bonuses, and the best gaming experience online.</p>
+            <div class="hero-buttons">
+                <a href="signup.html" class="btn btn-primary">
+                    🚀 Get Started Free
+                </a>
+                <a href="games.html" class="btn btn-secondary">
+                    🎯 Try Demo Games
+                </a>
+            </div>
+        </section>
     </main>
-    <!-- COPY THE FOOTER FROM INDEX.HTML -->
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>X-BET</h2>
+                <p style="color: var(--gray);">Premium online gaming platform since 2024</p>
+            </div>
+            
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="games.html">Games</a></li>
+                    <li><a href="bets.html">Live Bets</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links">
+                <h3>Account</h3>
+                <ul>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="signup.html">Sign Up</a></li>
+                    <li><a href="deposit.html">Deposit</a></li>
+                    <li><a href="withdraw.html">Withdraw</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="aboutus.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="terms.html">Terms</a></li>
+                    <li><a href="privacy.html">Privacy</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>© 2024 X-BET Gaming Platform. All rights reserved. | For entertainment purposes only.</p>
+            <p style="margin-top: 10px; font-size: 12px;">Must be 18+ to play. Play responsibly.</p>
+        </div>
+    </footer>
+
     <script>
-        // COPY THE JAVASCRIPT FROM INDEX.HTML
+        // ===== MOBILE MENU =====
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!navLinks.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+                navLinks.classList.remove('active');
+            }
+        });
+        
+        // ===== USER SESSION MANAGEMENT =====
+        function checkUserSession() {
+            try {
+                // Check if user is logged in
+                const sessionData = sessionStorage.getItem('xbet_session');
+                
+                if (sessionData) {
+                    // User is logged in
+                    const session = JSON.parse(atob(sessionData));
+                    const username = session.username || 'user';
+                    
+                    // Get user data
+                    const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
+                    
+                    // Update UI for logged in user
+                    document.getElementById('guestActions').style.display = 'none';
+                    document.getElementById('loggedInActions').style.display = 'flex';
+                    document.getElementById('balanceContainer').style.display = 'flex';
+                    
+                    // Update balance
+                    if (userData.balance !== undefined) {
+                        document.getElementById('userBalance').textContent = `$${userData.balance.toFixed(2)}`;
+                    }
+                    
+                    // Setup logout
+                    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        sessionStorage.removeItem('xbet_session');
+                        localStorage.removeItem('currentUser');
+                        window.location.href = 'index.html';
+                    });
+                } else {
+                    // User is not logged in
+                    document.getElementById('guestActions').style.display = 'flex';
+                    document.getElementById('loggedInActions').style.display = 'none';
+                    document.getElementById('balanceContainer').style.display = 'none';
+                    
+                    // Add login requirements for protected pages
+                    const protectedLinks = ['dashboard.html', 'deposit.html', 'withdraw.html', 'profile.html'];
+                    protectedLinks.forEach(page => {
+                        const links = document.querySelectorAll(`a[href="${page}"]`);
+                        links.forEach(link => {
+                            link.addEventListener('click', function(e) {
+                                if (!sessionData) {
+                                    e.preventDefault();
+                                    alert('Please login to access this page');
+                                    window.location.href = 'login.html';
+                                }
+                            });
+                        });
+                    });
+                }
+            } catch (error) {
+                console.log('Session check error:', error);
+            }
+        }
+        
+        // ===== SET ACTIVE NAV LINK =====
+        function setActiveNavLink() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('.nav-links a');
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                const linkHref = link.getAttribute('href');
+                if (linkHref === currentPage || 
+                    (currentPage === '' && linkHref === 'index.html')) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        // ===== INITIALIZE =====
+        document.addEventListener('DOMContentLoaded', () => {
+            setActiveNavLink();
+            checkUserSession();
+            
+            // Add smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId !== '#') {
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    }
+                });
+            });
+            
+            // Auto-hide mobile menu after clicking a link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.classList.remove('active');
+                });
+            });
+        });
+        
+        // ===== AUTO-LOGOUT ON INACTIVITY =====
+        let inactivityTimer;
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                const sessionData = sessionStorage.getItem('xbet_session');
+                if (sessionData) {
+                    sessionStorage.removeItem('xbet_session');
+                    localStorage.removeItem('currentUser');
+                    alert('Session expired due to inactivity');
+                    window.location.href = 'index.html';
+                }
+            }, 30 * 60 * 1000); // 30 minutes
+        }
+        
+        // Start timer if user is logged in
+        if (sessionStorage.getItem('xbet_session')) {
+            ['mousemove', 'keydown', 'click', 'scroll'].forEach(event => {
+                window.addEventListener(event, resetInactivityTimer);
+            });
+            resetInactivityTimer();
+        }
     </script>
 </body>
 </html>
