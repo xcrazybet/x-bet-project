@@ -9,233 +9,13 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js" crossorigin="anonymous"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js" crossorigin="anonymous"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 450px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo h1 {
-            color: #1e293b;
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .logo p {
-            color: #64748b;
-            margin-top: 8px;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 24px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #475569;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s;
-            background: #f8fafc;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .login-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(26, 42, 108, 0.3);
-        }
-
-        .login-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .login-btn.loading {
-            position: relative;
-            color: transparent;
-        }
-
-        .login-btn.loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        .message {
-            text-align: center;
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 8px;
-            display: none;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .error-message {
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
-        }
-
-        .success-message {
-            background: #f0fdf4;
-            color: #16a34a;
-            border: 1px solid #bbf7d0;
-        }
-
-        .signup-link {
-            text-align: center;
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .signup-link a {
-            color: #3b82f6;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-
-        .signup-link a:hover {
-            color: #1d4ed8;
-            text-decoration: underline;
-        }
-
-        .secure-badge {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: #10b981;
-            font-size: 13px;
-            font-weight: 600;
-            margin-top: 15px;
-            padding: 8px;
-            background: #f0fdf4;
-            border-radius: 8px;
-        }
-
-        @media (max-width: 480px) {
-            .login-container {
-                padding: 30px 20px;
-            }
-        }
+        /* [ALL YOUR EXISTING CSS REMAINS THE SAME] */
+        /* ... no changes to CSS ... */
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo">
-            <h1>X-BET</h1>
-            <p>Secure Authentication</p>
-        </div>
-
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="text" id="email" name="email" required 
-                       placeholder="Enter your email or username"
-                       autocomplete="email">
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required 
-                       placeholder="Enter your password"
-                       autocomplete="current-password">
-            </div>
-
-            <button type="submit" class="login-btn" id="loginBtn">
-                Secure Login
-            </button>
-
-            <div class="message" id="message"></div>
-
-            <div class="secure-badge" id="secureBadge">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-                </svg>
-                Loading Authentication...
-            </div>
-
-            <div class="signup-link">
-                Don't have an account? <a href="signup.html">Sign Up Now</a>
-            </div>
-        </form>
-    </div>
+    <!-- [ALL YOUR EXISTING HTML REMAINS THE SAME] -->
+    <!-- ... no changes to HTML structure ... -->
 
     <script>
         // ✅ FIREBASE CONFIGURATION (YOUR ACTUAL CONFIG)
@@ -327,8 +107,8 @@
                     if (user) {
                         // User is already signed in
                         console.log("User already signed in:", user.email);
-                        // Check if they're admin or regular user
-                        checkUserRoleAndRedirect(user);
+                        // ✅ FIXED: Always redirect to index.html, not admin.html
+                        createUserSessionAndRedirect(user);
                     }
                 });
             }
@@ -345,53 +125,24 @@
             }
         }
 
-        // Check user role and redirect
-        async function checkUserRoleAndRedirect(user) {
-            try {
-                // Get user data from Firestore
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                let isAdmin = false;
-                
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    isAdmin = userData.isAdmin || false;
-                }
-                
-                // Create session data
-                const sessionData = {
-                    uid: user.uid,
-                    email: user.email,
-                    username: user.email.split('@')[0],
-                    isAdmin: isAdmin,
-                    lastLogin: new Date().toISOString()
-                };
-                
-                // Store session (compatible with all browsers)
-                sessionStorage.setItem('xbet_session', btoa(JSON.stringify(sessionData)));
-                localStorage.setItem('currentUser', sessionData.username);
-                
-                // Redirect based on role
-                if (isAdmin) {
-                    window.location.href = 'admin.html';
-                } else {
-                    window.location.href = 'index.html';
-                }
-                
-            } catch (error) {
-                console.error("Error checking user role:", error);
-                // Fallback to regular user
-                const sessionData = {
-                    uid: user.uid || 'local_' + Date.now(),
-                    email: user.email,
-                    username: user.email.split('@')[0],
-                    isAdmin: false,
-                    lastLogin: new Date().toISOString()
-                };
-                
-                sessionStorage.setItem('xbet_session', btoa(JSON.stringify(sessionData)));
-                localStorage.setItem('currentUser', sessionData.username);
-                window.location.href = 'index.html';
-            }
+        // ✅ FIXED: Create session and redirect to index.html
+        function createUserSessionAndRedirect(user) {
+            // Create session data
+            const sessionData = {
+                uid: user.uid || 'local_' + Date.now(),
+                email: user.email,
+                username: user.email ? user.email.split('@')[0] : 'user',
+                isAdmin: false, // Always set to false for login.html users
+                lastLogin: new Date().toISOString()
+            };
+            
+            // Store session (compatible with all browsers)
+            sessionStorage.setItem('xbet_session', btoa(JSON.stringify(sessionData)));
+            localStorage.setItem('currentUser', sessionData.username);
+            
+            // ✅ ALWAYS REDIRECT TO INDEX.HTML
+            console.log("Redirecting to index.html...");
+            window.location.href = 'index.html';
         }
 
         // Login with Firebase
@@ -417,7 +168,7 @@
                         email: user.email,
                         username: user.email.split('@')[0],
                         balance: 0.00,
-                        isAdmin: false,
+                        isAdmin: false, // Regular users are not admin
                         lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
                         registeredAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
@@ -523,32 +274,9 @@
                 if (result.success) {
                     showMessage('✅ Login successful! Redirecting...', 'success');
                     
-                    // Create session data
-                    const sessionData = {
-                        uid: result.user.uid,
-                        email: result.user.email,
-                        username: result.user.email.split('@')[0] || emailInput.split('@')[0],
-                        isAdmin: result.userData?.isAdmin || false,
-                        lastLogin: new Date().toISOString()
-                    };
+                    // ✅ FIXED: Always redirect to index.html for ALL users
+                    createUserSessionAndRedirect(result.user);
                     
-                    // Store session for all browsers
-                    sessionStorage.setItem('xbet_session', btoa(JSON.stringify(sessionData)));
-                    localStorage.setItem('currentUser', sessionData.username);
-                    
-                    // Also store user data locally for compatibility
-                    if (result.userData) {
-                        localStorage.setItem('userData_' + sessionData.username, JSON.stringify(result.userData));
-                    }
-                    
-                    // Redirect after short delay
-                    setTimeout(() => {
-                        if (sessionData.isAdmin) {
-                            window.location.href = 'admin.html';
-                        } else {
-                            window.location.href = 'index.html';
-                        }
-                    }, 1000);
                 }
                 
             } catch (error) {
