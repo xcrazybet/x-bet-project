@@ -216,6 +216,14 @@
             background: linear-gradient(135deg, #10b981, #059669);
         }
 
+        .admin-action-btn.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .admin-action-btn.sync {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
         /* Admin Sections */
         .admin-section {
             background: rgba(255, 255, 255, 0.05);
@@ -346,10 +354,17 @@
             cursor: pointer;
             font-size: 0.85rem;
             transition: all 0.3s;
+            margin: 2px;
         }
 
         .user-action-btn:hover {
             background: rgba(59, 130, 246, 0.3);
+        }
+
+        .user-action-btn.danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--admin-danger);
+            border-color: rgba(239, 68, 68, 0.4);
         }
 
         /* Transactions Log */
@@ -372,7 +387,8 @@
         .transaction-deposit { border-left-color: var(--admin-success); }
         .transaction-withdrawal { border-left-color: var(--admin-danger); }
         .transaction-transfer { border-left-color: var(--admin-primary); }
-        .transaction-admin { border-left-color: var(--admin-warning); }
+        .transaction-game { border-left-color: var(--admin-warning); }
+        .transaction-admin { border-left-color: #8b5cf6; }
 
         .transaction-code {
             background: rgba(59, 130, 246, 0.1);
@@ -430,6 +446,10 @@
             .transfer-controls {
                 grid-template-columns: 1fr;
             }
+            
+            .search-box {
+                width: 100%;
+            }
         }
 
         @media (max-width: 768px) {
@@ -448,13 +468,17 @@
                 text-align: center;
             }
             
-            .search-box {
-                width: 100%;
-            }
-            
             .users-table {
                 display: block;
                 overflow-x: auto;
+            }
+            
+            .admin-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-value {
+                font-size: 1.75rem;
             }
         }
     </style>
@@ -517,11 +541,11 @@
 
             <div class="admin-stat-card">
                 <div class="stat-header">
-                    <div class="stat-title">Pending Withdrawals</div>
-                    <div class="stat-icon" style="background: rgba(239, 68, 68, 0.2);">⏳</div>
+                    <div class="stat-title">Total Game Balance</div>
+                    <div class="stat-icon" style="background: rgba(245, 158, 11, 0.2);">🎮</div>
                 </div>
-                <div class="stat-value stat-negative" id="pendingWithdrawals">$0.00</div>
-                <div style="color: #94a3b8; font-size: 0.9rem;">Awaiting processing</div>
+                <div class="stat-value stat-warning" id="totalGameBalance">$0.00</div>
+                <div style="color: #94a3b8; font-size: 0.9rem;">Users' game funds</div>
             </div>
         </div>
 
@@ -544,6 +568,12 @@
                     <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                 </svg>
                 Create New User
+            </button>
+            <button class="admin-action-btn sync" onclick="syncAllUsers()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+                </svg>
+                Sync All Users
             </button>
             <button class="admin-action-btn danger" onclick="openResetModal()">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -578,7 +608,8 @@
                     <select id="transferType">
                         <option value="deposit">Deposit to User</option>
                         <option value="withdrawal">Withdrawal from User</option>
-                        <option value="transfer">Admin Transfer</option>
+                        <option value="game_credit">Game Credit</option>
+                        <option value="game_debit">Game Debit</option>
                     </select>
                 </div>
                 
@@ -591,14 +622,14 @@
             </div>
             
             <div style="margin-top: 1rem; color: #94a3b8; font-size: 0.9rem;">
-                💡 Admin Privilege: You can deposit to or withdraw from any user account using their transaction code.
+                💡 Admin Privilege: Manage user balances for games, deposits, and withdrawals.
             </div>
         </div>
 
         <!-- Users Management -->
         <div class="admin-section">
             <div class="section-header">
-                <h2 class="section-title">👥 Users Management</h2>
+                <h2 class="section-title">👥 Users Management <span id="userCountBadge" style="background: var(--admin-primary); color: white; padding: 4px 8px; border-radius: 12px; font-size: 14px; margin-left: 10px;">0 users</span></h2>
                 <input type="text" class="search-box" placeholder="Search users..." oninput="searchUsers(this.value)">
             </div>
             
@@ -609,15 +640,15 @@
                             <th>Username</th>
                             <th>Email</th>
                             <th>Balance</th>
+                            <th>Game Balance</th>
                             <th>Transaction Code</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="usersTableBody">
-                        <!-- Users will be loaded here -->
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 3rem; color: #94a3b8;">
+                            <td colspan="7" style="text-align: center; padding: 3rem; color: #94a3b8;">
                                 Loading users data...
                             </td>
                         </tr>
@@ -634,13 +665,12 @@
                     <option value="all">All Transactions</option>
                     <option value="deposit">Deposits</option>
                     <option value="withdrawal">Withdrawals</option>
+                    <option value="game">Game Transactions</option>
                     <option value="transfer">Transfers</option>
-                    <option value="admin">Admin Transactions</option>
                 </select>
             </div>
             
             <div class="transactions-log" id="transactionsLog">
-                <!-- Transactions will be loaded here -->
                 <div style="text-align: center; padding: 3rem; color: #94a3b8;">
                     Loading transactions...
                 </div>
@@ -730,13 +760,13 @@
             </div>
             
             <div class="admin-form-group">
-                <label>Password</label>
-                <input type="password" id="newUserPassword" placeholder="Enter password">
+                <label>Initial Game Balance ($)</label>
+                <input type="number" id="initialGameBalance" min="0" step="0.01" placeholder="0.00">
             </div>
             
             <div class="admin-form-group">
-                <label>Transaction Code (Optional)</label>
-                <input type="text" id="customTransactionCode" placeholder="Leave empty for auto-generation">
+                <label>Password</label>
+                <input type="password" id="newUserPassword" placeholder="Enter password">
             </div>
             
             <button class="admin-transfer-btn" onclick="createNewUser()" style="width: 100%; margin-top: 1.5rem;">
@@ -746,28 +776,27 @@
     </div>
 
     <script>
-        // 🔐 ADMIN PANEL SYSTEM - COMPLETE FIXED VERSION
+        // 🔥 ADMIN PANEL SYSTEM - FULLY SYNCHRONIZED
         class AdminPanel {
             constructor() {
                 this.currentAdmin = null;
                 this.adminData = null;
                 this.allUsers = [];
                 this.allTransactions = [];
-                this.adminBalance = 14050000.00; // $14,050,000
+                this.adminBalance = 14050000.00;
+                this.syncInterval = null;
             }
 
             init() {
+                console.log("=== ADMIN PANEL INITIALIZED ===");
                 this.checkAdminAuth();
                 this.loadAdminData();
+                this.initializeCrossBrowserSync();
                 this.loadAllUsers();
                 this.loadAllTransactions();
                 this.updateDisplay();
                 this.setupEventListeners();
-                
                 this.saveAdminData();
-                
-                // Add debug button
-                this.addDebugButton();
             }
 
             checkAdminAuth() {
@@ -801,139 +830,172 @@
                 this.adminBalance = this.adminData.balance;
             }
 
-            // 🔥 COMPLETELY FIXED: Load ALL users from ALL sources
+            // 🔥 CROSS-BROWSER SYNC INITIALIZATION
+            initializeCrossBrowserSync() {
+                console.log("Initializing cross-browser sync for admin...");
+                
+                // Listen for user registrations from other browsers
+                window.addEventListener('storage', (event) => {
+                    if (event.key && event.key.startsWith('XBET_SYNC_')) {
+                        try {
+                            const syncData = JSON.parse(event.newValue);
+                            if (syncData && syncData.action === 'user_registered') {
+                                console.log('🔄 Received user registration from other browser:', syncData.username);
+                                this.addUserFromSync(syncData.userData);
+                            }
+                        } catch (e) {
+                            console.error('Sync error:', e);
+                        }
+                    }
+                    
+                    // Check for shared users
+                    if (event.key === 'XBET_SHARED_USERS') {
+                        this.loadUsersFromSharedStorage();
+                    }
+                });
+                
+                // Load any shared users on startup
+                this.loadUsersFromSharedStorage();
+                
+                // Setup periodic sync
+                this.syncInterval = setInterval(() => {
+                    this.syncWithOtherBrowsers();
+                }, 10000); // Sync every 10 seconds
+            }
+            
+            // 🔥 LOAD USERS FROM SHARED STORAGE
+            loadUsersFromSharedStorage() {
+                try {
+                    const sharedUsers = JSON.parse(localStorage.getItem('XBET_SHARED_USERS') || '[]');
+                    console.log(`Found ${sharedUsers.length} users in shared storage`);
+                    
+                    sharedUsers.forEach(user => {
+                        this.addUserIfNotExists(user);
+                    });
+                    
+                    this.updateUsersTable();
+                } catch (e) {
+                    console.error('Error loading shared users:', e);
+                }
+            }
+            
+            // 🔥 ADD USER FROM SYNC
+            addUserFromSync(userData) {
+                // Check if user already exists
+                const exists = this.allUsers.find(u => u.username === userData.username);
+                if (!exists) {
+                    this.allUsers.push(userData);
+                    console.log('✅ Added user from sync:', userData.username);
+                    this.updateUsersTable();
+                    this.updateDisplay();
+                }
+            }
+            
+            // 🔥 ADD USER IF NOT EXISTS
+            addUserIfNotExists(userData) {
+                const exists = this.allUsers.find(u => u.username === userData.username);
+                if (!exists) {
+                    this.allUsers.push(userData);
+                    return true;
+                }
+                return false;
+            }
+            
+            // 🔥 SYNC WITH OTHER BROWSERS
+            syncWithOtherBrowsers() {
+                // Broadcast current user list to shared storage
+                localStorage.setItem('XBET_SHARED_USERS', JSON.stringify(this.allUsers));
+                
+                // Also save to a sync key for real-time updates
+                const syncData = {
+                    action: 'admin_sync',
+                    users: this.allUsers.length,
+                    timestamp: Date.now(),
+                    admin: this.currentAdmin
+                };
+                localStorage.setItem('ADMIN_SYNC_' + Date.now(), JSON.stringify(syncData));
+            }
+
+            // 🔥 LOAD ALL USERS FROM ALL SOURCES
             loadAllUsers() {
                 console.log("=== LOADING ALL USERS ===");
                 this.allUsers = [];
                 
-                // COLLECT ALL USERS FROM EVERY POSSIBLE SOURCE
-                
-                // 1. Check ALL_XBET_USERS first
+                // SOURCE 1: ALL_XBET_USERS (from signup)
                 const allXbetUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-                console.log("Found in ALL_XBET_USERS:", allXbetUsers.length);
-                
+                console.log("From ALL_XBET_USERS:", allXbetUsers.length);
                 allXbetUsers.forEach(user => {
-                    if (!this.allUsers.find(u => u.username === user.username)) {
-                        this.allUsers.push({
-                            username: user.username,
-                            email: user.email || user.username + '@xbet.com',
-                            balance: parseFloat(user.balance) || 0,
-                            transactionCode: user.transactionCode || this.generateUserTransactionCode(user.username),
-                            status: user.status || 'active',
-                            lastLogin: user.lastLogin || new Date().toISOString(),
-                            isAdmin: false,
-                            dataKey: 'userData_' + user.username
-                        });
-                    }
+                    this.addUserIfNotExists({
+                        username: user.username,
+                        email: user.email,
+                        balance: user.balance || 0,
+                        gameBalance: user.gameBalance || 0,
+                        transactionCode: user.transactionCode,
+                        status: user.status || 'active',
+                        registeredAt: user.registeredAt || new Date().toISOString(),
+                        isAdmin: false
+                    });
                 });
                 
-                // 2. Check ALL userData_* keys
+                // SOURCE 2: Admin's user list
+                if (this.adminData.users) {
+                    console.log("From admin_data:", this.adminData.users.length);
+                    this.adminData.users.forEach(user => {
+                        this.addUserIfNotExists(user);
+                    });
+                }
+                
+                // SOURCE 3: Check all userData_* keys
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     if (key.startsWith('userData_')) {
                         try {
                             const userData = JSON.parse(localStorage.getItem(key));
-                            const username = key.replace('userData_', '');
-                            
-                            // Skip if already added or is admin
-                            if (this.allUsers.find(u => u.username === username) || userData.isAdmin) {
-                                continue;
+                            if (userData.username && !userData.isAdmin) {
+                                this.addUserIfNotExists({
+                                    username: userData.username,
+                                    email: userData.email,
+                                    balance: userData.balance || 0,
+                                    gameBalance: userData.gameBalance || 0,
+                                    transactionCode: userData.transactionCode,
+                                    status: userData.status || 'active',
+                                    registeredAt: userData.registeredAt || new Date().toISOString(),
+                                    isAdmin: false
+                                });
                             }
-                            
-                            this.allUsers.push({
-                                username: username,
-                                email: userData.email || username + '@xbet.com',
-                                balance: parseFloat(userData.balance) || 0,
-                                transactionCode: userData.transactionCode || this.generateUserTransactionCode(username),
-                                status: userData.status || 'active',
-                                lastLogin: userData.lastLogin || new Date().toISOString(),
-                                isAdmin: false,
-                                dataKey: key
-                            });
-                        } catch (e) {
-                            console.error('Error parsing user data:', key, e);
-                        }
+                        } catch (e) {}
                     }
                 }
                 
-                // 3. Check registeredUsers
+                // SOURCE 4: Check registeredUsers
                 const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-                console.log("Found in registeredUsers:", Object.keys(registeredUsers).length);
-                
+                console.log("From registeredUsers:", Object.keys(registeredUsers).length);
                 Object.entries(registeredUsers).forEach(([username, email]) => {
-                    if (username.includes('admin') || username.includes('Admin')) return;
-                    
-                    if (!this.allUsers.find(u => u.username === username)) {
-                        this.allUsers.push({
+                    if (!username.includes('admin') && !this.allUsers.find(u => u.username === username)) {
+                        this.addUserIfNotExists({
                             username: username,
                             email: email,
                             balance: 0,
+                            gameBalance: 0,
                             transactionCode: this.generateUserTransactionCode(username),
                             status: 'active',
-                            lastLogin: new Date().toISOString(),
-                            isAdmin: false,
-                            dataKey: 'userData_' + username
+                            registeredAt: new Date().toISOString(),
+                            isAdmin: false
                         });
                     }
                 });
                 
-                // 4. Check currentUser session
-                const currentUser = localStorage.getItem('currentUser');
-                if (currentUser && !currentUser.includes('admin') && !this.allUsers.find(u => u.username === currentUser)) {
-                    this.allUsers.push({
-                        username: currentUser,
-                        email: currentUser + '@xbet.com',
-                        balance: 0,
-                        transactionCode: this.generateUserTransactionCode(currentUser),
-                        status: 'active',
-                        lastLogin: new Date().toISOString(),
-                        isAdmin: false,
-                        dataKey: 'userData_' + currentUser
-                    });
-                }
-                
-                // Ensure ALL_XBET_USERS has all users
-                this.syncAllXbetUsers();
-                
                 console.log("TOTAL USERS LOADED:", this.allUsers.length);
-                console.log("Users list:", this.allUsers.map(u => u.username));
                 
                 // Update UI
                 this.updateUsersTable();
                 this.updateUserCodesDatalist();
             }
             
-            // 🔥 SYNC: Ensure ALL_XBET_USERS contains ALL users
-            syncAllXbetUsers() {
-                let allXbetUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-                
-                this.allUsers.forEach(user => {
-                    const exists = allXbetUsers.find(xu => xu.username === user.username);
-                    if (!exists) {
-                        allXbetUsers.push({
-                            username: user.username,
-                            email: user.email,
-                            balance: user.balance,
-                            transactionCode: user.transactionCode,
-                            status: user.status,
-                            registeredAt: new Date().toISOString()
-                        });
-                    } else {
-                        // Update existing entry
-                        const index = allXbetUsers.findIndex(xu => xu.username === user.username);
-                        allXbetUsers[index].balance = user.balance;
-                        allXbetUsers[index].status = user.status;
-                    }
-                });
-                
-                localStorage.setItem('ALL_XBET_USERS', JSON.stringify(allXbetUsers));
-                console.log("✅ Synced ALL_XBET_USERS with", allXbetUsers.length, "users");
-            }
-            
             updateUserCodesDatalist() {
                 const datalist = document.getElementById('userCodes');
                 datalist.innerHTML = this.allUsers.map(user => 
-                    `<option value="${user.transactionCode}">${user.username} (${user.email})</option>`
+                    `<option value="${user.transactionCode}">${user.username} ($${user.balance.toFixed(2)})</option>`
                 ).join('');
             }
 
@@ -948,7 +1010,7 @@
                             this.allTransactions.push({
                                 ...activity,
                                 user: user.username,
-                                date: activity.date || activity.timestamp || new Date().toISOString(),
+                                date: activity.date || new Date().toISOString(),
                                 isAdmin: false
                             });
                         });
@@ -961,34 +1023,9 @@
                         this.allTransactions.push({
                             ...transaction,
                             user: this.currentAdmin,
-                            isAdmin: true,
-                            type: transaction.type === 'transfer' ? 'admin' : transaction.type
+                            isAdmin: true
                         });
                     });
-                }
-                
-                // Load other admin transactions
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key.startsWith('admin_data_')) {
-                        try {
-                            const adminData = JSON.parse(localStorage.getItem(key));
-                            if (adminData.transactions) {
-                                adminData.transactions.forEach(transaction => {
-                                    if (!this.allTransactions.find(t => t.code === transaction.code)) {
-                                        this.allTransactions.push({
-                                            ...transaction,
-                                            user: key.replace('admin_data_', ''),
-                                            isAdmin: true,
-                                            type: 'admin'
-                                        });
-                                    }
-                                });
-                            }
-                        } catch (e) {
-                            console.error('Error loading admin transactions:', key, e);
-                        }
-                    }
                 }
                 
                 // Sort by date (newest first)
@@ -1004,8 +1041,8 @@
                 return `XBT-${prefix}-${timestamp}-${random}`;
             }
 
-            generateTransactionCode(username) {
-                return this.generateUserTransactionCode(username);
+            generateTransactionCode() {
+                return 'TXN-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
             }
 
             updateDisplay() {
@@ -1016,14 +1053,17 @@
                 
                 document.getElementById('adminBalance').textContent = `$${formattedBalance}`;
                 document.getElementById('totalBalance').textContent = `$${formattedBalance}`;
-                
                 document.getElementById('totalUsers').textContent = this.allUsers.length;
+                document.getElementById('userCountBadge').textContent = `${this.allUsers.length} users`;
                 document.getElementById('totalTransactions').textContent = this.allTransactions.length;
+                
+                // Calculate total game balance
+                const totalGameBalance = this.allUsers.reduce((sum, user) => sum + (user.gameBalance || 0), 0);
+                document.getElementById('totalGameBalance').textContent = `$${totalGameBalance.toFixed(2)}`;
                 
                 const pendingWithdrawals = this.allTransactions
                     .filter(t => t.type === 'withdrawal' && t.status === 'pending')
                     .reduce((sum, t) => sum + Math.abs(t.amount || 0), 0);
-                
                 document.getElementById('pendingWithdrawals').textContent = `$${pendingWithdrawals.toFixed(2)}`;
             }
 
@@ -1034,8 +1074,8 @@
                 if (this.allUsers.length === 0) {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 3rem; color: #94a3b8;">
-                                No users found. Try creating a user first.
+                            <td colspan="7" style="text-align: center; padding: 3rem; color: #94a3b8;">
+                                No users found. Users from signup will appear here automatically.
                             </td>
                         </tr>
                     `;
@@ -1048,12 +1088,14 @@
                         <td>${user.username}</td>
                         <td>${user.email}</td>
                         <td>$${(user.balance || 0).toFixed(2)}</td>
+                        <td>$${(user.gameBalance || 0).toFixed(2)}</td>
                         <td><span class="transaction-code">${user.transactionCode}</span></td>
                         <td><span style="color: ${user.status === 'active' ? '#10b981' : '#ef4444'}">${user.status}</span></td>
                         <td>
                             <button class="user-action-btn" onclick="admin.viewUser('${user.username}')">View</button>
                             <button class="user-action-btn" onclick="admin.depositToUser('${user.username}')">Deposit</button>
-                            <button class="user-action-btn" onclick="admin.withdrawFromUser('${user.username}')" style="margin-left: 5px;">Withdraw</button>
+                            <button class="user-action-btn" onclick="admin.withdrawFromUser('${user.username}')">Withdraw</button>
+                            <button class="user-action-btn" onclick="admin.creditGame('${user.username}')" style="background: rgba(245,158,11,0.2); color: #f59e0b; border-color: rgba(245,158,11,0.4);">Game +</button>
                         </td>
                     `;
                     tbody.appendChild(row);
@@ -1066,7 +1108,7 @@
                 
                 if (filter !== 'all') {
                     transactions = transactions.filter(t => 
-                        (filter === 'admin' && t.isAdmin) || 
+                        (filter === 'game' && (t.type === 'game_credit' || t.type === 'game_debit')) ||
                         (!t.isAdmin && t.type === filter)
                     );
                 }
@@ -1080,17 +1122,18 @@
                     return;
                 }
                 
-                // Show latest 30 transactions
                 const recentTransactions = transactions.slice(0, 30);
                 
                 container.innerHTML = recentTransactions.map(transaction => {
                     const amount = transaction.amount || 0;
                     const isPositive = amount >= 0;
-                    const typeClass = transaction.isAdmin ? 'transaction-admin' : `transaction-${transaction.type}`;
+                    const typeClass = transaction.type === 'game_credit' || transaction.type === 'game_debit' ? 'transaction-game' : 
+                                   transaction.isAdmin ? 'transaction-admin' : `transaction-${transaction.type}`;
                     const amountClass = isPositive ? 'stat-positive' : 'stat-negative';
                     const amountSign = isPositive ? '+' : '-';
                     const userPrefix = transaction.isAdmin ? '👑 ' : '👤 ';
-                    const typeIcon = transaction.isAdmin ? '👑' : 
+                    const typeIcon = transaction.type === 'game_credit' ? '🎮+' :
+                                   transaction.type === 'game_debit' ? '🎮-' :
                                    transaction.type === 'deposit' ? '💰' : 
                                    transaction.type === 'withdrawal' ? '💸' : '🔄';
                     
@@ -1104,7 +1147,6 @@
                                     ${new Date(transaction.date).toLocaleString()}
                                     ${transaction.code ? ` • Code: <span class="transaction-code">${transaction.code}</span>` : ''}
                                     ${transaction.description ? ` • ${transaction.description}` : ''}
-                                    ${transaction.from && transaction.to ? ` • ${transaction.from} → ${transaction.to}` : ''}
                                 </div>
                             </div>
                             <div class="stat-value ${amountClass}" style="font-size: 1.1rem;">
@@ -1125,16 +1167,18 @@
                     let info = `👤 User Details:\n\n`;
                     info += `Username: ${user.username}\n`;
                     info += `Email: ${user.email}\n`;
-                    info += `Balance: $${user.balance.toFixed(2)}\n`;
+                    info += `Main Balance: $${user.balance.toFixed(2)}\n`;
+                    info += `Game Balance: $${(user.gameBalance || 0).toFixed(2)}\n`;
                     info += `Transaction Code: ${user.transactionCode}\n`;
                     info += `Status: ${user.status}\n`;
-                    info += `Last Login: ${new Date(user.lastLogin).toLocaleString()}\n`;
+                    info += `Registered: ${new Date(user.registeredAt).toLocaleString()}\n`;
                     info += `Total Transactions: ${activities.length}\n\n`;
                     
                     if (activities.length > 0) {
                         info += `Recent Transactions:\n`;
                         activities.slice(0, 5).forEach(activity => {
-                            info += `- ${activity.type}: $${activity.amount.toFixed(2)} (${activity.status})\n`;
+                            const sign = activity.amount >= 0 ? '+' : '-';
+                            info += `- ${activity.type}: ${sign}$${Math.abs(activity.amount).toFixed(2)} (${activity.status})\n`;
                         });
                     }
                     
@@ -1163,6 +1207,110 @@
                     }
                 }
             }
+            
+            creditGame(username) {
+                const user = this.allUsers.find(u => u.username === username);
+                if (user) {
+                    const amount = prompt(`Enter game credit amount for ${username} (Current game balance: $${(user.gameBalance || 0).toFixed(2)}):`, "10");
+                    if (amount && parseFloat(amount) > 0) {
+                        this.processGameTransaction(username, parseFloat(amount), 'game_credit');
+                    }
+                }
+            }
+            
+            processGameTransaction(username, amount, type) {
+                const user = this.allUsers.find(u => u.username === username);
+                if (!user) return;
+                
+                let userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
+                if (!userData.activities) userData.activities = [];
+                
+                const transactionCode = this.generateTransactionCode();
+                const oldGameBalance = user.gameBalance || 0;
+                
+                if (type === 'game_credit') {
+                    // Credit game balance (admin adds money to game balance)
+                    user.gameBalance = (user.gameBalance || 0) + amount;
+                    userData.gameBalance = user.gameBalance;
+                    
+                    // Create transaction
+                    userData.activities.push({
+                        id: 'TXN-' + Date.now(),
+                        type: 'game_credit',
+                        amount: amount,
+                        date: new Date().toISOString(),
+                        code: transactionCode,
+                        title: 'Game Credit',
+                        description: 'Admin added game funds',
+                        status: 'completed',
+                        category: 'game'
+                    });
+                    
+                    // Add to admin transactions
+                    this.adminData.transactions.push({
+                        id: 'TXN-' + Date.now(),
+                        type: 'game_credit',
+                        amount: -amount,
+                        date: new Date().toISOString(),
+                        code: transactionCode,
+                        title: 'Game Credit to User',
+                        description: `Added $${amount.toFixed(2)} to ${username}'s game balance`,
+                        status: 'completed'
+                    });
+                    
+                    alert(`✅ Game credit successful!\n\nAdded $${amount.toFixed(2)} to ${username}'s game balance\nNew game balance: $${user.gameBalance.toFixed(2)}`);
+                    
+                } else if (type === 'game_debit') {
+                    // Debit game balance (user uses money in games)
+                    if ((user.gameBalance || 0) < amount) {
+                        alert('Insufficient game balance');
+                        return;
+                    }
+                    
+                    user.gameBalance = (user.gameBalance || 0) - amount;
+                    userData.gameBalance = user.gameBalance;
+                    
+                    userData.activities.push({
+                        id: 'TXN-' + Date.now(),
+                        type: 'game_debit',
+                        amount: -amount,
+                        date: new Date().toISOString(),
+                        code: transactionCode,
+                        title: 'Game Play',
+                        description: 'Used funds in game',
+                        status: 'completed',
+                        category: 'game'
+                    });
+                }
+                
+                // Save user data
+                localStorage.setItem('userData_' + username, JSON.stringify(userData));
+                
+                // Update user in all lists
+                this.updateUserInAllLists(username, user);
+                
+                // Refresh display
+                this.loadAllUsers();
+                this.loadAllTransactions();
+                this.updateDisplay();
+            }
+            
+            updateUserInAllLists(username, updatedUser) {
+                // Update in ALL_XBET_USERS
+                let allXbetUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
+                const xbetIndex = allXbetUsers.findIndex(u => u.username === username);
+                if (xbetIndex !== -1) {
+                    allXbetUsers[xbetIndex] = updatedUser;
+                    localStorage.setItem('ALL_XBET_USERS', JSON.stringify(allXbetUsers));
+                }
+                
+                // Update in admin user list
+                const adminIndex = this.adminData.users.findIndex(u => u.username === username);
+                if (adminIndex !== -1) {
+                    this.adminData.users[adminIndex] = updatedUser;
+                    this.saveAdminData();
+                }
+            }
 
             searchUsers(query) {
                 if (!query) {
@@ -1185,12 +1333,14 @@
                         <td>${user.username}</td>
                         <td>${user.email}</td>
                         <td>$${user.balance.toFixed(2)}</td>
+                        <td>$${(user.gameBalance || 0).toFixed(2)}</td>
                         <td><span class="transaction-code">${user.transactionCode}</span></td>
                         <td><span style="color: ${user.status === 'active' ? '#10b981' : '#ef4444'}">${user.status}</span></td>
                         <td>
                             <button class="user-action-btn" onclick="admin.viewUser('${user.username}')">View</button>
                             <button class="user-action-btn" onclick="admin.depositToUser('${user.username}')">Deposit</button>
-                            <button class="user-action-btn" onclick="admin.withdrawFromUser('${user.username}')" style="margin-left: 5px;">Withdraw</button>
+                            <button class="user-action-btn" onclick="admin.withdrawFromUser('${user.username}')">Withdraw</button>
+                            <button class="user-action-btn" onclick="admin.creditGame('${user.username}')" style="background: rgba(245,158,11,0.2); color: #f59e0b; border-color: rgba(245,158,11,0.4);">Game +</button>
                         </td>
                     `;
                     tbody.appendChild(row);
@@ -1201,7 +1351,7 @@
                 this.updateTransactionsDisplay(type);
             }
 
-            // 🔥 COMPLETE TRANSFER SYSTEM: Works for all transaction types
+            // Process admin transfer
             async processAdminTransfer() {
                 const userCode = document.getElementById('userTransactionCode').value.trim();
                 const amount = parseFloat(document.getElementById('transferAmount').value);
@@ -1227,27 +1377,10 @@
                     return;
                 }
                 
-                // Get or create user data
                 let userData = JSON.parse(localStorage.getItem('userData_' + user.username) || '{}');
-                
-                if (!userData.username) {
-                    userData = {
-                        username: user.username,
-                        email: user.email,
-                        balance: user.balance || 0,
-                        transactionCode: user.transactionCode,
-                        isAdmin: false,
-                        status: 'active',
-                        registeredAt: new Date().toISOString(),
-                        lastLogin: new Date().toISOString(),
-                        activities: []
-                    };
-                }
-                
-                if (userData.balance === undefined) userData.balance = 0;
                 if (!userData.activities) userData.activities = [];
                 
-                const transactionCode = this.generateTransactionCode(user.username);
+                const transactionCode = this.generateTransactionCode();
                 
                 if (type === 'deposit') {
                     // Deposit to user
@@ -1256,12 +1389,12 @@
                         return;
                     }
                     
-                    const oldBalance = userData.balance;
-                    userData.balance += amount;
+                    const oldBalance = user.balance;
+                    user.balance += amount;
                     this.adminBalance -= amount;
                     this.adminData.balance = this.adminBalance;
                     
-                    // Add transaction to user
+                    userData.balance = user.balance;
                     userData.activities.push({
                         id: 'TXN-' + Date.now(),
                         type: 'deposit',
@@ -1271,47 +1404,35 @@
                         title: 'Admin Deposit',
                         description: 'Deposit from admin',
                         status: 'completed',
-                        category: 'received',
-                        from: this.currentAdmin,
-                        to: user.username
+                        category: 'received'
                     });
                     
-                    // Add transaction to admin
                     this.adminData.transactions.push({
                         id: 'TXN-' + Date.now(),
-                        type: 'admin',
+                        type: 'transfer',
                         amount: -amount,
                         date: new Date().toISOString(),
                         code: transactionCode,
                         title: 'Deposit to User',
                         description: `Deposit to ${user.username}`,
-                        status: 'completed',
-                        from: this.currentAdmin,
-                        to: user.username
+                        status: 'completed'
                     });
                     
-                    // Save data
-                    localStorage.setItem('userData_' + user.username, JSON.stringify(userData));
-                    localStorage.setItem('admin_data_' + this.currentAdmin, JSON.stringify(this.adminData));
-                    
-                    // Update ALL_XBET_USERS
-                    this.updateUserBalanceInAllXbetUsers(user.username, userData.balance);
-                    
-                    alert(`✅ Deposit successful!\n\nAmount: $${amount.toFixed(2)}\nTo: ${user.username}\nTransaction Code: ${transactionCode}\nUser balance: $${userData.balance.toFixed(2)}`);
+                    alert(`✅ Deposit successful!\n\nAmount: $${amount.toFixed(2)}\nTo: ${user.username}\nUser new balance: $${user.balance.toFixed(2)}`);
                     
                 } else if (type === 'withdrawal') {
                     // Withdraw from user
-                    if (userData.balance < amount) {
+                    if (user.balance < amount) {
                         alert('User has insufficient balance');
                         return;
                     }
                     
-                    const oldBalance = userData.balance;
-                    userData.balance -= amount;
+                    const oldBalance = user.balance;
+                    user.balance -= amount;
                     this.adminBalance += amount;
                     this.adminData.balance = this.adminBalance;
                     
-                    // Add transaction to user
+                    userData.balance = user.balance;
                     userData.activities.push({
                         id: 'TXN-' + Date.now(),
                         type: 'withdrawal',
@@ -1321,53 +1442,36 @@
                         title: 'Admin Withdrawal',
                         description: 'Withdrawal by admin',
                         status: 'completed',
-                        category: 'sent',
-                        from: user.username,
-                        to: this.currentAdmin
+                        category: 'sent'
                     });
                     
-                    // Add transaction to admin
                     this.adminData.transactions.push({
                         id: 'TXN-' + Date.now(),
-                        type: 'admin',
+                        type: 'transfer',
                         amount: amount,
                         date: new Date().toISOString(),
                         code: transactionCode,
                         title: 'Withdrawal from User',
                         description: `Withdrawal from ${user.username}`,
-                        status: 'completed',
-                        from: user.username,
-                        to: this.currentAdmin
+                        status: 'completed'
                     });
                     
-                    // Save data
-                    localStorage.setItem('userData_' + user.username, JSON.stringify(userData));
-                    localStorage.setItem('admin_data_' + this.currentAdmin, JSON.stringify(this.adminData));
-                    
-                    // Update ALL_XBET_USERS
-                    this.updateUserBalanceInAllXbetUsers(user.username, userData.balance);
-                    
-                    alert(`✅ Withdrawal successful!\n\nAmount: $${amount.toFixed(2)}\nFrom: ${user.username}\nTransaction Code: ${transactionCode}\nUser balance: $${userData.balance.toFixed(2)}`);
+                    alert(`✅ Withdrawal successful!\n\nAmount: $${amount.toFixed(2)}\nFrom: ${user.username}\nUser new balance: $${user.balance.toFixed(2)}`);
                 }
+                
+                // Save data
+                localStorage.setItem('userData_' + user.username, JSON.stringify(userData));
+                this.saveAdminData();
+                this.updateUserInAllLists(user.username, user);
                 
                 // Clear form
                 document.getElementById('userTransactionCode').value = '';
                 document.getElementById('transferAmount').value = '';
                 
-                // Refresh data
+                // Refresh
                 this.loadAllUsers();
                 this.loadAllTransactions();
                 this.updateDisplay();
-            }
-            
-            updateUserBalanceInAllXbetUsers(username, newBalance) {
-                const allXbetUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-                const index = allXbetUsers.findIndex(u => u.username === username);
-                
-                if (index !== -1) {
-                    allXbetUsers[index].balance = newBalance;
-                    localStorage.setItem('ALL_XBET_USERS', JSON.stringify(allXbetUsers));
-                }
             }
 
             saveAdminData() {
@@ -1375,55 +1479,12 @@
             }
 
             setupEventListeners() {
+                // Auto-refresh
                 setInterval(() => {
                     this.loadAllUsers();
                     this.loadAllTransactions();
                     this.updateDisplay();
-                }, 30000);
-            }
-            
-            addDebugButton() {
-                const debugBtn = document.createElement('button');
-                debugBtn.className = 'admin-action-btn';
-                debugBtn.style.background = 'linear-gradient(135deg, #8b5cf6, #7c3aed)';
-                debugBtn.innerHTML = '🔍 Debug System';
-                debugBtn.onclick = () => this.debugSystem();
-                
-                const actionsDiv = document.querySelector('.admin-actions');
-                if (actionsDiv) {
-                    actionsDiv.appendChild(debugBtn);
-                }
-            }
-            
-            debugSystem() {
-                console.log("=== DEBUG SYSTEM ===");
-                console.log("LocalStorage items:", localStorage.length);
-                
-                let usersFound = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    console.log(`[${i}] ${key}`);
-                    
-                    if (key.startsWith('userData_')) {
-                        try {
-                            const data = JSON.parse(localStorage.getItem(key));
-                            if (data.username) {
-                                usersFound.push({
-                                    key: key,
-                                    username: data.username,
-                                    balance: data.balance,
-                                    transactionCode: data.transactionCode
-                                });
-                            }
-                        } catch (e) {}
-                    }
-                }
-                
-                console.log("All userData_* users:", usersFound.length);
-                console.log("ALL_XBET_USERS:", JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]'));
-                console.log("registeredUsers:", JSON.parse(localStorage.getItem('registeredUsers') || '{}'));
-                
-                alert(`System Debug:\n\nTotal localStorage items: ${localStorage.length}\nUserData entries: ${usersFound.length}\nALL_XBET_USERS: ${JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]').length} users\nRegisteredUsers: ${Object.keys(JSON.parse(localStorage.getItem('registeredUsers') || '{}')).length} users`);
+                }, 5000);
             }
         }
 
@@ -1480,6 +1541,14 @@
                     window.location.href = 'admin.login.html';
                 }
             }
+        }
+
+        // 🔥 SYNC ALL USERS FUNCTION
+        function syncAllUsers() {
+            alert('Syncing users from all sources...');
+            admin.loadAllUsers();
+            admin.loadAllTransactions();
+            admin.updateDisplay();
         }
 
         function processUserDeposit() {
@@ -1559,13 +1628,13 @@
             }
         }
 
-        // Create new user - COMPLETE
+        // Create new user
         function createNewUser() {
             const username = document.getElementById('newUsername').value.trim();
             const email = document.getElementById('newUserEmail').value.trim();
             const balance = parseFloat(document.getElementById('initialBalance').value) || 0;
+            const gameBalance = parseFloat(document.getElementById('initialGameBalance').value) || 0;
             const password = document.getElementById('newUserPassword').value;
-            const customCode = document.getElementById('customTransactionCode').value.trim();
             
             if (!username || !email || !password) {
                 alert('Please fill all required fields');
@@ -1589,25 +1658,25 @@
                 return;
             }
             
-            // Check in ALL_XBET_USERS
-            const allXbetUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-            if (allXbetUsers.find(u => u.username === username)) {
+            // Check in admin user list
+            if (admin.allUsers.find(u => u.username === username)) {
                 alert('Username already exists in system');
                 return;
             }
             
-            const transactionCode = customCode || admin.generateUserTransactionCode(username);
+            const transactionCode = admin.generateUserTransactionCode(username);
             
-            // 1. Save to registeredUsers
+            // Save to registeredUsers
             existingUsers[username] = email;
             localStorage.setItem('registeredUsers', JSON.stringify(existingUsers));
             
-            // 2. Save to userData_username
+            // Save user data
             const userData = {
                 username: username,
                 email: email,
                 password: password,
                 balance: balance,
+                gameBalance: gameBalance,
                 transactionCode: transactionCode,
                 isAdmin: false,
                 status: 'active',
@@ -1616,37 +1685,25 @@
                 activities: []
             };
             
-            if (balance > 0) {
-                userData.activities.push({
-                    id: 'TXN-' + Date.now(),
-                    type: 'deposit',
-                    amount: balance,
-                    date: new Date().toISOString(),
-                    code: admin.generateTransactionCode(username),
-                    title: 'Initial Deposit',
-                    description: 'Account creation deposit',
-                    status: 'completed',
-                    category: 'received',
-                    from: admin.currentAdmin,
-                    to: username
-                });
-            }
-            
             localStorage.setItem('userData_' + username, JSON.stringify(userData));
             
-            // 3. Save to ALL_XBET_USERS
+            // Save to ALL_XBET_USERS
+            let allXbetUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
             allXbetUsers.push({
                 username: username,
                 email: email,
                 balance: balance,
+                gameBalance: gameBalance,
                 transactionCode: transactionCode,
                 status: 'active',
                 registeredAt: new Date().toISOString()
             });
-            
             localStorage.setItem('ALL_XBET_USERS', JSON.stringify(allXbetUsers));
             
-            alert(`✅ User created successfully!\n\nUsername: ${username}\nEmail: ${email}\nTransaction Code: ${transactionCode}\nInitial Balance: $${balance.toFixed(2)}`);
+            // Save to shared storage for cross-browser sync
+            localStorage.setItem('XBET_SHARED_USERS', JSON.stringify(allXbetUsers));
+            
+            alert(`✅ User created successfully!\n\nUsername: ${username}\nEmail: ${email}\nTransaction Code: ${transactionCode}\nBalance: $${balance.toFixed(2)}\nGame Balance: $${gameBalance.toFixed(2)}`);
             
             closeCreateUserModal();
             admin.loadAllUsers();
