@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>X-BET Sync Test</title>
+    <script src="sync.js"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #1a1a1a; color: white; }
+        .section { background: #2a2a2a; padding: 20px; margin: 10px 0; border-radius: 10px; }
+        button { padding: 10px 15px; margin: 5px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .user { background: #333; padding: 10px; margin: 5px; border-radius: 5px; }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <h1>🔧 X-BET Sync System Test</h1>
+    
+    <div class="section">
+        <h2>1. Sync Status</h2>
+        <div id="syncStatus">Loading...</div>
+        <button onclick="checkSyncStatus()">Refresh Status</button>
+    </div>
+    
+    <div class="section">
+        <h2>2. Test User Registration</h2>
+        <button onclick="createTestUser()">Create Test User</button>
+        <button onclick="createMultipleUsers(5)">Create 5 Test Users</button>
+    </div>
+    
+    <div class="section">
+        <h2>3. View All Users</h2>
+        <button onclick="viewAllUsers()">View All Users</button>
+        <button onclick="clearAllData()">Clear All Data</button>
+        <div id="usersList"></div>
+    </div>
+    
+    <div class="section">
+        <h2>4. Browser Info</h2>
+        <div id="browserInfo"></div>
+    </div>
+    
+    <script>
+        function checkSyncStatus() {
+            if (!window.xbetSync) {
+                document.getElementById('syncStatus').innerHTML = '<span class="error">❌ Sync system not loaded!</span>';
+                return;
+            }
+            
+            const status = window.xbetSync.getSyncStatus();
+            document.getElementById('syncStatus').innerHTML = `
+                <div>Browser: <strong>${status.browser}</strong></div>
+                <div>Universal Users: <strong>${status.universalUsers}</strong></div>
+                <div>Local Users: <strong>${status.localUsers}</strong></div>
+                <div>Last Sync: <strong>${status.lastSync}</strong></div>
+                <div>Sync Active: <strong class="${status.syncActive ? 'success' : 'error'}">${status.syncActive ? '✅ Yes' : '❌ No'}</strong></div>
+            `;
+        }
+        
+        function createTestUser() {
+            if (!window.xbetSync) {
+                alert('Sync system not loaded!');
+                return;
+            }
+            
+            const username = 'testuser_' + Date.now();
+            const email = username + '@test.com';
+            const transactionCode = window.xbetSync.generateTransactionCode(username);
+            
+            const userData = {
+                username: username,
+                email: email,
+                balance: Math.floor(Math.random() * 1000),
+                gameBalance: Math.floor(Math.random() * 500),
+                transactionCode: transactionCode,
+                status: 'active'
+            };
+            
+            const userId = window.xbetSync.registerUser(userData);
+            
+            if (userId) {
+                alert(`✅ Test user created!\n\nUsername: ${username}\nID: ${userId}`);
+                checkSyncStatus();
+            } else {
+                alert('❌ Failed to create test user');
+            }
+        }
+        
+        function createMultipleUsers(count) {
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    createTestUser();
+                }, i * 500);
+            }
+        }
+        
+        function viewAllUsers() {
+            if (!window.xbetSync) {
+                document.getElementById('usersList').innerHTML = '<span class="error">Sync system not loaded!</span>';
+                return;
+            }
+            
+            const users = window.xbetSync.getAllUsers();
+            let html = `<h3>Total Users: ${users.length}</h3>`;
+            
+            users.forEach((user, index) => {
+                html += `
+                    <div class="user">
+                        <strong>${index + 1}. ${user.username}</strong><br>
+                        Email: ${user.email}<br>
+                        Balance: $${user.balance || 0}<br>
+                        Game Balance: $${user.gameBalance || 0}<br>
+                        Code: ${user.transactionCode}<br>
+                        Source: ${user.source || 'unknown'}
+                    </div>
+                `;
+            });
+            
+            document.getElementById('usersList').innerHTML = html;
+        }
+        
+        function clearAllData() {
+            if (confirm('⚠️ Clear ALL sync data? This cannot be undone!')) {
+                if (window.xbetSync) {
+                    window.xbetSync.clearAllData();
+                    alert('All data cleared!');
+                    checkSyncStatus();
+                    document.getElementById('usersList').innerHTML = '';
+                }
+            }
+        }
+        
+        // Initialize
+        checkSyncStatus();
+        
+        // Show browser info
+        document.getElementById('browserInfo').innerHTML = `
+            User Agent: ${navigator.userAgent.substring(0, 80)}...<br>
+            Platform: ${navigator.platform}<br>
+            Language: ${navigator.language}<br>
+            Cookies Enabled: ${navigator.cookieEnabled ? 'Yes' : 'No'}<br>
+            Online: ${navigator.onLine ? 'Yes' : 'No'}
+        `;
+        
+        // Auto-refresh status every 5 seconds
+        setInterval(checkSyncStatus, 5000);
+    </script>
+</body>
+</html>
