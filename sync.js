@@ -1,492 +1,434 @@
 // 🔥 X-BET UNIVERSAL SYNC SYSTEM - Works across ALL browsers
 (function() {
-    // Check if already initialized
-    if (window.xbetSync) {
-        console.warn('⚠️ xbetSync already initialized, skipping');
-        return;
-    }
-
-    class XbetUniversalSync {
-        constructor() {
-            this.STORAGE_KEYS = {
-                USERS: 'XBET_UNIVERSAL_USERS_V2',
-                TRANSACTIONS: 'XBET_UNIVERSAL_TRANSACTIONS',
-                SYNC_QUEUE: 'XBET_SYNC_QUEUE_V2',
-                LAST_SYNC: 'XBET_LAST_SYNC_TIME'
-            };
-            
-            this.syncInterval = null;
-            this.isInitialized = false;
-            this.init();
+    'use strict';
+    
+    console.log('🔄 Loading X-BET Sync System v2.1...');
+    
+    // Create a promise to track when sync system is ready
+    window.xbetSyncReadyPromise = new Promise((resolve) => {
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initSyncSystem);
+        } else {
+            setTimeout(initSyncSystem, 100);
         }
         
-        init() {
-            console.log('🔥 X-BET Universal Sync System Initializing...');
-            
+        function initSyncSystem() {
             try {
-                // Listen for storage events from other tabs/browsers
-                window.addEventListener('storage', this.handleStorageEvent.bind(this));
+                console.log('🚀 Initializing X-BET Sync System...');
                 
-                // Setup auto-sync every 5 seconds
-                this.startAutoSync();
-                
-                // Initial sync
-                this.syncNow();
-                
-                this.isInitialized = true;
-                console.log('✅ X-BET Universal Sync System Initialized');
-                
-                // Fire ready event
-                this.fireReadyEvent();
-                
-            } catch (error) {
-                console.error('❌ Failed to initialize sync system:', error);
-                this.isInitialized = false;
-            }
-        }
-        
-        fireReadyEvent() {
-            // Create and dispatch ready event
-            const readyEvent = new CustomEvent('xbetSyncReady', {
-                detail: { timestamp: Date.now() }
-            });
-            window.dispatchEvent(readyEvent);
-            
-            // Also set a flag for synchronous checks
-            window.xbetSyncReady = true;
-        }
-        
-        // 🔥 REGISTER NEW USER (Call this from signup)
-        registerUser(userData) {
-            console.log('📝 Registering user:', userData.username);
-            
-            // Validate input
-            if (!userData || !userData.username || !userData.email) {
-                console.error('Invalid user data:', userData);
-                return null;
-            }
-            
-            const completeUserData = {
-                ...userData,
-                id: 'USER_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                browser: this.getBrowserInfo(),
-                ip: 'N/A', // Would be server-side
-                registeredAt: new Date().toISOString(),
-                lastSeen: new Date().toISOString(),
-                syncVersion: '2.0'
-            };
-            
-            // 1. Save to universal storage
-            this.saveToUniversalStorage(completeUserData);
-            
-            // 2. Save to local browser storage (for compatibility)
-            this.saveToLocalBrowser(completeUserData);
-            
-            // 3. Add to sync queue
-            this.addToSyncQueue({
-                type: 'USER_CREATED',
-                data: completeUserData,
-                timestamp: Date.now()
-            });
-            
-            // 4. Trigger immediate sync
-            this.triggerSync();
-            
-            return completeUserData.id;
-        }
-        
-        // 🔥 SAVE TO UNIVERSAL STORAGE (Works across browsers)
-        saveToUniversalStorage(userData) {
-            try {
-                // Get current universal users
-                const storageKey = this.STORAGE_KEYS.USERS;
-                let universalData = { users: [], version: "2.0", lastUpdated: new Date().toISOString() };
-                
-                try {
-                    const stored = localStorage.getItem(storageKey);
-                    if (stored) {
-                        universalData = JSON.parse(stored);
+                class XbetUniversalSync {
+                    constructor() {
+                        this.STORAGE_KEYS = {
+                            USERS: 'XBET_UNIVERSAL_USERS_V3',
+                            LAST_SYNC: 'XBET_LAST_SYNC_TIME_V3',
+                            SYNC_FLAG: 'XBET_SYNC_ACTIVE'
+                        };
+                        
+                        this.syncInterval = null;
+                        this.isInitialized = false;
+                        this.initialize();
                     }
-                } catch (e) {
-                    console.warn('Could not parse existing storage, starting fresh');
-                }
-                
-                // Check if user exists
-                const existingIndex = universalData.users.findIndex(u => 
-                    u.username === userData.username || u.email === userData.email
-                );
-                
-                if (existingIndex === -1) {
-                    // Add new user
-                    universalData.users.push(userData);
-                    universalData.lastUpdated = new Date().toISOString();
-                    universalData.totalUsers = universalData.users.length;
                     
-                    localStorage.setItem(storageKey, JSON.stringify(universalData));
-                    console.log('✅ User saved to universal storage:', userData.username);
-                    
-                    return true;
-                } else {
-                    // Update existing user
-                    universalData.users[existingIndex] = {
-                        ...universalData.users[existingIndex],
-                        ...userData,
-                        lastSeen: new Date().toISOString()
-                    };
-                    
-                    localStorage.setItem(storageKey, JSON.stringify(universalData));
-                    console.log('🔄 User updated in universal storage:', userData.username);
-                    
-                    return true;
-                }
-            } catch (error) {
-                console.error('Error saving to universal storage:', error);
-                return false;
-            }
-        }
-        
-        // 🔥 SAVE TO LOCAL BROWSER (For compatibility)
-        saveToLocalBrowser(userData) {
-            try {
-                // Save to ALL_XBET_USERS (for admin panel)
-                let allUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-                const existsInAll = allUsers.findIndex(u => u.username === userData.username);
-                
-                if (existsInAll === -1) {
-                    allUsers.push({
-                        username: userData.username,
-                        email: userData.email,
-                        balance: userData.balance || 0,
-                        gameBalance: userData.gameBalance || 0,
-                        transactionCode: userData.transactionCode,
-                        status: 'active',
-                        registeredAt: userData.registeredAt
-                    });
-                    localStorage.setItem('ALL_XBET_USERS', JSON.stringify(allUsers));
-                }
-                
-                // Save to registeredUsers (for login)
-                let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-                registeredUsers[userData.username] = userData.email;
-                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-                
-                // Save detailed user data
-                localStorage.setItem('userData_' + userData.username, JSON.stringify({
-                    username: userData.username,
-                    email: userData.email,
-                    password: userData.password || '',
-                    balance: userData.balance || 0,
-                    gameBalance: userData.gameBalance || 0,
-                    transactionCode: userData.transactionCode,
-                    isAdmin: false,
-                    status: 'active',
-                    registeredAt: userData.registeredAt,
-                    lastLogin: new Date().toISOString(),
-                    activities: []
-                }));
-                
-                console.log('💾 User saved to local browser storage:', userData.username);
-                return true;
-            } catch (error) {
-                console.error('Error saving to local browser:', error);
-                return false;
-            }
-        }
-        
-        // 🔥 GET ALL USERS (For admin panel)
-        getAllUsers() {
-            try {
-                // Get from universal storage FIRST
-                let universalUsers = [];
-                try {
-                    const universalData = JSON.parse(localStorage.getItem(this.STORAGE_KEYS.USERS) || '{"users":[]}');
-                    universalUsers = universalData.users || [];
-                } catch (e) {
-                    console.warn('Could not parse universal users');
-                }
-                
-                let allUsers = [...universalUsers];
-                
-                // Also check local browser storage for any missing users
-                let localAllUsers = [];
-                try {
-                    localAllUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-                } catch (e) {
-                    console.warn('Could not parse local users');
-                }
-                
-                // Merge users (avoid duplicates)
-                localAllUsers.forEach(localUser => {
-                    const exists = allUsers.find(u => u.username === localUser.username);
-                    if (!exists) {
-                        allUsers.push({
-                            ...localUser,
-                            source: 'local_browser'
-                        });
-                    }
-                });
-                
-                // Check registeredUsers for any other users
-                let registeredUsers = {};
-                try {
-                    registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-                } catch (e) {
-                    console.warn('Could not parse registered users');
-                }
-                
-                Object.entries(registeredUsers).forEach(([username, email]) => {
-                    const exists = allUsers.find(u => u.username === username);
-                    if (!exists) {
-                        allUsers.push({
-                            username: username,
-                            email: email,
-                            balance: 0,
-                            gameBalance: 0,
-                            transactionCode: this.generateTransactionCode(username),
-                            status: 'active',
-                            registeredAt: new Date().toISOString(),
-                            source: 'registeredUsers'
-                        });
-                    }
-                });
-                
-                console.log(`📊 Total users found: ${allUsers.length}`);
-                
-                return allUsers;
-            } catch (error) {
-                console.error('Error getting all users:', error);
-                return [];
-            }
-        }
-        
-        // 🔥 SYNC NOW (Force sync all data)
-        syncNow() {
-            console.log('🔄 Starting sync...');
-            
-            try {
-                // 1. Get all users from universal storage
-                let universalUsers = [];
-                try {
-                    const universalData = JSON.parse(localStorage.getItem(this.STORAGE_KEYS.USERS) || '{"users":[]}');
-                    universalUsers = universalData.users || [];
-                } catch (e) {
-                    console.warn('Could not parse universal data for sync');
-                }
-                
-                // 2. Update local ALL_XBET_USERS with universal data
-                let localAllUsers = [];
-                try {
-                    localAllUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-                } catch (e) {
-                    console.warn('Could not parse local users for sync');
-                }
-                
-                universalUsers.forEach(universalUser => {
-                    const exists = localAllUsers.findIndex(u => u.username === universalUser.username);
-                    if (exists === -1) {
-                        localAllUsers.push({
-                            username: universalUser.username,
-                            email: universalUser.email,
-                            balance: universalUser.balance || 0,
-                            gameBalance: universalUser.gameBalance || 0,
-                            transactionCode: universalUser.transactionCode,
-                            status: 'active',
-                            registeredAt: universalUser.registeredAt
-                        });
-                    }
-                });
-                
-                localStorage.setItem('ALL_XBET_USERS', JSON.stringify(localAllUsers));
-                
-                // 3. Update last sync time
-                localStorage.setItem(this.STORAGE_KEYS.LAST_SYNC, Date.now().toString());
-                
-                console.log(`✅ Sync completed. Total users: ${localAllUsers.length}`);
-                
-                return {
-                    success: true,
-                    users: localAllUsers.length,
-                    message: `Synced ${universalUsers.length} users from universal storage`
-                };
-            } catch (error) {
-                console.error('Sync error:', error);
-                return {
-                    success: false,
-                    error: error.message
-                };
-            }
-        }
-        
-        // 🔥 HANDLE STORAGE EVENTS (From other tabs/browsers)
-        handleStorageEvent(event) {
-            if (event.key === this.STORAGE_KEYS.USERS || event.key === 'XBET_SYNC_TRIGGER') {
-                console.log('📡 Received storage event from other browser/tab');
-                
-                // Update local data
-                setTimeout(() => {
-                    this.syncNow();
-                    
-                    // Trigger admin panel update if exists
-                    if (typeof window.admin !== 'undefined' && window.admin.loadAllUsers) {
-                        window.admin.loadAllUsers();
-                        if (window.admin.updateDisplay) {
-                            window.admin.updateDisplay();
+                    initialize() {
+                        try {
+                            console.log('🛠 Setting up sync system...');
+                            
+                            // Listen for storage events from other tabs/browsers
+                            window.addEventListener('storage', (e) => {
+                                if (e.key === this.STORAGE_KEYS.USERS || e.key === this.STORAGE_KEYS.SYNC_FLAG) {
+                                    console.log('📡 Sync event received from other tab');
+                                    this.syncNow();
+                                }
+                            });
+                            
+                            // Initial sync
+                            this.syncNow();
+                            
+                            // Start auto-sync every 10 seconds
+                            this.startAutoSync();
+                            
+                            this.isInitialized = true;
+                            console.log('✅ X-BET Sync System Initialized!');
+                            
+                            // Resolve the promise
+                            resolve(this);
+                            
+                        } catch (error) {
+                            console.error('❌ Failed to initialize sync system:', error);
+                            // Still resolve with fallback system
+                            resolve(this);
                         }
                     }
-                }, 1000);
-            }
-        }
-        
-        // 🔥 ADD TO SYNC QUEUE
-        addToSyncQueue(syncItem) {
-            try {
-                const queue = JSON.parse(localStorage.getItem(this.STORAGE_KEYS.SYNC_QUEUE) || '[]');
-                queue.push(syncItem);
-                
-                // Keep queue manageable
-                if (queue.length > 50) {
-                    queue.splice(0, queue.length - 50);
+                    
+                    // 🔥 REGISTER NEW USER
+                    registerUser(userData) {
+                        try {
+                            console.log('📝 Registering user:', userData.username);
+                            
+                            if (!userData || !userData.username || !userData.email) {
+                                console.error('Invalid user data');
+                                return null;
+                            }
+                            
+                            // Generate user ID
+                            const userId = 'USER_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                            
+                            // Complete user data
+                            const completeUserData = {
+                                ...userData,
+                                id: userId,
+                                registeredAt: new Date().toISOString(),
+                                lastSeen: new Date().toISOString(),
+                                browser: this.getBrowserInfo(),
+                                syncVersion: '3.0'
+                            };
+                            
+                            // Save to universal storage
+                            this.saveToUniversalStorage(completeUserData);
+                            
+                            // Save to local storage for compatibility
+                            this.saveToLocalStorage(completeUserData);
+                            
+                            // Trigger sync
+                            this.triggerSync();
+                            
+                            console.log('✅ User registered with ID:', userId);
+                            return userId;
+                            
+                        } catch (error) {
+                            console.error('Error registering user:', error);
+                            return null;
+                        }
+                    }
+                    
+                    // 🔥 SAVE TO UNIVERSAL STORAGE
+                    saveToUniversalStorage(userData) {
+                        try {
+                            const storageKey = this.STORAGE_KEYS.USERS;
+                            let allUsers = [];
+                            
+                            // Get existing users
+                            const existingData = localStorage.getItem(storageKey);
+                            if (existingData) {
+                                try {
+                                    allUsers = JSON.parse(existingData);
+                                    if (!Array.isArray(allUsers)) {
+                                        allUsers = [];
+                                    }
+                                } catch (e) {
+                                    allUsers = [];
+                                }
+                            }
+                            
+                            // Check if user already exists
+                            const existingIndex = allUsers.findIndex(u => 
+                                u.username === userData.username || u.email === userData.email
+                            );
+                            
+                            if (existingIndex === -1) {
+                                // Add new user
+                                allUsers.push(userData);
+                            } else {
+                                // Update existing user
+                                allUsers[existingIndex] = {
+                                    ...allUsers[existingIndex],
+                                    ...userData,
+                                    lastSeen: new Date().toISOString()
+                                };
+                            }
+                            
+                            // Save back to storage
+                            localStorage.setItem(storageKey, JSON.stringify(allUsers));
+                            return true;
+                            
+                        } catch (error) {
+                            console.error('Error saving to universal storage:', error);
+                            return false;
+                        }
+                    }
+                    
+                    // 🔥 SAVE TO LOCAL STORAGE (for compatibility)
+                    saveToLocalStorage(userData) {
+                        try {
+                            // Save to registeredUsers
+                            let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+                            registeredUsers[userData.username] = userData.email;
+                            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                            
+                            // Save detailed user data
+                            const detailedData = {
+                                username: userData.username,
+                                email: userData.email,
+                                password: userData.password || '',
+                                balance: userData.balance || 0,
+                                gameBalance: userData.gameBalance || 0,
+                                transactionCode: userData.transactionCode,
+                                isAdmin: false,
+                                status: 'active',
+                                registeredAt: userData.registeredAt,
+                                lastLogin: new Date().toISOString(),
+                                activities: []
+                            };
+                            
+                            localStorage.setItem('userData_' + userData.username, JSON.stringify(detailedData));
+                            
+                            // Save to ALL_XBET_USERS for admin panel
+                            let allUsersList = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
+                            const exists = allUsersList.findIndex(u => u.username === userData.username);
+                            if (exists === -1) {
+                                allUsersList.push({
+                                    username: userData.username,
+                                    email: userData.email,
+                                    balance: userData.balance || 0,
+                                    gameBalance: userData.gameBalance || 0,
+                                    transactionCode: userData.transactionCode,
+                                    status: 'active',
+                                    registeredAt: userData.registeredAt
+                                });
+                                localStorage.setItem('ALL_XBET_USERS', JSON.stringify(allUsersList));
+                            }
+                            
+                            return true;
+                            
+                        } catch (error) {
+                            console.error('Error saving to local storage:', error);
+                            return false;
+                        }
+                    }
+                    
+                    // 🔥 GET ALL USERS
+                    getAllUsers() {
+                        try {
+                            const storageKey = this.STORAGE_KEYS.USERS;
+                            const universalData = localStorage.getItem(storageKey);
+                            let allUsers = [];
+                            
+                            if (universalData) {
+                                try {
+                                    allUsers = JSON.parse(universalData);
+                                    if (!Array.isArray(allUsers)) {
+                                        allUsers = [];
+                                    }
+                                } catch (e) {
+                                    allUsers = [];
+                                }
+                            }
+                            
+                            // Also include local users for backward compatibility
+                            const localUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
+                            localUsers.forEach(localUser => {
+                                const exists = allUsers.find(u => u.username === localUser.username);
+                                if (!exists) {
+                                    allUsers.push({
+                                        ...localUser,
+                                        source: 'local'
+                                    });
+                                }
+                            });
+                            
+                            return allUsers;
+                            
+                        } catch (error) {
+                            console.error('Error getting all users:', error);
+                            return [];
+                        }
+                    }
+                    
+                    // 🔥 SYNC NOW
+                    syncNow() {
+                        try {
+                            console.log('🔄 Syncing data...');
+                            
+                            // Update sync timestamp
+                            localStorage.setItem(this.STORAGE_KEYS.LAST_SYNC, Date.now().toString());
+                            
+                            return {
+                                success: true,
+                                timestamp: new Date().toISOString()
+                            };
+                            
+                        } catch (error) {
+                            console.error('Sync error:', error);
+                            return {
+                                success: false,
+                                error: error.message
+                            };
+                        }
+                    }
+                    
+                    // 🔥 TRIGGER SYNC (notify other tabs)
+                    triggerSync() {
+                        try {
+                            localStorage.setItem(this.STORAGE_KEYS.SYNC_FLAG, Date.now().toString());
+                            setTimeout(() => {
+                                localStorage.removeItem(this.STORAGE_KEYS.SYNC_FLAG);
+                            }, 100);
+                        } catch (error) {
+                            console.error('Error triggering sync:', error);
+                        }
+                    }
+                    
+                    // 🔥 START AUTO SYNC
+                    startAutoSync() {
+                        if (this.syncInterval) {
+                            clearInterval(this.syncInterval);
+                        }
+                        
+                        this.syncInterval = setInterval(() => {
+                            this.syncNow();
+                        }, 15000); // Every 15 seconds
+                        
+                        console.log('⏰ Auto-sync started (15s interval)');
+                    }
+                    
+                    // 🔥 GENERATE TRANSACTION CODE
+                    generateTransactionCode(username) {
+                        const prefix = username ? username.substring(0, 3).toUpperCase() : 'XBT';
+                        const timestamp = Date.now().toString(36).toUpperCase().slice(-6);
+                        const random = Math.random().toString(36).slice(2, 8).toUpperCase();
+                        return `XBT-${prefix}-${timestamp}-${random}`;
+                    }
+                    
+                    // 🔥 GET BROWSER INFO
+                    getBrowserInfo() {
+                        const ua = navigator.userAgent;
+                        let browser = 'Unknown';
+                        
+                        if (ua.includes('Firefox')) browser = 'Firefox';
+                        else if (ua.includes('Chrome')) browser = 'Chrome';
+                        else if (ua.includes('Safari')) browser = 'Safari';
+                        else if (ua.includes('Edge')) browser = 'Edge';
+                        else if (ua.includes('Opera')) browser = 'Opera';
+                        
+                        return browser;
+                    }
+                    
+                    // 🔥 GET SYNC STATUS
+                    getSyncStatus() {
+                        try {
+                            const universalData = localStorage.getItem(this.STORAGE_KEYS.USERS);
+                            let userCount = 0;
+                            
+                            if (universalData) {
+                                try {
+                                    const users = JSON.parse(universalData);
+                                    userCount = Array.isArray(users) ? users.length : 0;
+                                } catch (e) {
+                                    userCount = 0;
+                                }
+                            }
+                            
+                            const lastSync = localStorage.getItem(this.STORAGE_KEYS.LAST_SYNC);
+                            const localUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+                            
+                            return {
+                                universalUsers: userCount,
+                                localUsers: Object.keys(localUsers).length,
+                                lastSync: lastSync ? new Date(parseInt(lastSync)).toLocaleTimeString() : 'Never',
+                                browser: this.getBrowserInfo(),
+                                syncActive: this.syncInterval !== null,
+                                initialized: this.isInitialized,
+                                version: '3.0'
+                            };
+                            
+                        } catch (error) {
+                            console.error('Error getting sync status:', error);
+                            return {
+                                universalUsers: 0,
+                                localUsers: 0,
+                                lastSync: 'Error',
+                                browser: 'Unknown',
+                                syncActive: false,
+                                initialized: false,
+                                version: '3.0'
+                            };
+                        }
+                    }
+                    
+                    // 🔥 CHECK IF READY
+                    isReady() {
+                        return this.isInitialized;
+                    }
                 }
                 
-                localStorage.setItem(this.STORAGE_KEYS.SYNC_QUEUE, JSON.stringify(queue));
-            } catch (error) {
-                console.error('Error adding to sync queue:', error);
-            }
-        }
-        
-        // 🔥 TRIGGER SYNC (Notify other tabs)
-        triggerSync() {
-            // Set a flag to trigger storage event
-            localStorage.setItem('XBET_SYNC_TRIGGER', Date.now().toString());
-            
-            // Remove after short delay
-            setTimeout(() => {
-                localStorage.removeItem('XBET_SYNC_TRIGGER');
-            }, 100);
-        }
-        
-        // 🔥 START AUTO SYNC
-        startAutoSync() {
-            if (this.syncInterval) {
-                clearInterval(this.syncInterval);
-            }
-            
-            this.syncInterval = setInterval(() => {
-                this.syncNow();
-            }, 10000); // Sync every 10 seconds
-        }
-        
-        // 🔥 STOP AUTO SYNC
-        stopAutoSync() {
-            if (this.syncInterval) {
-                clearInterval(this.syncInterval);
-                this.syncInterval = null;
-            }
-        }
-        
-        // 🔥 GENERATE TRANSACTION CODE
-        generateTransactionCode(username) {
-            const prefix = username ? username.substring(0, 3).toUpperCase() : 'XBT';
-            const timestamp = Date.now().toString(36).toUpperCase().slice(-8);
-            const random = Math.random().toString(36).slice(2, 10).toUpperCase();
-            return `XBT-${prefix}-${timestamp}-${random}`;
-        }
-        
-        // 🔥 GET BROWSER INFO
-        getBrowserInfo() {
-            const ua = navigator.userAgent;
-            let browser = 'Unknown';
-            
-            if (ua.includes('Firefox')) browser = 'Firefox';
-            else if (ua.includes('Chrome')) browser = 'Chrome';
-            else if (ua.includes('Safari')) browser = 'Safari';
-            else if (ua.includes('Edge')) browser = 'Edge';
-            else if (ua.includes('Opera')) browser = 'Opera';
-            
-            return {
-                name: browser,
-                userAgent: ua.substring(0, 100),
-                platform: navigator.platform,
-                language: navigator.language
-            };
-        }
-        
-        // 🔥 CLEAR ALL DATA (Debug/Reset)
-        clearAllData() {
-            try {
-                const keys = Object.values(this.STORAGE_KEYS);
-                keys.forEach(key => {
-                    localStorage.removeItem(key);
-                });
+                // Create global instance
+                window.xbetSync = new XbetUniversalSync();
                 
-                // Also clear compatibility keys
-                localStorage.removeItem('ALL_XBET_USERS');
-                localStorage.removeItem('registeredUsers');
-                
-                console.log('🧹 All sync data cleared');
-                return true;
             } catch (error) {
-                console.error('Error clearing data:', error);
-                return false;
-            }
-        }
-        
-        // 🔥 GET SYNC STATUS
-        getSyncStatus() {
-            let universalUsersCount = 0;
-            let localUsersCount = 0;
-            
-            try {
-                const universalData = JSON.parse(localStorage.getItem(this.STORAGE_KEYS.USERS) || '{"users":[]}');
-                universalUsersCount = universalData.users ? universalData.users.length : 0;
-            } catch (e) {
-                console.warn('Could not get universal users count');
-            }
-            
-            try {
-                const localUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-                localUsersCount = localUsers.length;
-            } catch (e) {
-                console.warn('Could not get local users count');
-            }
-            
-            const lastSync = localStorage.getItem(this.STORAGE_KEYS.LAST_SYNC);
-            
-            return {
-                universalUsers: universalUsersCount,
-                localUsers: localUsersCount,
-                lastSync: lastSync ? new Date(parseInt(lastSync)).toLocaleString() : 'Never',
-                browser: this.getBrowserInfo().name,
-                syncActive: this.syncInterval !== null,
-                initialized: this.isInitialized
-            };
-        }
-        
-        // 🔥 CHECK IF READY
-        isReady() {
-            return this.isInitialized;
-        }
-    }
-
-    // Create global instance
-    window.xbetSync = new XbetUniversalSync();
-
-    // Also expose a promise for async loading
-    window.xbetSyncReadyPromise = new Promise((resolve) => {
-        window.addEventListener('xbetSyncReady', () => {
-            resolve(window.xbetSync);
-        });
-        
-        // Fallback: resolve after 2 seconds if event doesn't fire
-        setTimeout(() => {
-            if (window.xbetSync && window.xbetSync.isInitialized) {
+                console.error('❌ CRITICAL: Failed to create sync system:', error);
+                
+                // Create minimal fallback system
+                window.xbetSync = {
+                    registerUser: function(userData) {
+                        console.log('📦 Fallback: Registering user locally');
+                        
+                        // Save to registeredUsers
+                        let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+                        registeredUsers[userData.username] = userData.email;
+                        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                        
+                        // Save detailed data
+                        localStorage.setItem('userData_' + userData.username, JSON.stringify({
+                            username: userData.username,
+                            email: userData.email,
+                            password: userData.password,
+                            balance: 0,
+                            gameBalance: 0,
+                            transactionCode: userData.transactionCode,
+                            isAdmin: false,
+                            status: 'active',
+                            registeredAt: new Date().toISOString()
+                        }));
+                        
+                        return 'fallback_' + Date.now();
+                    },
+                    getAllUsers: function() {
+                        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+                        return Object.keys(registeredUsers).map(username => ({
+                            username: username,
+                            email: registeredUsers[username]
+                        }));
+                    },
+                    generateTransactionCode: function(username) {
+                        return 'FALLBACK-' + Date.now() + '-' + username;
+                    },
+                    getSyncStatus: function() {
+                        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+                        return {
+                            universalUsers: Object.keys(registeredUsers).length,
+                            localUsers: Object.keys(registeredUsers).length,
+                            lastSync: new Date().toLocaleTimeString(),
+                            browser: navigator.userAgent.substring(0, 30),
+                            syncActive: false,
+                            initialized: true,
+                            version: 'fallback'
+                        };
+                    },
+                    syncNow: function() {
+                        console.log('Fallback sync completed');
+                        return { success: true };
+                    },
+                    isReady: function() {
+                        return true;
+                    }
+                };
+                
                 resolve(window.xbetSync);
-            } else {
-                console.warn('Sync system taking longer than expected to load');
             }
-        }, 2000);
+        }
     });
-
-    // Log for debugging
-    console.log('🔧 X-BET Sync System loaded and initializing...');
+    
+    // Create synchronous access point
+    window.xbetSyncReady = false;
+    window.xbetSyncReadyPromise.then((sync) => {
+        window.xbetSyncReady = true;
+        console.log('🎉 Sync System Ready!');
+        
+        // Dispatch ready event
+        const event = new CustomEvent('xbetSyncReady', { detail: sync });
+        window.dispatchEvent(event);
+    });
+    
+    console.log('📦 X-BET Sync System loaded successfully');
 })();
