@@ -1,8 +1,8 @@
-// 🔥 X-BET UNIVERSAL SYNC SYSTEM - Works across ALL browsers
+// 🔥 X-BET UNIVERSAL SYNC SYSTEM v3.0 - Works across ALL browsers
 (function() {
     'use strict';
     
-    console.log('🔄 Loading X-BET Sync System v2.1...');
+    console.log('🔄 Loading X-BET Sync System v3.0...');
     
     // Create a promise to track when sync system is ready
     window.xbetSyncReadyPromise = new Promise((resolve) => {
@@ -22,7 +22,8 @@
                         this.STORAGE_KEYS = {
                             USERS: 'XBET_UNIVERSAL_USERS_V3',
                             LAST_SYNC: 'XBET_LAST_SYNC_TIME_V3',
-                            SYNC_FLAG: 'XBET_SYNC_ACTIVE'
+                            SYNC_FLAG: 'XBET_SYNC_ACTIVE',
+                            ADMIN_UPDATE: 'XBET_ADMIN_UPDATE'
                         };
                         
                         this.syncInterval = null;
@@ -36,9 +37,11 @@
                             
                             // Listen for storage events from other tabs/browsers
                             window.addEventListener('storage', (e) => {
-                                if (e.key === this.STORAGE_KEYS.USERS || e.key === this.STORAGE_KEYS.SYNC_FLAG) {
+                                if (e.key === this.STORAGE_KEYS.USERS || 
+                                    e.key === this.STORAGE_KEYS.SYNC_FLAG ||
+                                    e.key === this.STORAGE_KEYS.ADMIN_UPDATE) {
                                     console.log('📡 Sync event received from other tab');
-                                    this.syncNow();
+                                    this.syncToAdminPanel();
                                 }
                             });
                             
@@ -56,7 +59,6 @@
                             
                         } catch (error) {
                             console.error('❌ Failed to initialize sync system:', error);
-                            // Still resolve with fallback system
                             resolve(this);
                         }
                     }
@@ -74,23 +76,33 @@
                             // Generate user ID
                             const userId = 'USER_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                             
+                            // Generate transaction code
+                            const transactionCode = this.generateTransactionCode(userData.username);
+                            
                             // Complete user data
                             const completeUserData = {
                                 ...userData,
                                 id: userId,
+                                transactionCode: transactionCode,
                                 registeredAt: new Date().toISOString(),
                                 lastSeen: new Date().toISOString(),
                                 browser: this.getBrowserInfo(),
-                                syncVersion: '3.0'
+                                syncVersion: '3.0',
+                                status: 'active',
+                                balance: userData.balance || 0,
+                                gameBalance: userData.gameBalance || 0
                             };
                             
-                            // Save to universal storage
+                            // 1. Save to universal storage
                             this.saveToUniversalStorage(completeUserData);
                             
-                            // Save to local storage for compatibility
+                            // 2. Save to local storage for compatibility
                             this.saveToLocalStorage(completeUserData);
                             
-                            // Trigger sync
+                            // 3. IMMEDIATELY add to admin panel
+                            this.addToAdminPanel(completeUserData);
+                            
+                            // 4. Trigger sync
                             this.triggerSync();
                             
                             console.log('✅ User registered with ID:', userId);
@@ -129,6 +141,7 @@
                             if (existingIndex === -1) {
                                 // Add new user
                                 allUsers.push(userData);
+                                console.log('✅ Added to universal storage:', userData.username);
                             } else {
                                 // Update existing user
                                 allUsers[existingIndex] = {
@@ -136,6 +149,7 @@
                                     ...userData,
                                     lastSeen: new Date().toISOString()
                                 };
+                                console.log('🔄 Updated in universal storage:', userData.username);
                             }
                             
                             // Save back to storage
@@ -173,22 +187,6 @@
                             
                             localStorage.setItem('userData_' + userData.username, JSON.stringify(detailedData));
                             
-                            // Save to ALL_XBET_USERS for admin panel
-                            let allUsersList = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-                            const exists = allUsersList.findIndex(u => u.username === userData.username);
-                            if (exists === -1) {
-                                allUsersList.push({
-                                    username: userData.username,
-                                    email: userData.email,
-                                    balance: userData.balance || 0,
-                                    gameBalance: userData.gameBalance || 0,
-                                    transactionCode: userData.transactionCode,
-                                    status: 'active',
-                                    registeredAt: userData.registeredAt
-                                });
-                                localStorage.setItem('ALL_XBET_USERS', JSON.stringify(allUsersList));
-                            }
-                            
                             return true;
                             
                         } catch (error) {
@@ -197,37 +195,153 @@
                         }
                     }
                     
-                    // 🔥 GET ALL USERS
-                    getAllUsers() {
+                    // 🔥 ADD TO ADMIN PANEL (CRITICAL FOR ADMIN TO SEE USERS)
+                    addToAdminPanel(userData) {
                         try {
-                            const storageKey = this.STORAGE_KEYS.USERS;
-                            const universalData = localStorage.getItem(storageKey);
-                            let allUsers = [];
+                            let adminUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
+                            const exists = adminUsers.findIndex(u => u.username === userData.username);
+                            
+                            if (exists === -1) {
+                                adminUsers.push({
+                                    username: userData.username,
+                                    email: userData.email,
+                                    balance: userData.balance || 0,
+                                    gameBalance: userData.gameBalance || 0,
+                                    transactionCode: userData.transactionCode,
+                                    status: userData.status || 'active',
+                                    registeredAt: userData.registeredAt || new Date().toISOString(),
+                                    source: 'universal_sync',
+                                    browser: userData.browser || 'Unknown',
+                                    lastSeen: new Date().toISOString()
+                                });
+                                
+                                localStorage.setItem('ALL_XBET_USERS', JSON.stringify(adminUsers));
+                                console.log('👑 Added to admin panel:', userData.username);
+                                
+                                // Trigger admin update event
+                                localStorage.setItem(this.STORAGE_KEYS.ADMIN_UPDATE, Date.now().toString());
+                                setTimeout(() => {
+                                    localStorage.removeItem(this.STORAGE_KEYS.ADMIN_UPDATE);
+                                }, 100);
+                            }
+                            
+                            return true;
+                        } catch (error) {
+                            console.error('Error adding to admin panel:', error);
+                            return false;
+                        }
+                    }
+                    
+                    // 🔥 SYNC ALL USERS TO ADMIN PANEL
+                    syncToAdminPanel() {
+                        try {
+                            console.log('🔄 Syncing all users to admin panel...');
+                            
+                            // Get all users from universal storage
+                            const universalData = localStorage.getItem(this.STORAGE_KEYS.USERS);
+                            let universalUsers = [];
                             
                             if (universalData) {
                                 try {
-                                    allUsers = JSON.parse(universalData);
-                                    if (!Array.isArray(allUsers)) {
-                                        allUsers = [];
+                                    universalUsers = JSON.parse(universalData);
+                                    if (!Array.isArray(universalUsers)) {
+                                        universalUsers = [];
                                     }
                                 } catch (e) {
-                                    allUsers = [];
+                                    universalUsers = [];
                                 }
                             }
                             
-                            // Also include local users for backward compatibility
-                            const localUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-                            localUsers.forEach(localUser => {
-                                const exists = allUsers.find(u => u.username === localUser.username);
-                                if (!exists) {
-                                    allUsers.push({
-                                        ...localUser,
-                                        source: 'local'
+                            // Get existing admin panel users
+                            let adminUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
+                            
+                            // Merge all users
+                            universalUsers.forEach(universalUser => {
+                                const exists = adminUsers.findIndex(u => u.username === universalUser.username);
+                                
+                                if (exists === -1) {
+                                    // Add new user to admin panel
+                                    adminUsers.push({
+                                        username: universalUser.username,
+                                        email: universalUser.email,
+                                        balance: universalUser.balance || 0,
+                                        gameBalance: universalUser.gameBalance || 0,
+                                        transactionCode: universalUser.transactionCode || this.generateTransactionCode(universalUser.username),
+                                        status: universalUser.status || 'active',
+                                        registeredAt: universalUser.registeredAt || new Date().toISOString(),
+                                        source: 'universal_sync',
+                                        browser: universalUser.browser || 'Unknown',
+                                        lastSeen: universalUser.lastSeen || new Date().toISOString()
+                                    });
+                                } else {
+                                    // Update existing user
+                                    adminUsers[exists] = {
+                                        ...adminUsers[exists],
+                                        balance: universalUser.balance || adminUsers[exists].balance,
+                                        gameBalance: universalUser.gameBalance || adminUsers[exists].gameBalance,
+                                        status: universalUser.status || adminUsers[exists].status,
+                                        lastSeen: universalUser.lastSeen || adminUsers[exists].lastSeen
+                                    };
+                                }
+                            });
+                            
+                            // Also add any locally registered users
+                            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+                            Object.entries(registeredUsers).forEach(([username, email]) => {
+                                const exists = adminUsers.findIndex(u => u.username === username);
+                                if (exists === -1) {
+                                    adminUsers.push({
+                                        username: username,
+                                        email: email,
+                                        balance: 0,
+                                        gameBalance: 0,
+                                        transactionCode: this.generateTransactionCode(username),
+                                        status: 'active',
+                                        registeredAt: new Date().toISOString(),
+                                        source: 'local_registered',
+                                        browser: 'Local',
+                                        lastSeen: new Date().toISOString()
                                     });
                                 }
                             });
                             
-                            return allUsers;
+                            // Save to admin panel storage
+                            localStorage.setItem('ALL_XBET_USERS', JSON.stringify(adminUsers));
+                            
+                            console.log(`📊 Admin panel synced: ${adminUsers.length} total users`);
+                            
+                            // Trigger admin update
+                            localStorage.setItem(this.STORAGE_KEYS.ADMIN_UPDATE, Date.now().toString());
+                            setTimeout(() => {
+                                localStorage.removeItem(this.STORAGE_KEYS.ADMIN_UPDATE);
+                            }, 100);
+                            
+                            return {
+                                success: true,
+                                totalUsers: adminUsers.length,
+                                universalUsers: universalUsers.length
+                            };
+                            
+                        } catch (error) {
+                            console.error('Error syncing to admin panel:', error);
+                            return {
+                                success: false,
+                                error: error.message
+                            };
+                        }
+                    }
+                    
+                    // 🔥 GET ALL USERS (for admin panel)
+                    getAllUsers() {
+                        try {
+                            // First sync to ensure admin panel has all users
+                            this.syncToAdminPanel();
+                            
+                            // Get from admin panel storage
+                            const adminUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
+                            console.log(`📊 Returning ${adminUsers.length} users to admin panel`);
+                            
+                            return adminUsers;
                             
                         } catch (error) {
                             console.error('Error getting all users:', error);
@@ -238,14 +352,21 @@
                     // 🔥 SYNC NOW
                     syncNow() {
                         try {
-                            console.log('🔄 Syncing data...');
+                            console.log('🔄 Starting full sync...');
                             
-                            // Update sync timestamp
+                            // 1. Sync users to admin panel
+                            this.syncToAdminPanel();
+                            
+                            // 2. Update sync timestamp
                             localStorage.setItem(this.STORAGE_KEYS.LAST_SYNC, Date.now().toString());
+                            
+                            // 3. Trigger storage event for other tabs
+                            this.triggerSync();
                             
                             return {
                                 success: true,
-                                timestamp: new Date().toISOString()
+                                timestamp: new Date().toISOString(),
+                                users: JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]').length
                             };
                             
                         } catch (error) {
@@ -308,23 +429,23 @@
                     getSyncStatus() {
                         try {
                             const universalData = localStorage.getItem(this.STORAGE_KEYS.USERS);
-                            let userCount = 0;
+                            let universalCount = 0;
                             
                             if (universalData) {
                                 try {
                                     const users = JSON.parse(universalData);
-                                    userCount = Array.isArray(users) ? users.length : 0;
+                                    universalCount = Array.isArray(users) ? users.length : 0;
                                 } catch (e) {
-                                    userCount = 0;
+                                    universalCount = 0;
                                 }
                             }
                             
+                            const adminUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
                             const lastSync = localStorage.getItem(this.STORAGE_KEYS.LAST_SYNC);
-                            const localUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
                             
                             return {
-                                universalUsers: userCount,
-                                localUsers: Object.keys(localUsers).length,
+                                universalUsers: universalCount,
+                                adminUsers: adminUsers.length,
                                 lastSync: lastSync ? new Date(parseInt(lastSync)).toLocaleTimeString() : 'Never',
                                 browser: this.getBrowserInfo(),
                                 syncActive: this.syncInterval !== null,
@@ -336,7 +457,7 @@
                             console.error('Error getting sync status:', error);
                             return {
                                 universalUsers: 0,
-                                localUsers: 0,
+                                adminUsers: 0,
                                 lastSync: 'Error',
                                 browser: 'Unknown',
                                 syncActive: false,
@@ -349,6 +470,12 @@
                     // 🔥 CHECK IF READY
                     isReady() {
                         return this.isInitialized;
+                    }
+                    
+                    // 🔥 FORCE ADMIN UPDATE
+                    forceAdminUpdate() {
+                        this.syncToAdminPanel();
+                        return true;
                     }
                 }
                 
@@ -368,6 +495,23 @@
                         registeredUsers[userData.username] = userData.email;
                         localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
                         
+                        // Save to ALL_XBET_USERS
+                        let adminUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
+                        const exists = adminUsers.findIndex(u => u.username === userData.username);
+                        if (exists === -1) {
+                            adminUsers.push({
+                                username: userData.username,
+                                email: userData.email,
+                                balance: 0,
+                                gameBalance: 0,
+                                transactionCode: 'FALLBACK-' + Date.now(),
+                                status: 'active',
+                                registeredAt: new Date().toISOString(),
+                                source: 'fallback'
+                            });
+                            localStorage.setItem('ALL_XBET_USERS', JSON.stringify(adminUsers));
+                        }
+                        
                         // Save detailed data
                         localStorage.setItem('userData_' + userData.username, JSON.stringify({
                             username: userData.username,
@@ -375,29 +519,25 @@
                             password: userData.password,
                             balance: 0,
                             gameBalance: 0,
-                            transactionCode: userData.transactionCode,
+                            transactionCode: 'FALLBACK-' + Date.now(),
                             isAdmin: false,
                             status: 'active',
                             registeredAt: new Date().toISOString()
                         }));
                         
-                        return 'fallback_' + Date.now();
+                        return 'fallback_user';
                     },
                     getAllUsers: function() {
-                        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-                        return Object.keys(registeredUsers).map(username => ({
-                            username: username,
-                            email: registeredUsers[username]
-                        }));
+                        return JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
                     },
                     generateTransactionCode: function(username) {
-                        return 'FALLBACK-' + Date.now() + '-' + username;
+                        return 'XBT-FALLBACK-' + Date.now() + '-' + username.toUpperCase();
                     },
                     getSyncStatus: function() {
-                        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+                        const adminUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
                         return {
-                            universalUsers: Object.keys(registeredUsers).length,
-                            localUsers: Object.keys(registeredUsers).length,
+                            universalUsers: adminUsers.length,
+                            adminUsers: adminUsers.length,
                             lastSync: new Date().toLocaleTimeString(),
                             browser: navigator.userAgent.substring(0, 30),
                             syncActive: false,
@@ -408,6 +548,14 @@
                     syncNow: function() {
                         console.log('Fallback sync completed');
                         return { success: true };
+                    },
+                    syncToAdminPanel: function() {
+                        console.log('Fallback admin sync');
+                        return { success: true };
+                    },
+                    forceAdminUpdate: function() {
+                        console.log('Fallback admin update');
+                        return true;
                     },
                     isReady: function() {
                         return true;
