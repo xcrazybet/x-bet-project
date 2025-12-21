@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Slot Machine - X-BET</title>
+</head>
+<body>
+    <h1>🎰 Slot Machine</h1>
+    <div>Balance: <span id="balance">$0.00</span></div>
+    <input type="number" id="betAmount" value="10" min="1">
+    <button onclick="spin()">SPIN ($<span id="betDisplay">10</span>)</button>
+    
+    <script>
+        // Include dashboard functions
+        function updateBalance() {
+            if (window.XBET_GAME_SYSTEM) {
+                document.getElementById('balance').textContent = 
+                    '$' + window.XBET_GAME_SYSTEM.getCurrentBalance().toFixed(2);
+            }
+        }
+        
+        function spin() {
+            const betAmount = parseFloat(document.getElementById('betAmount').value);
+            
+            // YOUR ORIGINAL CODE - WORKS PERFECTLY!
+            if (window.XBET_GAME_SYSTEM.canPlayGame(betAmount)) {
+                const didWin = Math.random() > 0.5; // Your game logic here
+                const winAmount = didWin ? betAmount * 2 : 0;
+                
+                window.XBET_GAME_SYSTEM.processGameResult(didWin, winAmount || betAmount, 'slots');
+                updateBalance();
+                
+                alert(didWin ? `You won $${winAmount}!` : 'Try again!');
+            } else {
+                alert('Insufficient balance!');
+            }
+        }
+        
+        // Initial balance update
+        updateBalance();
+        setInterval(updateBalance, 5000); // Update every 5 seconds
+    </script>
+</body>
+</html>
