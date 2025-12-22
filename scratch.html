@@ -1,1 +1,66 @@
+<style>
+    .soon-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: white;
+        text-align: center;
+        padding: 20px;
+    }
+    .soon-title {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .soon-badge {
+        background: #3b82f6;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    .soon-btn {
+        background: #10b981;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 10px;
+        text-decoration: none;
+        margin-top: 30px;
+        font-weight: bold;
+        transition: transform 0.3s;
+    }
+    .soon-btn:hover {
+        transform: translateY(-3px);
+    }
+</style>
 
+<div class="soon-container">
+    <div class="soon-badge">🔄 COMING SOON</div>
+    <h1 class="soon-title">Game in Development</h1>
+    <p>We're building something amazing! Check back soon.</p>
+    <a href="games.html" class="soon-btn">← Back to Games</a>
+</div>
+
+<script>
+    // Optional: Simple countdown
+    const launch = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    function updateTime() {
+        const now = new Date();
+        const diff = launch - now;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        document.title = `Ready in ${days} days | X-BET`;
+    }
+    setInterval(updateTime, 60000);
+    updateTime();
+</script>
