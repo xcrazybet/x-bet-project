@@ -3,59 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET | Admin Login</title>
+    <title>X-BET Admin Login</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
         
         body {
             background: linear-gradient(135deg, #0f172a, #1e293b);
-            color: #f8fafc;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            padding: 20px;
         }
         
         .login-container {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.95);
             padding: 3rem;
             border-radius: 20px;
-            border: 2px solid #3b82f6;
             width: 100%;
-            max-width: 500px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            max-width: 400px;
+            border: 2px solid #3b82f6;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
         
-        .login-header {
+        .logo {
             text-align: center;
             margin-bottom: 2rem;
         }
         
-        .login-header h1 {
-            font-size: 2.5rem;
+        .logo h1 {
+            font-size: 2rem;
             color: #3b82f6;
-            margin-bottom: 0.5rem;
+            font-weight: 800;
         }
         
-        .login-header p {
-            color: #94a3b8;
+        .logo span {
+            color: #10b981;
         }
         
-        .admin-badge {
+        .badge {
             background: rgba(239, 68, 68, 0.2);
             color: #ef4444;
             padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
             display: inline-block;
-            margin-top: 1rem;
+            margin-top: 10px;
             border: 1px solid rgba(239, 68, 68, 0.4);
         }
         
@@ -65,9 +65,11 @@
         
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
             color: #94a3b8;
-            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .form-group input {
@@ -93,7 +95,7 @@
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -102,71 +104,46 @@
         
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
         }
         
-        .admin-accounts {
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .admin-accounts h3 {
-            color: #94a3b8;
-            margin-bottom: 1rem;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .admin-list {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-        
-        .admin-card {
-            background: rgba(255, 255, 255, 0.05);
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
             padding: 1rem;
             border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 1.5rem;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            display: none;
         }
         
-        .admin-card:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-color: #3b82f6;
+        .demo-credentials {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1.5rem;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            font-size: 0.85rem;
         }
         
-        .admin-card strong {
-            color: #3b82f6;
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-        
-        .admin-card span {
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
-        
-        .balance-info {
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
-        }
-        
-        .balance-master {
+        .demo-credentials h4 {
             color: #10b981;
-            font-weight: bold;
+            margin-bottom: 0.5rem;
         }
         
-        .balance-zero {
-            color: #f59e0b;
+        .demo-credentials ul {
+            list-style: none;
+            color: #94a3b8;
+            margin-top: 0.5rem;
+        }
+        
+        .demo-credentials li {
+            margin-bottom: 0.25rem;
         }
         
         .back-link {
             text-align: center;
-            margin-top: 2rem;
+            margin-top: 1.5rem;
             color: #94a3b8;
         }
         
@@ -178,13 +155,12 @@
 </head>
 <body>
     <div class="login-container">
-        <div class="login-header">
-            <h1>X-BET ADMIN</h1>
-            <p>Secure Admin Access Portal</p>
-            <div class="admin-badge">RESTRICTED ACCESS</div>
+        <div class="logo">
+            <h1>X<span>-BET</span> ADMIN</h1>
+            <div class="badge">SECURE LOGIN</div>
         </div>
         
-        <form id="adminLoginForm">
+        <form id="adminLoginForm" onsubmit="return loginAdmin(event)">
             <div class="form-group">
                 <label for="adminUsername">Admin Username</label>
                 <input type="text" id="adminUsername" placeholder="Enter admin username" required>
@@ -196,133 +172,93 @@
             </div>
             
             <button type="submit" class="login-btn">
-                Access Admin Panel
+                🔐 Login to Admin Panel
             </button>
         </form>
         
-        <div class="admin-accounts">
-            <h3>Admin Accounts</h3>
-            <div class="admin-list">
-                <div class="admin-card" onclick="useAdminAccount('admin_master', 'master123')">
-                    <strong>admin_master</strong>
-                    <span>Full Access Master Admin</span>
-                    <div class="balance-info">
-                        Balance: <span class="balance-master">$14,050,000</span>
-                    </div>
-                </div>
-                <div class="admin-card" onclick="useAdminAccount('finance_admin', 'finance123')">
-                    <strong>finance_admin</strong>
-                    <span>Financial Operations Admin</span>
-                    <div class="balance-info">
-                        Balance: <span class="balance-zero">$0.00</span> (Can request from master)
-                    </div>
-                </div>
-                <div class="admin-card" onclick="useAdminAccount('support_admin', 'support123')">
-                    <strong>support_admin</strong>
-                    <span>Customer Support Admin</span>
-                    <div class="balance-info">
-                        Balance: <span class="balance-zero">$0.00</span> (Can request from master)
-                    </div>
-                </div>
-            </div>
+        <div id="errorMessage" class="error-message">
+            Invalid username or password. Please try again.
+        </div>
+        
+        <div class="demo-credentials">
+            <h4>Demo Admin Accounts:</h4>
+            <ul>
+                <li>👑 <strong>admin_master</strong> / admin123</li>
+                <li>💰 <strong>finance_manager</strong> / finance123</li>
+                <li>🛠️ <strong>support_admin</strong> / support123</li>
+            </ul>
         </div>
         
         <div class="back-link">
             <a href="index.html">← Back to Main Site</a>
         </div>
     </div>
-    
+
     <script>
-        // Initialize THREE admin accounts with different balances
-        function initializeAdminData() {
-            // Create admin_master account with $14,050,000
-            let adminMasterData = JSON.parse(localStorage.getItem('admin_data_admin_master') || '{}');
-            if (!adminMasterData.balance) {
-                adminMasterData = {
-                    username: 'admin_master',
-                    balance: 14050000.00,
-                    transactions: [],
-                    users: [],
-                    lastLogin: new Date().toISOString(),
-                    role: 'master',
-                    isAdmin: true
-                };
-                localStorage.setItem('admin_data_admin_master', JSON.stringify(adminMasterData));
-            }
-            
-            // Create finance_admin account with $0
-            let financeAdminData = JSON.parse(localStorage.getItem('admin_data_finance_admin') || '{}');
-            if (!financeAdminData.balance) {
-                financeAdminData = {
-                    username: 'finance_admin',
-                    balance: 0.00,
-                    transactions: [],
-                    users: [],
-                    lastLogin: new Date().toISOString(),
-                    role: 'finance',
-                    isAdmin: true
-                };
-                localStorage.setItem('admin_data_finance_admin', JSON.stringify(financeAdminData));
-            }
-            
-            // Create support_admin account with $0
-            let supportAdminData = JSON.parse(localStorage.getItem('admin_data_support_admin') || '{}');
-            if (!supportAdminData.balance) {
-                supportAdminData = {
-                    username: 'support_admin',
-                    balance: 0.00,
-                    transactions: [],
-                    users: [],
-                    lastLogin: new Date().toISOString(),
-                    role: 'support',
-                    isAdmin: true
-                };
-                localStorage.setItem('admin_data_support_admin', JSON.stringify(supportAdminData));
-            }
-            
-            // Store admin credentials
-            const adminCredentials = {
-                'admin_master': 'master123',
-                'finance_admin': 'finance123',
-                'support_admin': 'support123'
-            };
-            localStorage.setItem('admin_credentials', JSON.stringify(adminCredentials));
-        }
+        // Admin credentials from the panel
+        const ADMIN_CREDENTIALS = {
+            'admin_master': 'admin123',
+            'finance_manager': 'finance123',
+            'support_admin': 'support123'
+        };
         
-        // Pre-fill admin account
-        function useAdminAccount(username, password) {
-            document.getElementById('adminUsername').value = username;
-            document.getElementById('adminPassword').value = password;
-        }
-        
-        // Handle admin login
-        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        function loginAdmin(event) {
+            event.preventDefault();
             
             const username = document.getElementById('adminUsername').value.trim();
-            const password = document.getElementById('adminPassword').value;
+            const password = document.getElementById('adminPassword').value.trim();
             
-            // Get stored credentials
-            const storedCredentials = JSON.parse(localStorage.getItem('admin_credentials') || '{}');
-            
-            if (storedCredentials[username] && storedCredentials[username] === password) {
-                // Initialize admin data
-                initializeAdminData();
+            // Check credentials
+            if (ADMIN_CREDENTIALS[username] && ADMIN_CREDENTIALS[username] === password) {
+                // Create session
+                const sessionToken = btoa(JSON.stringify({
+                    username: username,
+                    loginTime: Date.now(),
+                    token: Math.random().toString(36).substr(2) + Date.now().toString(36)
+                }));
                 
-                // Set admin session
-                localStorage.setItem('admin_session', 'active');
+                // Store session
+                localStorage.setItem('admin_session', sessionToken);
                 localStorage.setItem('admin_user', username);
-                localStorage.setItem('admin_login_time', new Date().toISOString());
+                localStorage.setItem('session_expiry', Date.now() + 8 * 60 * 60 * 1000); // 8 hours
+                
+                // Initialize admin data if not exists
+                if (!localStorage.getItem('admin_data_' + username)) {
+                    const adminData = {
+                        username: username,
+                        balance: username === 'admin_master' ? 14050000.00 : 0.00,
+                        transactions: [],
+                        users: [],
+                        created_at: new Date().toISOString()
+                    };
+                    localStorage.setItem('admin_data_' + username, JSON.stringify(adminData));
+                }
                 
                 // Redirect to admin panel
                 window.location.href = 'admin.html';
+                return false;
             } else {
-                alert('Invalid admin credentials');
+                // Show error
+                document.getElementById('errorMessage').style.display = 'block';
+                return false;
+            }
+        }
+        
+        // Clear session if coming from logout
+        if (window.location.search.includes('logout')) {
+            localStorage.removeItem('admin_session');
+            localStorage.removeItem('admin_user');
+        }
+        
+        // Auto-focus username field
+        document.getElementById('adminUsername').focus();
+        
+        // Enter key to submit
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('adminLoginForm').submit();
             }
         });
-        
-        // Initialize on load
-        document.addEventListener('DOMContentLoaded', initializeAdminData);
     </script>
 </body>
 </html>
