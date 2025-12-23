@@ -265,7 +265,7 @@
             background: #059669;
         }
 
-        /* Admin Controls Section - NEW */
+        /* Admin Controls Section - UPDATED */
         .admin-controls {
             background: rgba(255, 68, 68, 0.05);
             padding: 2rem;
@@ -307,7 +307,7 @@
             box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
         }
 
-        /* Direct Withdraw Form - NEW */
+        /* Direct Withdraw Form - UPDATED */
         .direct-withdraw-form {
             background: rgba(239, 68, 68, 0.1);
             padding: 1.5rem;
@@ -317,14 +317,14 @@
             display: none;
         }
 
-        /* Game Integration Section - HIDDEN */
+        /* Game Integration Section - UPDATED */
         .game-integration {
             background: rgba(255,255,255,0.05);
-            padding: 1.5rem;
+            padding: 2rem;
             border-radius: 15px;
             margin-bottom: 2rem;
             border: 1px solid rgba(255,255,255,0.1);
-            display: none; /* HIDDEN as requested */
+            display: none; /* Will be shown for all users */
         }
 
         .game-buttons {
@@ -382,7 +382,7 @@
             display: none;
         }
 
-        /* User List for Transfers - NEW */
+        /* User List for Transfers */
         .user-list {
             max-height: 200px;
             overflow-y: auto;
@@ -420,6 +420,130 @@
             font-size: 0.9rem;
         }
 
+        /* Activity Log */
+        .activity-section {
+            background: rgba(255,255,255,0.05);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .activity-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #cbd5e1;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .tab-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+
+        .activity-list {
+            min-height: 300px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            gap: 1rem;
+        }
+
+        .activity-item:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-meta {
+            display: flex;
+            gap: 1rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .transaction-code {
+            font-family: monospace;
+            background: rgba(255,255,255,0.05);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .activity-amount {
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            min-width: 100px;
+            text-align: right;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .close {
+            color: #94a3b8;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+        }
+
+        .close:hover {
+            color: white;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .navbar {
@@ -449,6 +573,12 @@
 
             .stats-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 1.5rem;
             }
         }
     </style>
@@ -486,7 +616,7 @@
     <div class="dashboard-container">
         <!-- Sync Status -->
         <div class="sync-status" id="syncStatus">
-            <span class="loading"></span> Connecting to system...
+            <span class="loading"></span> Connecting to X-BET Global System...
         </div>
 
         <!-- Balance Warning -->
@@ -560,7 +690,7 @@
             </div>
         </div>
 
-        <!-- Game Integration Section - HIDDEN -->
+        <!-- Game Integration Section - UPDATED -->
         <div class="game-integration" id="gameIntegrationSection">
             <h2 style="margin-bottom: 1rem;">🎮 Game Integration System</h2>
             <p style="color: #94a3b8; margin-bottom: 1rem;">
@@ -586,7 +716,7 @@
             </div>
         </div>
 
-        <!-- Admin Controls Section - NEW -->
+        <!-- Admin Controls Section - UPDATED -->
         <div class="admin-controls" id="adminControls">
             <h2>👑 Admin Controls</h2>
             <p style="color: #94a3b8; margin-bottom: 1rem;">
@@ -608,7 +738,7 @@
                 </button>
             </div>
             
-            <!-- Direct Withdraw Form - NEW -->
+            <!-- Direct Withdraw Form -->
             <div class="direct-withdraw-form" id="directWithdrawForm">
                 <h3 style="margin-bottom: 1rem; color: #ef4444;">💸 Direct Withdrawal</h3>
                 <div class="transfer-form">
@@ -631,7 +761,7 @@
                 </div>
             </div>
             
-            <!-- User List for Admin - NEW -->
+            <!-- User List for Admin -->
             <div class="user-list" id="adminUserList" style="display: none;">
                 <h4 style="margin-bottom: 1rem;">👥 All Users</h4>
                 <!-- Users will be loaded here -->
@@ -697,7 +827,7 @@
                 </div>
             </div>
             
-            <!-- User List for Transfers - NEW -->
+            <!-- User List for Transfers -->
             <div class="user-list" id="transferUserList" style="display: none;">
                 <h4 style="margin-bottom: 1rem;">👥 Available Users</h4>
                 <!-- Users will be loaded here -->
@@ -796,7 +926,7 @@
         </div>
     </div>
 
-    <!-- Quick Transfer Modal - NEW -->
+    <!-- Quick Transfer Modal -->
     <div id="quickTransferModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="dashboard.closeQuickTransferModal()">&times;</span>
@@ -820,7 +950,93 @@
     </div>
 
     <script>
-        // 🔥 X-BET DASHBOARD v4.0 - ENHANCED WITH ADMIN CONTROLS
+        // XBetStorage Class (Same as login/signup)
+        class XBetStorage {
+            constructor() {
+                this.initStorage();
+            }
+
+            initStorage() {
+                if (!localStorage.getItem('XBET_USERS_DATA')) {
+                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify({}));
+                }
+                
+                if (!localStorage.getItem('XBET_MASTER_STORE')) {
+                    const masterStore = {
+                        systemName: "X-BET Gaming System",
+                        version: "1.0.0",
+                        totalUsers: 0,
+                        totalAdmins: 0,
+                        totalTransactions: 0,
+                        createdAt: new Date().toISOString(),
+                        lastUpdate: new Date().toISOString(),
+                        settings: {
+                            autoBackup: true,
+                            syncInterval: 30000,
+                            maxUsers: 10000
+                        }
+                    };
+                    localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
+                }
+            }
+
+            getAllUsers() {
+                return JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
+            }
+
+            getUserByUsername(username) {
+                const usersData = this.getAllUsers();
+                for (const userId in usersData) {
+                    if (usersData[userId].username === username) {
+                        return usersData[userId];
+                    }
+                }
+                return null;
+            }
+
+            updateUser(username, updates) {
+                try {
+                    const usersData = this.getAllUsers();
+                    let userFound = false;
+                    
+                    for (const userId in usersData) {
+                        if (usersData[userId].username === username) {
+                            usersData[userId] = { ...usersData[userId], ...updates, lastUpdate: new Date().toISOString() };
+                            userFound = true;
+                            break;
+                        }
+                    }
+                    
+                    if (userFound) {
+                        localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
+                        
+                        // Update master store
+                        const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE'));
+                        masterStore.lastUpdate = new Date().toISOString();
+                        localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
+                        
+                        return { success: true };
+                    } else {
+                        return { success: false, error: 'User not found' };
+                    }
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            }
+
+            getSystemStats() {
+                const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE') || '{}');
+                const usersData = this.getAllUsers();
+                
+                return {
+                    ...masterStore,
+                    activeUsers: Object.keys(usersData).length,
+                    storageSize: JSON.stringify(usersData).length + JSON.stringify(masterStore).length
+                };
+            }
+        }
+
+        // 🔥 X-BET DASHBOARD v5.0 - XBetStorage Integration
         class Dashboard {
             constructor() {
                 this.currentUser = null;
@@ -833,6 +1049,7 @@
                 this.syncStatus = 'loading';
                 this.selectedUserForTransfer = null;
                 this.isAdmin = false;
+                this.storage = new XBetStorage();
             }
 
             async init() {
@@ -841,7 +1058,7 @@
                 // Check authentication
                 this.checkAuth();
                 
-                // Load user data
+                // Load user data from XBET_USERS_DATA
                 await this.loadUserData();
                 
                 // Check if user is admin
@@ -884,48 +1101,32 @@
                         this.redirectToLogin();
                     }
                 } else {
-                    this.currentUser = localStorage.getItem('currentUser');
+                    this.currentUser = localStorage.getItem('currentUser') || localStorage.getItem('xbet_user');
                     if (!this.currentUser) {
                         this.redirectToLogin();
                     }
                 }
             }
 
-            checkAdminStatus() {
-                // Check if current user is admin
-                const adminData = localStorage.getItem('admin_data_admin_master');
-                if (adminData) {
-                    const admin = JSON.parse(adminData);
-                    this.isAdmin = admin.username === this.currentUser;
-                }
-                
-                // Also check user data
-                if (this.userData && this.userData.isAdmin) {
-                    this.isAdmin = true;
-                }
-                
-                // Show/hide admin controls
-                const adminControls = document.getElementById('adminControls');
-                if (adminControls) {
-                    adminControls.style.display = this.isAdmin ? 'block' : 'none';
-                }
-                
-                // Hide game integration section for all users
-                const gameSection = document.getElementById('gameIntegrationSection');
-                if (gameSection) {
-                    gameSection.style.display = 'none';
-                }
-            }
-
-            redirectToLogin() {
-                window.location.href = 'login.html';
-            }
-
             async loadUserData() {
-                this.userData = JSON.parse(localStorage.getItem('userData_' + this.currentUser) || '{}');
+                // Shows user balance, transaction history, game stats
+                const allUsersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
+                console.log('📊 XBET_USERS_DATA:', allUsersData);
                 
-                if (Object.keys(this.userData).length === 0) {
-                    console.log('📝 Creating new user data structure');
+                // Find current user in XBET_USERS_DATA
+                let userFound = null;
+                for (const userId in allUsersData) {
+                    if (allUsersData[userId].username === this.currentUser) {
+                        userFound = allUsersData[userId];
+                        break;
+                    }
+                }
+                
+                if (userFound) {
+                    this.userData = userFound;
+                    console.log('✅ User data loaded from XBET_USERS_DATA:', this.userData);
+                } else {
+                    console.log('📝 Creating new user data structure for:', this.currentUser);
                     this.userData = {
                         username: this.currentUser,
                         email: '',
@@ -939,26 +1140,49 @@
                         status: 'active',
                         registeredAt: new Date().toISOString(),
                         lastLogin: new Date().toISOString(),
-                        activities: []
+                        activities: [],
+                        gameBalance: 0
                     };
                     
-                    this.saveUserData();
+                    // Save to XBET_USERS_DATA
+                    await this.saveUserData();
                 }
                 
-                if (window.crossBrowserSync && window.crossBrowserSync.getUserData) {
-                    try {
-                        const syncData = window.crossBrowserSync.getUserData(this.currentUser);
-                        if (syncData) {
-                            console.log('🔄 Syncing data from cross-browser system');
-                            this.userData = { ...this.userData, ...syncData };
-                            this.saveUserData();
-                        }
-                    } catch (error) {
-                        console.error('Sync error:', error);
-                    }
+                // Ensure activities array exists
+                if (!this.userData.activities) {
+                    this.userData.activities = [];
                 }
+                
+                // Ensure stats exist
+                if (!this.userData.balance) this.userData.balance = 0;
+                if (!this.userData.received) this.userData.received = 0;
+                if (!this.userData.sent) this.userData.sent = 0;
+                if (!this.userData.won) this.userData.won = 0;
+                if (!this.userData.lost) this.userData.lost = 0;
+                if (!this.userData.gameBalance) this.userData.gameBalance = 0;
                 
                 return this.userData;
+            }
+
+            checkAdminStatus() {
+                // Check if current user is admin
+                this.isAdmin = this.userData.isAdmin || false;
+                
+                // Show/hide admin controls
+                const adminControls = document.getElementById('adminControls');
+                if (adminControls) {
+                    adminControls.style.display = this.isAdmin ? 'block' : 'none';
+                }
+                
+                // Show game integration section for all users
+                const gameSection = document.getElementById('gameIntegrationSection');
+                if (gameSection) {
+                    gameSection.style.display = 'block';
+                }
+            }
+
+            redirectToLogin() {
+                window.location.href = 'login.html';
             }
 
             setupTransactionCode() {
@@ -970,7 +1194,7 @@
                 
                 document.getElementById('userTransactionCode').textContent = this.transactionCode;
                 document.getElementById('userIdDisplay').textContent = 
-                    `User ID: ${this.currentUser} | Code: ${this.transactionCode.substring(0, 20)}...`;
+                    `User ID: ${this.currentUser} | Code: ${this.transactionCode}`;
             }
 
             generateTransactionCode(username = this.currentUser) {
@@ -995,38 +1219,21 @@
                 
                 console.log('🔍 Loading all users for transfers...');
                 
-                if (window.crossBrowserSync && window.crossBrowserSync.getAllUsers) {
-                    try {
-                        const syncUsers = window.crossBrowserSync.getAllUsers();
-                        this.allUsers = syncUsers.filter(user => !user.isAdmin && user.username !== this.currentUser);
-                        this.allAdmins = syncUsers.filter(user => user.isAdmin);
-                        console.log(`✅ Loaded ${this.allUsers.length} users from sync`);
-                    } catch (error) {
-                        console.error('Sync load error:', error);
+                // Load from XBET_USERS_DATA
+                const allUsersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
+                
+                for (const userId in allUsersData) {
+                    const user = allUsersData[userId];
+                    if (user.username !== this.currentUser) {
+                        if (user.isAdmin) {
+                            this.allAdmins.push(user);
+                        } else {
+                            this.allUsers.push(user);
+                        }
                     }
                 }
                 
-                if (this.allUsers.length === 0) {
-                    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-                    Object.entries(registeredUsers).forEach(([username, email]) => {
-                        if (username !== this.currentUser) {
-                            const userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
-                            this.allUsers.push({
-                                username: username,
-                                email: email,
-                                transactionCode: userData.transactionCode || this.generateTransactionCode(username),
-                                balance: userData.balance || 0,
-                                isAdmin: userData.isAdmin || false
-                            });
-                        }
-                    });
-                    console.log(`📦 Loaded ${this.allUsers.length} users from local storage`);
-                }
-                
-                const adminData = JSON.parse(localStorage.getItem('admin_data_admin_master') || '{}');
-                if (adminData && adminData.username) {
-                    this.allAdmins.push(adminData);
-                }
+                console.log(`✅ Loaded ${this.allUsers.length} users and ${this.allAdmins.length} admins from XBET_USERS_DATA`);
                 
                 return this.allUsers;
             }
@@ -1044,6 +1251,7 @@
                 const sent = this.userData.sent || 0;
                 const won = this.userData.won || 0;
                 const lost = this.userData.lost || 0;
+                const gameBalance = this.userData.gameBalance || 0;
                 
                 document.getElementById('currentBalance').textContent = `$${formatter.format(balance)}`;
                 document.getElementById('remainingBalance').textContent = `$${formatter.format(balance)}`;
@@ -1060,8 +1268,6 @@
                     warningDiv.style.display = 'none';
                 }
             }
-
-            // 🆕 NEW FUNCTIONS FOR USER MANAGEMENT
 
             showUserList(purpose = 'transfer') {
                 const userListDiv = document.getElementById(purpose === 'transfer' ? 'transferUserList' : 'adminUserList');
@@ -1087,7 +1293,7 @@
                             <div class="user-balance">Balance: $${(user.balance || 0).toFixed(2)}</div>
                         </div>
                         <div style="font-family: monospace; font-size: 0.8rem; color: #3b82f6;">
-                            ${user.transactionCode.substring(0, 15)}...
+                            ${user.transactionCode.substring(0, 20)}...
                         </div>
                     </div>
                 `).join('');
@@ -1128,7 +1334,6 @@
                 }
             }
 
-            // 🆕 NEW: Direct Withdrawal for Admins
             showDirectWithdrawForm() {
                 const form = document.getElementById('directWithdrawForm');
                 form.style.display = form.style.display === 'none' ? 'block' : 'none';
@@ -1153,27 +1358,16 @@
                     return;
                 }
                 
-                // Find user
+                // Find user in XBET_USERS_DATA
+                const allUsersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
                 let targetUser = null;
-                let targetUsername = '';
+                let targetUserId = null;
                 
-                // Check regular users
-                for (const user of this.allUsers) {
-                    if (user.transactionCode === userCode) {
-                        targetUser = user;
-                        targetUsername = user.username;
+                for (const userId in allUsersData) {
+                    if (allUsersData[userId].transactionCode === userCode) {
+                        targetUser = allUsersData[userId];
+                        targetUserId = userId;
                         break;
-                    }
-                }
-                
-                // Check other admins
-                if (!targetUser && this.allAdmins.length > 0) {
-                    for (const admin of this.allAdmins) {
-                        if (admin.transactionCode === userCode) {
-                            targetUser = admin;
-                            targetUsername = admin.username;
-                            break;
-                        }
                     }
                 }
                 
@@ -1183,26 +1377,25 @@
                 }
                 
                 // Check if user has sufficient balance
-                const userData = JSON.parse(localStorage.getItem('userData_' + targetUsername) || '{}');
-                if (!userData.balance || userData.balance < amount) {
-                    alert(`❌ User has insufficient balance!\n\nUser: ${targetUsername}\nCurrent Balance: $${(userData.balance || 0).toFixed(2)}\nRequested: $${amount.toFixed(2)}`);
+                if (!targetUser.balance || targetUser.balance < amount) {
+                    alert(`❌ User has insufficient balance!\n\nUser: ${targetUser.username}\nCurrent Balance: $${(targetUser.balance || 0).toFixed(2)}\nRequested: $${amount.toFixed(2)}`);
                     return;
                 }
                 
                 // Confirm withdrawal
-                if (!confirm(`⚠️ Direct Withdrawal Confirmation\n\nUser: ${targetUsername}\nAmount: $${amount.toFixed(2)}\nCurrent Balance: $${userData.balance.toFixed(2)}\n\nThis will immediately deduct from user's balance. Proceed?`)) {
+                if (!confirm(`⚠️ Direct Withdrawal Confirmation\n\nUser: ${targetUser.username}\nAmount: $${amount.toFixed(2)}\nCurrent Balance: $${targetUser.balance.toFixed(2)}\n\nThis will immediately deduct from user's balance. Proceed?`)) {
                     return;
                 }
                 
                 try {
                     // Deduct from target user
-                    userData.balance = (userData.balance || 0) - amount;
+                    targetUser.balance = (targetUser.balance || 0) - amount;
                     
                     // Add activity to target user
-                    if (!userData.activities) userData.activities = [];
-                    userData.activities.unshift({
+                    if (!targetUser.activities) targetUser.activities = [];
+                    targetUser.activities.unshift({
                         id: 'ACT-' + Date.now(),
-                        type: 'withdraw',
+                        type: 'admin_withdraw',
                         amount: -amount,
                         date: new Date().toISOString(),
                         code: 'ADMIN-WD-' + Date.now().toString(36).toUpperCase(),
@@ -1212,8 +1405,9 @@
                         admin: this.currentUser
                     });
                     
-                    // Save target user data
-                    localStorage.setItem('userData_' + targetUsername, JSON.stringify(userData));
+                    // Update target user in XBET_USERS_DATA
+                    allUsersData[targetUserId] = targetUser;
+                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify(allUsersData));
                     
                     // Add to admin's transaction log
                     const adminActivity = {
@@ -1223,17 +1417,18 @@
                         date: new Date().toISOString(),
                         code: 'ADMIN-' + Date.now().toString(36).toUpperCase(),
                         title: 'Direct Withdrawal',
-                        description: `Withdrawn $${amount.toFixed(2)} from ${targetUsername}`,
-                        targetUser: targetUsername,
+                        description: `Withdrawn $${amount.toFixed(2)} from ${targetUser.username}`,
+                        targetUser: targetUser.username,
                         status: 'completed'
                     };
                     
                     // Update admin data
-                    const adminData = JSON.parse(localStorage.getItem('admin_data_' + this.currentUser) || '{}');
-                    if (!adminData.transactions) adminData.transactions = [];
-                    adminData.transactions.push(adminActivity);
-                    adminData.balance = (adminData.balance || 0) + amount;
-                    localStorage.setItem('admin_data_' + this.currentUser, JSON.stringify(adminData));
+                    this.userData.balance = (this.userData.balance || 0) + amount;
+                    if (!this.userData.adminActivities) this.userData.adminActivities = [];
+                    this.userData.adminActivities.push(adminActivity);
+                    
+                    // Save admin user data
+                    await this.saveUserData();
                     
                     // Clear form
                     document.getElementById('withdrawUserCode').value = '';
@@ -1241,10 +1436,11 @@
                     document.getElementById('directWithdrawForm').style.display = 'none';
                     
                     // Success message
-                    alert(`✅ Direct Withdrawal Successful!\n\nUser: ${targetUsername}\nAmount: $${amount.toFixed(2)}\nNew Balance: $${userData.balance.toFixed(2)}\n\nTransaction recorded in admin log.`);
+                    alert(`✅ Direct Withdrawal Successful!\n\nUser: ${targetUser.username}\nAmount: $${amount.toFixed(2)}\nNew Balance: $${targetUser.balance.toFixed(2)}\n\nTransaction recorded in admin log.`);
                     
                     // Reload user data
                     await this.loadAllUsers();
+                    this.updateDisplay();
                     
                 } catch (error) {
                     console.error('Direct withdrawal error:', error);
@@ -1252,7 +1448,6 @@
                 }
             }
 
-            // 🆕 NEW: Quick Transfer Modal
             openQuickTransferModal() {
                 const modal = document.getElementById('quickTransferModal');
                 modal.style.display = 'block';
@@ -1317,43 +1512,30 @@
                 this.processTransfer();
             }
 
-            // 🆕 NEW: Admin System Stats
             showSystemStats() {
-                const totalUsers = this.allUsers.length + 1; // +1 for current user
-                const totalBalance = this.allUsers.reduce((sum, user) => sum + (user.balance || 0), 0) + (this.userData.balance || 0);
-                const totalAdmins = this.allAdmins.length;
+                const allUsersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
+                const totalUsers = Object.keys(allUsersData).length;
                 
-                const statsHTML = `
-                    <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 10px; margin-top: 1rem;">
-                        <h3 style="color: #3b82f6; margin-bottom: 1rem;">📊 System Statistics</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                            <div style="background: rgba(59, 130, 246, 0.1); padding: 1rem; border-radius: 8px;">
-                                <div style="font-size: 0.9rem; color: #94a3b8;">Total Users</div>
-                                <div style="font-size: 2rem; font-weight: bold;">${totalUsers}</div>
-                            </div>
-                            <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px;">
-                                <div style="font-size: 0.9rem; color: #94a3b8;">Total Balance</div>
-                                <div style="font-size: 2rem; font-weight: bold; color: #10b981;">$${totalBalance.toFixed(2)}</div>
-                            </div>
-                            <div style="background: rgba(239, 68, 68, 0.1); padding: 1rem; border-radius: 8px;">
-                                <div style="font-size: 0.9rem; color: #94a3b8;">Admins</div>
-                                <div style="font-size: 2rem; font-weight: bold; color: #ef4444;">${totalAdmins}</div>
-                            </div>
-                        </div>
-                        <div style="margin-top: 1rem; font-size: 0.9rem; color: #94a3b8;">
-                            Last updated: ${new Date().toLocaleString()}
-                        </div>
-                    </div>
-                `;
+                let totalBalance = 0;
+                let totalAdmins = 0;
                 
-                alert(`📊 System Statistics\n\n` +
+                for (const userId in allUsersData) {
+                    const user = allUsersData[userId];
+                    totalBalance += user.balance || 0;
+                    if (user.isAdmin) totalAdmins++;
+                }
+                
+                const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE') || '{}');
+                
+                alert(`📊 X-BET System Statistics\n\n` +
                       `Total Users: ${totalUsers}\n` +
                       `Total Balance in System: $${totalBalance.toFixed(2)}\n` +
                       `Active Admins: ${totalAdmins}\n` +
-                      `Your Balance: $${this.userData.balance.toFixed(2)}`);
+                      `Your Balance: $${this.userData.balance.toFixed(2)}\n` +
+                      `System Version: ${masterStore.version || '1.0.0'}\n` +
+                      `Last Update: ${masterStore.lastUpdate ? new Date(masterStore.lastUpdate).toLocaleString() : 'N/A'}`);
             }
 
-            // 🎮 GAME FUNCTIONS (Preserved but hidden)
             testGameWin(amount) {
                 this.processGameResult(true, amount);
             }
@@ -1396,16 +1578,6 @@
                     alert(`✅ Game Balance Status\n\nCurrent Balance: $${balance.toFixed(2)}\nAvailable for Games: $${(balance - minGameAmount).toFixed(2)}\n\nYou can play games up to $${balance.toFixed(2)}`);
                 }
             }
-
-            // [REST OF THE EXISTING FUNCTIONS REMAIN UNCHANGED]
-            // Including: loadActivities, addActivity, updateStats, processTransfer,
-            // updateReceiverBalance, openDepositModal, closeDepositModal, 
-            // openWithdrawModal, closeWithdrawModal, processWithdrawal,
-            // filterActivities, saveUserData, logout, setupSyncStatus, setupAutoRefresh
-            // getActivityIcon, getActivityTitle, etc.
-
-            // [ALL EXISTING FUNCTIONS BELOW THIS LINE REMAIN EXACTLY AS IN YOUR ORIGINAL CODE]
-            // I'm omitting them here for brevity, but they should remain unchanged in your actual file
 
             loadActivities(filter = 'all') {
                 this.activityFilter = filter;
@@ -1578,26 +1750,17 @@
                 }
                 
                 try {
+                    // Find receiver in XBET_USERS_DATA
+                    const allUsersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
                     let receiver = null;
+                    let receiverId = null;
                     
-                    for (const user of this.allUsers) {
-                        if (user.transactionCode === receiverCode) {
-                            receiver = user;
+                    for (const userId in allUsersData) {
+                        if (allUsersData[userId].transactionCode === receiverCode) {
+                            receiver = allUsersData[userId];
+                            receiverId = userId;
                             break;
                         }
-                    }
-                    
-                    if (!receiver && this.allAdmins.length > 0) {
-                        for (const admin of this.allAdmins) {
-                            if (admin.transactionCode === receiverCode) {
-                                receiver = admin;
-                                break;
-                            }
-                        }
-                    }
-                    
-                    if (!receiver && window.crossBrowserSync && window.crossBrowserSync.findUserByCode) {
-                        receiver = window.crossBrowserSync.findUserByCode(receiverCode);
                     }
                     
                     if (!receiver) {
@@ -1605,48 +1768,16 @@
                         return;
                     }
                     
+                    // Process sender's transaction
                     const transactionCode = this.addActivity('send', -amount, {
                         to: receiver.username,
                         description: `Transfer to ${receiver.username}`
                     });
                     
-                    await this.updateReceiverBalance(receiver, amount);
-                    
-                    document.getElementById('receiverCode').value = '';
-                    amountInput.value = '';
-                    
-                    alert(`✅ Transfer successful!\n\nTo: ${receiver.username}\nAmount: $${amount.toFixed(2)}\nTransaction Code: ${transactionCode}\nNew Balance: $${this.userData.balance.toFixed(2)}`);
-                    
-                } catch (error) {
-                    console.error('Transfer error:', error);
-                    alert(`❌ Transfer failed: ${error.message || 'Unknown error'}`);
-                }
-            }
-
-            async updateReceiverBalance(receiver, amount) {
-                if (receiver.isAdmin) {
-                    const adminData = JSON.parse(localStorage.getItem('admin_data_' + receiver.username) || '{}');
-                    adminData.balance = (adminData.balance || 0) + amount;
-                    
-                    if (!adminData.transactions) adminData.transactions = [];
-                    adminData.transactions.push({
-                        id: 'TXN-' + Date.now(),
-                        type: 'receive',
-                        amount: amount,
-                        date: new Date().toISOString(),
-                        from: this.currentUser,
-                        description: `Transfer from ${this.currentUser}`
-                    });
-                    
-                    localStorage.setItem('admin_data_' + receiver.username, JSON.stringify(adminData));
-                    
-                } else {
-                    const receiverData = JSON.parse(localStorage.getItem('userData_' + receiver.username) || '{}');
-                    receiverData.balance = (receiverData.balance || 0) + amount;
-                    
-                    if (!receiverData.activities) receiverData.activities = [];
-                    
-                    receiverData.activities.push({
+                    // Update receiver's balance
+                    receiver.balance = (receiver.balance || 0) + amount;
+                    if (!receiver.activities) receiver.activities = [];
+                    receiver.activities.unshift({
                         id: 'ACT-' + Date.now(),
                         type: 'receive',
                         amount: amount,
@@ -1658,15 +1789,25 @@
                         status: 'completed'
                     });
                     
-                    localStorage.setItem('userData_' + receiver.username, JSON.stringify(receiverData));
-                }
-                
-                if (window.crossBrowserSync && window.crossBrowserSync.updateUserBalance) {
-                    try {
-                        window.crossBrowserSync.updateUserBalance(receiver.username, amount);
-                    } catch (error) {
-                        console.error('Sync update error:', error);
-                    }
+                    // Save receiver data
+                    allUsersData[receiverId] = receiver;
+                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify(allUsersData));
+                    
+                    // Clear form
+                    document.getElementById('receiverCode').value = '';
+                    amountInput.value = '';
+                    
+                    // Update master store
+                    const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE') || '{}');
+                    masterStore.totalTransactions = (masterStore.totalTransactions || 0) + 1;
+                    masterStore.lastUpdate = new Date().toISOString();
+                    localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
+                    
+                    alert(`✅ Transfer successful!\n\nTo: ${receiver.username}\nAmount: $${amount.toFixed(2)}\nTransaction Code: ${transactionCode}\nNew Balance: $${this.userData.balance.toFixed(2)}`);
+                    
+                } catch (error) {
+                    console.error('Transfer error:', error);
+                    alert(`❌ Transfer failed: ${error.message || 'Unknown error'}`);
                 }
             }
 
@@ -1742,10 +1883,35 @@
                 this.loadActivities(type);
             }
 
-            saveUserData() {
+            async saveUserData() {
                 try {
-                    localStorage.setItem('userData_' + this.currentUser, JSON.stringify(this.userData));
+                    // Update XBET_USERS_DATA
+                    const allUsersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
                     
+                    // Find current user and update
+                    let userFound = false;
+                    for (const userId in allUsersData) {
+                        if (allUsersData[userId].username === this.currentUser) {
+                            allUsersData[userId] = this.userData;
+                            userFound = true;
+                            break;
+                        }
+                    }
+                    
+                    // If not found, add new user
+                    if (!userFound) {
+                        const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                        allUsersData[userId] = this.userData;
+                    }
+                    
+                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify(allUsersData));
+                    
+                    // Update master store
+                    const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE'));
+                    masterStore.lastUpdate = new Date().toISOString();
+                    localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
+                    
+                    // Update session storage
                     const sessionData = sessionStorage.getItem('xbet_session');
                     if (sessionData) {
                         const session = JSON.parse(atob(sessionData));
@@ -1753,11 +1919,8 @@
                         sessionStorage.setItem('xbet_session', btoa(JSON.stringify(session)));
                     }
                     
-                    if (window.crossBrowserSync && window.crossBrowserSync.updateUser) {
-                        window.crossBrowserSync.updateUser(this.currentUser, this.userData);
-                    }
+                    console.log('💾 User data saved to XBET_USERS_DATA');
                     
-                    console.log('💾 User data saved');
                 } catch (error) {
                     console.error('Save error:', error);
                 }
@@ -1767,6 +1930,8 @@
                 if (confirm('Are you sure you want to logout?')) {
                     sessionStorage.removeItem('xbet_session');
                     localStorage.removeItem('currentUser');
+                    localStorage.removeItem('xbet_token');
+                    localStorage.removeItem('xbet_user');
                     localStorage.removeItem('session_expiry');
                     window.location.href = 'login.html';
                 }
@@ -1775,19 +1940,13 @@
             setupSyncStatus() {
                 const syncDiv = document.getElementById('syncStatus');
                 
-                if (window.crossBrowserSync && window.crossBrowserSync.getStatus) {
-                    try {
-                        const status = window.crossBrowserSync.getStatus();
-                        syncDiv.innerHTML = `✅ Cross-Browser Sync Active | Users: ${status.adminUsers} | ${status.browser}`;
-                        this.syncStatus = 'active';
-                    } catch (error) {
-                        syncDiv.innerHTML = '⚠️ Sync system error';
-                        this.syncStatus = 'error';
-                    }
-                } else {
-                    syncDiv.innerHTML = '📱 Local Storage Mode | No cross-browser sync';
-                    this.syncStatus = 'local';
-                }
+                const stats = this.storage.getSystemStats();
+                syncDiv.innerHTML = `
+                    ✅ X-BET Global System Active
+                    <div style="font-size: 11px; margin-top: 5px; color: #94a3b8;">
+                        Users: ${stats.activeUsers} | Version: ${stats.version}
+                    </div>
+                `;
             }
 
             setupAutoRefresh() {
@@ -1836,7 +1995,7 @@
             }
         });
 
-        // Global Game Integration Function (Preserved)
+        // Global Game Integration Function
         window.XBET_GAME_SYSTEM = {
             processGameResult: function(isWin, amount, gameId) {
                 return dashboard.processGameResult(isWin, amount, gameId);
