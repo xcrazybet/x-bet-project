@@ -224,6 +224,18 @@
             font-size: 18px;
         }
         
+        /* Global Access Status */
+        .global-access {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 12px;
+            text-align: center;
+            color: #86efac;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
         /* FOOTER */
         .footer {
             background: rgba(15, 23, 42, 0.95);
@@ -286,6 +298,26 @@
             opacity: 1;
             background: rgba(59, 130, 246, 0.4);
         }
+        
+        /* Admin Access */
+        .admin-access {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .admin-access a {
+            color: #fca5a5;
+            text-decoration: none;
+            font-size: 12px;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        
+        .admin-access a:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -309,9 +341,14 @@
         <div class="login-card">
             <h2 class="login-title">Login to X-BET</h2>
             
+            <!-- Global Access Status -->
+            <div id="globalAccess" class="global-access">
+                ✅ Any Browser, Anywhere Access Active
+            </div>
+            
             <!-- Sync Status -->
             <div id="syncStatus" class="sync-status">
-                <span class="loading"></span> Connecting to system...
+                <span class="loading"></span> Connecting to X-BET Global System...
             </div>
             
             <!-- Messages -->
@@ -337,7 +374,11 @@
                 
                 <div class="login-options">
                     <a href="signup.html">Don't have an account? Sign up</a>
-                    <!-- ADMIN LOGIN REMOVED - Hidden access only -->
+                </div>
+                
+                <!-- Admin Access Link -->
+                <div class="admin-access">
+                    <a href="admin.html" id="adminLoginLink" style="display: none;">Admin Access</a>
                 </div>
             </form>
         </div>
@@ -352,23 +393,280 @@
     <div class="debug-btn" onclick="showDebugInfo()" title="Debug Info">🔍</div>
 
     <script>
-        // 🔥 X-BET LOGIN SYSTEM v3.0 - ENHANCED DATA SAVING
+        // XBetStorage Class Definition (Same as signup.html)
+        class XBetStorage {
+            constructor() {
+                this.initStorage();
+            }
+
+            initStorage() {
+                // Initialize XBET_USERS_DATA in localStorage if not exists
+                if (!localStorage.getItem('XBET_USERS_DATA')) {
+                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify({}));
+                }
+                
+                // Initialize XBET_MASTER_STORE in localStorage if not exists
+                if (!localStorage.getItem('XBET_MASTER_STORE')) {
+                    const masterStore = {
+                        systemName: "X-BET Gaming System",
+                        version: "1.0.0",
+                        totalUsers: 0,
+                        totalAdmins: 0,
+                        totalTransactions: 0,
+                        createdAt: new Date().toISOString(),
+                        lastUpdate: new Date().toISOString(),
+                        settings: {
+                            autoBackup: true,
+                            syncInterval: 30000,
+                            maxUsers: 10000
+                        }
+                    };
+                    localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
+                }
+            }
+
+            loginUser(usernameOrEmail, password) {
+                try {
+                    const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
+                    
+                    // Find user by username or email
+                    let foundUser = null;
+                    for (const userId in usersData) {
+                        const user = usersData[userId];
+                        if (user.username === usernameOrEmail || user.email === usernameOrEmail) {
+                            foundUser = user;
+                            break;
+                        }
+                    }
+                    
+                    if (!foundUser) {
+                        return { 
+                            success: false, 
+                            error: 'User not found. Please check your credentials.' 
+                        };
+                    }
+                    
+                    // Check password (using btoa encoding from signup)
+                    const encodedPassword = btoa(password);
+                    if (foundUser.password !== encodedPassword) {
+                        return { 
+                            success: false, 
+                            error: 'Invalid password. Please try again.' 
+                        };
+                    }
+                    
+                    // Check if user is active
+                    if (foundUser.status && foundUser.status !== 'active') {
+                        return { 
+                            success: false, 
+                            error: 'Account is ' + foundUser.status 
+                        };
+                    }
+                    
+                    // Update last login
+                    foundUser.lastLogin = new Date().toISOString();
+                    usersData[foundUser.id] = foundUser;
+                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
+                    
+                    // Generate session token
+                    const sessionToken = this.generateSessionToken(foundUser.id);
+                    
+                    // Update master store
+                    const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE'));
+                    masterStore.lastUpdate = new Date().toISOString();
+                    localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
+                    
+                    // Return user data (without password) and session token
+                    const { password: _, ...userDataWithoutPassword } = foundUser;
+                    
+                    return {
+                        success: true,
+                        user: userDataWithoutPassword,
+                        token: sessionToken
+                    };
+                    
+                } catch (error) {
+                    console.error('Login error:', error);
+                    return { success: false, error: 'System error. Please try again.' };
+                }
+            }
+
+            generateSessionToken(userId) {
+                const timestamp = Date.now();
+                const random = Math.random().toString(36).substr(2, 16);
+                const token = `xbet_${userId}_${timestamp}_${random}`;
+                
+                // Store session
+                const sessions = JSON.parse(localStorage.getItem('XBET_SESSIONS') || '{}');
+                sessions[token] = {
+                    userId: userId,
+                    createdAt: new Date().toISOString(),
+                    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+                    ipAddress: this.getClientIP(),
+                    browser: navigator.userAgent
+                };
+                localStorage.setItem('XBET_SESSIONS', JSON.stringify(sessions));
+                
+                return token;
+            }
+
+            getClientIP() {
+                // This is a placeholder. In a real app, you'd get this from the server
+                return 'global_client_' + Math.random().toString(36).substr(2, 8);
+            }
+
+            validateSession(token) {
+                try {
+                    const sessions = JSON.parse(localStorage.getItem('XBET_SESSIONS') || '{}');
+                    const session = sessions[token];
+                    
+                    if (!session) {
+                        return { valid: false, reason: 'Session not found' };
+                    }
+                    
+                    if (new Date(session.expiresAt) < new Date()) {
+                        return { valid: false, reason: 'Session expired' };
+                    }
+                    
+                    return { valid: true, session: session };
+                } catch (error) {
+                    return { valid: false, reason: 'Session validation error' };
+                }
+            }
+
+            getAllUsers() {
+                const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
+                return usersData;
+            }
+
+            getSystemStats() {
+                const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE') || '{}');
+                const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
+                
+                return {
+                    ...masterStore,
+                    activeUsers: Object.keys(usersData).length,
+                    storageSize: JSON.stringify(usersData).length + JSON.stringify(masterStore).length
+                };
+            }
+        }
+
+        // 🔥 X-BET LOGIN SYSTEM v4.0 - GLOBAL ACCESS
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔐 X-BET Login System Starting...');
+            console.log('🔐 X-BET Global Login System Starting...');
             
             // Get DOM elements
             const loginForm = document.getElementById('loginForm');
             const messageDiv = document.getElementById('message');
             const syncStatusDiv = document.getElementById('syncStatus');
+            const globalAccessDiv = document.getElementById('globalAccess');
             const loginBtn = document.getElementById('loginBtn');
             const usernameInput = document.getElementById('username');
             const passwordInput = document.getElementById('password');
+            const adminLoginLink = document.getElementById('adminLoginLink');
             
-            // Check if already logged in
-            checkExistingSession();
+            // Initialize XBetStorage
+            window.xbetStorage = new XBetStorage();
             
-            // Initialize sync system status
-            updateSyncStatus();
+            // Check system status
+            function checkSystemStatus() {
+                try {
+                    const stats = window.xbetStorage.getSystemStats();
+                    syncStatusDiv.innerHTML = `
+                        ✅ X-BET Global System Ready
+                        <div style="font-size: 11px; margin-top: 5px; color: #94a3b8;">
+                            Total Users: ${stats.totalUsers} | Active: ${stats.activeUsers}
+                        </div>
+                    `;
+                    
+                    // Update global access status
+                    const browserInfo = navigator.userAgent;
+                    globalAccessDiv.innerHTML = `
+                        ✅ Any Browser, Anywhere Access Active
+                        <div style="font-size: 11px; margin-top: 5px; color: #86efac;">
+                            Browser: ${browserInfo.substring(0, 50)}...
+                        </div>
+                    `;
+                    
+                    // Check for admin users
+                    const users = window.xbetStorage.getAllUsers();
+                    let hasAdmin = false;
+                    for (const userId in users) {
+                        if (users[userId].isAdmin) {
+                            hasAdmin = true;
+                            break;
+                        }
+                    }
+                    
+                    if (hasAdmin) {
+                        adminLoginLink.style.display = 'inline-block';
+                    }
+                    
+                } catch (error) {
+                    console.error('System status check error:', error);
+                    syncStatusDiv.innerHTML = '⚠️ System Initialization Required';
+                    globalAccessDiv.innerHTML = '⚠️ Global Access Unavailable';
+                }
+            }
+            
+            // Initialize check
+            setTimeout(checkSystemStatus, 1000);
+            
+            // Check existing sessions
+            function checkExistingSessions() {
+                try {
+                    // Check user session
+                    const userSession = sessionStorage.getItem('xbet_session');
+                    if (userSession) {
+                        try {
+                            const user = JSON.parse(atob(userSession));
+                            if (user.username && user.sessionToken) {
+                                const validation = window.xbetStorage.validateSession(user.sessionToken);
+                                if (validation.valid) {
+                                    // Auto-redirect if session is valid
+                                    setTimeout(() => {
+                                        if (user.isAdmin) {
+                                            window.location.href = 'admin.html';
+                                        } else {
+                                            window.location.href = 'dashboard.html';
+                                        }
+                                    }, 500);
+                                    return;
+                                }
+                            }
+                        } catch (e) {
+                            // Invalid session, continue with login
+                        }
+                    }
+                    
+                    // Check localStorage token
+                    const localStorageToken = localStorage.getItem('xbet_token');
+                    if (localStorageToken) {
+                        const validation = window.xbetStorage.validateSession(localStorageToken);
+                        if (validation.valid) {
+                            // Auto-fill username from token
+                            const sessions = JSON.parse(localStorage.getItem('XBET_SESSIONS') || '{}');
+                            const session = sessions[localStorageToken];
+                            if (session) {
+                                const users = window.xbetStorage.getAllUsers();
+                                const user = users[session.userId];
+                                if (user) {
+                                    usernameInput.value = user.username;
+                                    setTimeout(() => {
+                                        passwordInput.focus();
+                                    }, 100);
+                                }
+                            }
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('Session check error:', error);
+                }
+            }
+            
+            // Run session check
+            checkExistingSessions();
             
             // Toggle password visibility
             window.togglePassword = function() {
@@ -381,46 +679,6 @@
                     toggle.textContent = '👁';
                 }
             };
-            
-            // Check existing session
-            function checkExistingSession() {
-                try {
-                    // Check user session
-                    const userSession = sessionStorage.getItem('xbet_session');
-                    if (userSession) {
-                        const user = JSON.parse(atob(userSession));
-                        if (user.username) {
-                            window.location.href = 'dashboard.html';
-                            return;
-                        }
-                    }
-                    
-                    // Check admin session (hidden URL only)
-                    const adminSession = localStorage.getItem('admin_session');
-                    if (adminSession) {
-                        // Do NOT auto-redirect to admin from login page
-                        // Admin access is hidden
-                        console.log('Admin session detected but not redirecting');
-                    }
-                    
-                } catch (error) {
-                    console.error('Session check error:', error);
-                }
-            }
-            
-            // Update sync status
-            function updateSyncStatus() {
-                if (window.crossBrowserSync && window.crossBrowserSync.getStatus) {
-                    try {
-                        const status = window.crossBrowserSync.getStatus();
-                        syncStatusDiv.innerHTML = `✅ Cross-Browser Sync Active | Users: ${status.adminUsers} | ${status.browser}`;
-                    } catch (error) {
-                        syncStatusDiv.innerHTML = '📱 Local Mode | No cross-browser sync';
-                    }
-                } else {
-                    syncStatusDiv.innerHTML = '📱 Local Mode | No cross-browser sync';
-                }
-            }
             
             // Show message
             function showMessage(text, type = 'info') {
@@ -435,252 +693,67 @@
                 }
             }
             
-            // 🔥 ENHANCED USER FINDER - CHECKS ALL DATA SOURCES
-            function findUser(identifier) {
-                console.log('🔍 Searching for user:', identifier);
-                
-                identifier = identifier.toLowerCase();
-                let foundUser = null;
-                
-                // SOURCE 1: Check registeredUsers object
-                try {
-                    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-                    
-                    // Search by username
-                    if (registeredUsers[identifier]) {
-                        foundUser = {
-                            username: identifier,
-                            email: registeredUsers[identifier],
-                            source: 'registeredUsers'
-                        };
-                    } else {
-                        // Search by email
-                        for (const [username, email] of Object.entries(registeredUsers)) {
-                            if (email && email.toLowerCase() === identifier) {
-                                foundUser = {
-                                    username: username,
-                                    email: email,
-                                    source: 'registeredUsers_email'
-                                };
-                                break;
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error reading registeredUsers:', error);
-                }
-                
-                // SOURCE 2: Check ALL_XBET_USERS array
-                if (!foundUser) {
-                    try {
-                        const allXbetUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-                        const user = allXbetUsers.find(u => 
-                            (u.username && u.username.toLowerCase() === identifier) || 
-                            (u.email && u.email.toLowerCase() === identifier)
-                        );
-                        
-                        if (user) {
-                            foundUser = {
-                                username: user.username,
-                                email: user.email,
-                                source: 'ALL_XBET_USERS'
-                            };
-                        }
-                    } catch (error) {
-                        console.error('Error reading ALL_XBET_USERS:', error);
-                    }
-                }
-                
-                // SOURCE 3: Check cross-browser sync
-                if (!foundUser && window.crossBrowserSync && window.crossBrowserSync.getAllUsers) {
-                    try {
-                        const allUsers = window.crossBrowserSync.getAllUsers();
-                        const user = allUsers.find(u => 
-                            (u.username && u.username.toLowerCase() === identifier) || 
-                            (u.email && u.email.toLowerCase() === identifier)
-                        );
-                        
-                        if (user) {
-                            foundUser = {
-                                username: user.username,
-                                email: user.email,
-                                source: 'crossBrowserSync'
-                            };
-                        }
-                    } catch (error) {
-                        console.error('Error checking sync users:', error);
-                    }
-                }
-                
-                // SOURCE 4: Scan localStorage for userData_* keys
-                if (!foundUser) {
-                    try {
-                        for (let i = 0; i < localStorage.length; i++) {
-                            const key = localStorage.key(i);
-                            if (key.startsWith('userData_')) {
-                                const usernameFromKey = key.replace('userData_', '');
-                                if (usernameFromKey.toLowerCase() === identifier) {
-                                    const userData = JSON.parse(localStorage.getItem(key));
-                                    if (userData) {
-                                        foundUser = {
-                                            username: userData.username || usernameFromKey,
-                                            email: userData.email || '',
-                                            source: 'localStorage_scan'
-                                        };
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error scanning localStorage:', error);
-                    }
-                }
-                
-                console.log('User found:', foundUser ? foundUser.source : 'Not found');
-                return foundUser;
-            }
-            
-            // 🔥 ENHANCED PASSWORD VALIDATION
-            function validatePassword(username, password) {
-                console.log('🔑 Validating password for:', username);
+            // Create global session
+            function createGlobalSession(userData, token) {
+                console.log('🔐 Creating global session for:', userData.username);
                 
                 try {
-                    // Get user data from primary source
-                    let userData = JSON.parse(localStorage.getItem('userData_' + username) || '{}');
-                    
-                    // If empty, try to load from other sources
-                    if (Object.keys(userData).length === 0) {
-                        console.log('No primary user data, checking other sources...');
-                        
-                        // Check ALL_XBET_USERS
-                        const allUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-                        const userFromAll = allUsers.find(u => u.username === username);
-                        if (userFromAll) {
-                            userData = { ...userFromAll };
-                        }
-                        
-                        // Check cross-browser sync
-                        if (window.crossBrowserSync && window.crossBrowserSync.getUserData) {
-                            const syncData = window.crossBrowserSync.getUserData(username);
-                            if (syncData) {
-                                userData = { ...userData, ...syncData };
-                            }
-                        }
-                    }
-                    
-                    // Check if we have user data
-                    if (!userData || Object.keys(userData).length === 0) {
-                        console.log('❌ No user data found');
-                        return { success: false, reason: 'User not found' };
-                    }
-                    
-                    // Check password (plain text for demo - use hashing in production)
-                    if (userData.password === password) {
-                        console.log('✅ Password valid');
-                        return {
-                            success: true,
-                            userData: userData
-                        };
-                    }
-                    
-                    console.log('❌ Invalid password');
-                    return { success: false, reason: 'Invalid password' };
-                    
-                } catch (error) {
-                    console.error('Password validation error:', error);
-                    return { success: false, reason: 'System error' };
-                }
-            }
-            
-            // 🔥 ENHANCED SESSION CREATION
-            function createUserSession(username, userData) {
-                console.log('🔐 Creating session for:', username);
-                
-                try {
+                    // 1. Create session storage data
                     const sessionData = {
-                        username: username,
-                        email: userData.email || '',
-                        transactionCode: userData.transactionCode || generateTransactionCode(username),
+                        username: userData.username,
+                        email: userData.email,
+                        userId: userData.id,
                         isAdmin: userData.isAdmin || false,
-                        lastLogin: new Date().toISOString(),
-                        loginTime: Date.now(),
                         balance: userData.balance || 0,
                         gameBalance: userData.gameBalance || 0,
-                        accountType: userData.accountType || 'regular',
-                        sessionId: 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+                        transactionCode: userData.transactionCode,
+                        sessionToken: token,
+                        loginTime: Date.now(),
+                        browser: navigator.userAgent,
+                        location: 'global' // Placeholder for actual location detection
                     };
                     
-                    // 🔥 SAVE SESSION TO MULTIPLE PLACES
-                    
-                    // 1. Session storage (temporary)
+                    // 2. Save to sessionStorage (browser-specific)
                     sessionStorage.setItem('xbet_session', btoa(JSON.stringify(sessionData)));
                     
-                    // 2. Local storage for persistence
-                    localStorage.setItem('currentUser', username);
-                    localStorage.setItem('session_expiry', Date.now() + 86400000); // 24 hours
+                    // 3. Save token to localStorage for cross-tab access
+                    localStorage.setItem('xbet_token', token);
+                    localStorage.setItem('xbet_user', userData.username);
                     
-                    // 3. Update user's last login in ALL_XBET_USERS
-                    try {
-                        const allUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-                        const userIndex = allUsers.findIndex(u => u.username === username);
-                        if (userIndex !== -1) {
-                            allUsers[userIndex].lastLogin = new Date().toISOString();
-                            allUsers[userIndex].lastUpdated = new Date().toISOString();
-                            localStorage.setItem('ALL_XBET_USERS', JSON.stringify(allUsers));
-                            console.log('✅ Updated ALL_XBET_USERS');
+                    // 4. Save to global sessions in XBET_USERS_DATA
+                    const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
+                    if (usersData[userData.id]) {
+                        if (!usersData[userData.id].sessions) {
+                            usersData[userData.id].sessions = [];
                         }
-                    } catch (error) {
-                        console.error('Error updating ALL_XBET_USERS:', error);
+                        usersData[userData.id].sessions.push({
+                            token: token,
+                            loginTime: new Date().toISOString(),
+                            browser: navigator.userAgent,
+                            ip: window.xbetStorage.getClientIP()
+                        });
+                        // Keep only last 5 sessions
+                        if (usersData[userData.id].sessions.length > 5) {
+                            usersData[userData.id].sessions = usersData[userData.id].sessions.slice(-5);
+                        }
+                        localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
                     }
                     
-                    // 4. Update user's last login in userData
-                    userData.lastLogin = new Date().toISOString();
-                    localStorage.setItem('userData_' + username, JSON.stringify(userData));
+                    // 5. Update last login in master store
+                    const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE'));
+                    masterStore.lastUpdate = new Date().toISOString();
+                    localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
                     
-                    // 5. Cross-browser sync update
-                    if (window.crossBrowserSync && window.crossBrowserSync.updateUser) {
-                        try {
-                            window.crossBrowserSync.updateUser(username, {
-                                lastLogin: new Date().toISOString()
-                            });
-                        } catch (syncError) {
-                            console.error('Sync update error:', syncError);
-                        }
-                    }
-                    
-                    console.log('✅ Session created successfully');
+                    console.log('✅ Global session created successfully');
                     return true;
                     
                 } catch (error) {
-                    console.error('Session creation error:', error);
-                    
-                    // Emergency session creation
-                    try {
-                        sessionStorage.setItem('xbet_session', btoa(JSON.stringify({
-                            username: username,
-                            emergency: true,
-                            time: Date.now()
-                        })));
-                        localStorage.setItem('currentUser', username);
-                        console.log('⚠️ Emergency session created');
-                        return true;
-                    } catch (emergencyError) {
-                        console.error('Emergency session failed:', emergencyError);
-                        return false;
-                    }
+                    console.error('Global session creation error:', error);
+                    return false;
                 }
             }
             
-            // Generate transaction code
-            function generateTransactionCode(username) {
-                const prefix = username ? username.substring(0, 3).toUpperCase() : 'XBT';
-                const timestamp = Date.now().toString(36).toUpperCase().slice(-6);
-                const random = Math.random().toString(36).slice(2, 6).toUpperCase();
-                return `XBT-${prefix}-${timestamp}-${random}`;
-            }
-            
-            // 🔥 MAIN LOGIN HANDLER
+            // 🌍 MAIN LOGIN HANDLER - GLOBAL ACCESS
             loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -696,133 +769,100 @@
                 
                 // Show loading
                 loginBtn.disabled = true;
-                loginBtn.innerHTML = '<span class="loading"></span> Logging in...';
+                loginBtn.innerHTML = '<span class="loading"></span> Global Login...';
                 
                 try {
-                    console.log('=== LOGIN PROCESS START ===');
+                    console.log('🌍 GLOBAL LOGIN PROCESS START');
+                    console.log('Browser:', navigator.userAgent);
                     
-                    // Step 1: Find user in all data sources
-                    const user = findUser(identifier);
+                    // Step 1: Use XBetStorage login
+                    const storage = new XBetStorage();
+                    const result = storage.loginUser(identifier, password);
+                    // Returns user data and session token
                     
-                    if (!user) {
-                        showMessage('Account not found. Please check your credentials or sign up.', 'error');
+                    if (!result.success) {
+                        showMessage(result.error || 'Login failed', 'error');
                         loginBtn.disabled = false;
                         loginBtn.innerHTML = 'Login';
-                        console.log('❌ Login failed: User not found');
+                        console.log('❌ Login failed:', result.error);
                         return;
                     }
                     
-                    console.log('User found:', user.username, 'from', user.source);
+                    console.log('✅ Login successful for:', result.user.username);
+                    console.log('Session token generated:', result.token.substring(0, 20) + '...');
                     
-                    // Step 2: Validate password
-                    const validation = validatePassword(user.username, password);
-                    
-                    if (!validation.success) {
-                        showMessage('Invalid password. Please try again.', 'error');
-                        loginBtn.disabled = false;
-                        loginBtn.innerHTML = 'Login';
-                        console.log('❌ Login failed:', validation.reason);
-                        return;
-                    }
-                    
-                    // Step 3: Create session
-                    const sessionCreated = createUserSession(user.username, validation.userData);
+                    // Step 2: Create global session
+                    const sessionCreated = createGlobalSession(result.user, result.token);
                     
                     if (!sessionCreated) {
-                        showMessage('Login failed. Please try again.', 'error');
+                        showMessage('Session creation failed. Please try again.', 'error');
                         loginBtn.disabled = false;
                         loginBtn.innerHTML = 'Login';
-                        console.log('❌ Login failed: Session creation failed');
                         return;
                     }
                     
-                    // Step 4: Success
-                    console.log('✅ Login successful for:', user.username);
-                    showMessage(`✅ Welcome back, ${user.username}! Redirecting...`, 'success');
+                    // Step 3: Show success message
+                    showMessage(`✅ Welcome back, ${result.user.username}! Global access activated.`, 'success');
                     
-                    // Step 5: Check for data issues and fix them
+                    // Step 4: Redirect based on user type
                     setTimeout(() => {
-                        checkAndFixUserData(user.username, validation.userData);
-                    }, 100);
-                    
-                    // Step 6: Redirect
-                    setTimeout(() => {
-                        if (validation.userData.isAdmin) {
-                            // Admin access is hidden - redirect to dashboard instead
-                            // Admin panel should be accessed via secret URL only
-                            window.location.href = 'dashboard.html';
+                        if (result.user.isAdmin) {
+                            window.location.href = 'admin.html';
                         } else {
                             window.location.href = 'dashboard.html';
                         }
                     }, 1500);
                     
+                    // Step 5: Log success to global log
+                    try {
+                        const globalLog = JSON.parse(localStorage.getItem('XBET_GLOBAL_LOG') || '[]');
+                        globalLog.push({
+                            username: result.user.username,
+                            action: 'login',
+                            time: new Date().toISOString(),
+                            browser: navigator.userAgent,
+                            location: 'global_access'
+                        });
+                        // Keep only last 100 entries
+                        if (globalLog.length > 100) {
+                            globalLog = globalLog.slice(-100);
+                        }
+                        localStorage.setItem('XBET_GLOBAL_LOG', JSON.stringify(globalLog));
+                    } catch (logError) {
+                        console.error('Log error:', logError);
+                    }
+                    
                 } catch (error) {
-                    console.error('Login error:', error);
+                    console.error('Global login error:', error);
                     showMessage('System error. Please try again.', 'error');
                     loginBtn.disabled = false;
                     loginBtn.innerHTML = 'Login';
                 }
             });
             
-            // 🔥 DATA INTEGRITY CHECK
-            function checkAndFixUserData(username, userData) {
-                console.log('🔧 Checking data integrity for:', username);
-                
-                try {
-                    // Check if user exists in ALL_XBET_USERS
-                    const allUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
-                    const existsInAllUsers = allUsers.some(u => u.username === username);
-                    
-                    if (!existsInAllUsers) {
-                        console.log('⚠️ User not in ALL_XBET_USERS, adding...');
-                        
-                        // Add to ALL_XBET_USERS
-                        allUsers.push({
-                            username: username,
-                            email: userData.email || '',
-                            transactionCode: userData.transactionCode || generateTransactionCode(username),
-                            balance: userData.balance || 0,
-                            status: userData.status || 'active',
-                            registeredAt: userData.registeredAt || new Date().toISOString(),
-                            lastLogin: new Date().toISOString(),
-                            lastUpdated: new Date().toISOString(),
-                            source: 'auto_added_login'
-                        });
-                        
-                        localStorage.setItem('ALL_XBET_USERS', JSON.stringify(allUsers));
-                        console.log('✅ Added to ALL_XBET_USERS');
-                    }
-                    
-                    // Check if user exists in registeredUsers
-                    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-                    if (!registeredUsers[username] && userData.email) {
-                        console.log('⚠️ User not in registeredUsers, adding...');
-                        registeredUsers[username] = userData.email;
-                        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-                        console.log('✅ Added to registeredUsers');
-                    }
-                    
-                    console.log('🔧 Data integrity check complete');
-                    
-                } catch (error) {
-                    console.error('Data integrity check error:', error);
-                }
-            }
-            
             // Auto-focus username field
             setTimeout(() => {
                 usernameInput.focus();
             }, 500);
             
-            console.log('✅ Login system ready');
+            console.log('✅ Global login system ready');
         });
         
         // Session refresh function
         function refreshSession() {
             try {
-                const expiry = localStorage.getItem('session_expiry');
-                if (expiry && Date.now() < parseInt(expiry)) {
-                    localStorage.setItem('session_expiry', Date.now() + 86400000);
+                const token = localStorage.getItem('xbet_token');
+                if (token) {
+                    const storage = new XBetStorage();
+                    const validation = storage.validateSession(token);
+                    if (validation.valid) {
+                        // Update expiry
+                        const sessions = JSON.parse(localStorage.getItem('XBET_SESSIONS') || '{}');
+                        if (sessions[token]) {
+                            sessions[token].expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+                            localStorage.setItem('XBET_SESSIONS', JSON.stringify(sessions));
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Session refresh error:', error);
@@ -832,65 +872,97 @@
         // Refresh session every 30 minutes
         setInterval(refreshSession, 1800000);
         
-        // 🔥 DEBUG FUNCTIONS (HIDDEN)
+        // 🌍 DEBUG FUNCTIONS
         function showDebugInfo() {
-            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
-            const allUsers = JSON.parse(localStorage.getItem('ALL_XBET_USERS') || '[]');
+            const storage = new XBetStorage();
+            const stats = storage.getSystemStats();
+            const users = storage.getAllUsers();
+            const sessions = JSON.parse(localStorage.getItem('XBET_SESSIONS') || '{}');
             
-            let info = `🔍 DEBUG INFO\n`;
-            info += `============\n`;
-            info += `registeredUsers: ${Object.keys(registeredUsers).length} users\n`;
-            info += `ALL_XBET_USERS: ${allUsers.length} users\n`;
-            info += `Current time: ${new Date().toLocaleTimeString()}\n`;
+            let info = `🔍 X-BET DEBUG INFO\n`;
+            info += `==================\n`;
+            info += `Total Users: ${stats.totalUsers}\n`;
+            info += `Active Users: ${stats.activeUsers}\n`;
+            info += `Active Sessions: ${Object.keys(sessions).length}\n`;
+            info += `Browser: ${navigator.userAgent.substring(0, 40)}...\n`;
+            info += `Current Time: ${new Date().toLocaleTimeString()}\n`;
             
-            if (allUsers.length > 0) {
-                info += `\nRecent users:\n`;
-                allUsers.slice(0, 5).forEach(user => {
-                    info += `- ${user.username} ($${user.balance})\n`;
+            if (Object.keys(users).length > 0) {
+                info += `\n📊 User List (${Object.keys(users).length}):\n`;
+                let count = 0;
+                for (const userId in users) {
+                    if (count < 5) {
+                        const user = users[userId];
+                        info += `- ${user.username} ($${user.balance}) - ${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}\n`;
+                        count++;
+                    }
+                }
+            }
+            
+            // Show global access info
+            const globalLog = JSON.parse(localStorage.getItem('XBET_GLOBAL_LOG') || '[]');
+            info += `\n🌍 Global Logins: ${globalLog.length}\n`;
+            if (globalLog.length > 0) {
+                const recent = globalLog.slice(-3);
+                recent.forEach(log => {
+                    info += `- ${log.username} at ${new Date(log.time).toLocaleTimeString()}\n`;
                 });
             }
             
             alert(info);
         }
         
-        // 🚨 EMERGENCY SAVE ON PAGE UNLOAD
+        // 🚨 EMERGENCY GLOBAL SAVE ON PAGE UNLOAD
         window.addEventListener('beforeunload', function(e) {
-            console.log('🚨 Page unloading, checking session...');
+            console.log('🌍 Page unloading, saving global state...');
             
-            // Save session expiry update
             try {
-                const expiry = localStorage.getItem('session_expiry');
-                if (expiry && Date.now() < parseInt(expiry)) {
-                    localStorage.setItem('session_expiry', Date.now() + 86400000);
-                    console.log('✅ Updated session expiry');
+                const token = localStorage.getItem('xbet_token');
+                if (token) {
+                    const storage = new XBetStorage();
+                    storage.validateSession(token); // This updates session validation
                 }
             } catch (error) {
                 console.error('Unload save error:', error);
             }
         });
         
-        // 🚀 LOAD DATA CHECK
+        // 🚀 GLOBAL SYSTEM CHECK
         window.addEventListener('load', function() {
-            console.log('📂 Login page loaded');
+            console.log('🌍 X-BET Global System Loaded');
             
-            // Check localStorage usage
-            try {
-                let totalSize = 0;
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    const value = localStorage.getItem(key);
-                    totalSize += (key.length + value.length) * 2;
-                }
-                
-                console.log(`💾 Storage usage: ${Math.round(totalSize / 1024)}KB`);
-                
-                if (totalSize > 4 * 1024 * 1024) {
-                    console.warn('⚠️ Storage is getting full!');
-                }
-            } catch (error) {
-                console.error('Storage check error:', error);
+            // Initialize global system
+            const storage = new XBetStorage();
+            const stats = storage.getSystemStats();
+            
+            console.log(`🌍 Global Users: ${stats.totalUsers}`);
+            console.log(`🌍 System Version: ${stats.version}`);
+            console.log(`🌍 Browser: ${navigator.userAgent}`);
+            
+            // Set up auto-sync for cross-browser access
+            if (window.crossBrowserSync && window.crossBrowserSync.enableGlobalAccess) {
+                window.crossBrowserSync.enableGlobalAccess();
+                console.log('🌍 Cross-browser sync enabled');
             }
         });
+        
+        // 🌍 BROWSER DETECTION
+        function detectBrowser() {
+            const ua = navigator.userAgent;
+            let browser = "Unknown";
+            
+            if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
+            else if (ua.includes("Firefox")) browser = "Firefox";
+            else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+            else if (ua.includes("Edg")) browser = "Edge";
+            else if (ua.includes("Opera") || ua.includes("OPR")) browser = "Opera";
+            
+            return browser;
+        }
+        
+        // Log browser info
+        console.log(`🌍 Browser Detected: ${detectBrowser()}`);
+        console.log(`🌍 Global Access Ready`);
     </script>
 </body>
 </html>
