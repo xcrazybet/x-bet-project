@@ -3,178 +3,1050 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET | Beyond Gaming Logic</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>X-BET | The Ultimate Gaming Experience</title>
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
-            --primary: #3b82f6; --secondary: #f59e0b; --dark-bg: #05080f;
-            --text-main: #ffffff; --text-dim: #94a3b8; --border: rgba(255, 255, 255, 0.1);
-            --success: #10b981; --danger: #ef4444; --nav-height: 80px;
+            --primary: #3b82f6; 
+            --primary-dark: #2563eb;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --secondary: #f59e0b; 
+            --secondary-dark: #d97706;
+            --secondary-glow: rgba(245, 158, 11, 0.4);
+            --dark-bg: #05080f;
+            --darker-bg: #020617;
+            --card-bg: rgba(15, 23, 42, 0.8);
+            --text-main: #ffffff; 
+            --text-dim: #94a3b8; 
+            --text-dimmer: #64748b;
+            --border: rgba(255, 255, 255, 0.1);
+            --border-light: rgba(255, 255, 255, 0.05);
+            --success: #10b981; 
+            --success-dark: #059669;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --nav-height: 80px;
+            --transition-fast: 0.2s ease;
+            --transition-base: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+            --glow-primary: 0 0 20px var(--primary-glow);
+            --glow-secondary: 0 0 20px var(--secondary-glow);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
         body { 
-            background: var(--dark-bg); color: var(--text-main); 
-            font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; 
-            background-image: radial-gradient(circle at 50% -20%, #1e293b 0%, #05080f 80%);
+            background: var(--dark-bg); 
+            color: var(--text-main); 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
         }
-
-        /* --- Animations --- */
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .fade-in { animation: fadeInUp 0.8s ease forwards; }
-        .floating { animation: float 4s ease-in-out infinite; }
-
-        /* --- Components --- */
-        .btn-link { text-decoration: none; }
-        .hidden { display: none !important; }
         
-        /* --- Navigation --- */
-        .navbar { 
-            position: fixed; top: 0; width: 100%; z-index: 2000; 
-            background: rgba(5, 8, 15, 0.8); backdrop-filter: blur(20px); 
-            border-bottom: 1px solid var(--border); height: var(--nav-height); 
+        /* Background Animation */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
         }
-        .nav-container { max-width: 1400px; margin: 0 auto; padding: 0 30px; display: flex; justify-content: space-between; align-items: center; height: 100%; }
-        .logo { font-size: 24px; font-weight: 800; color: white; text-decoration: none; letter-spacing: -1px; }
-        .logo span { color: var(--primary); }
-        .nav-links { display: flex; gap: 30px; list-style: none; }
-        .nav-item { color: var(--text-dim); font-weight: 600; font-size: 14px; transition: 0.3s; }
-        .nav-item:hover, .nav-item.active { color: white; }
-
-        /* --- Hero Section --- */
-        main { padding-top: calc(var(--nav-height) + 60px); max-width: 1400px; margin: 0 auto; padding-bottom: 100px; }
         
-        .hero-grid { 
-            display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 30px; 
-            align-items: center; padding: 0 20px;
+        .floating-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+            animation: float 15s infinite ease-in-out;
         }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
+        
+        .circle-1 {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            right: -150px;
+            animation-delay: 0s;
+        }
+        
+        .circle-2 {
+            width: 300px;
+            height: 300px;
+            bottom: -100px;
+            left: -100px;
+            background: radial-gradient(circle, var(--secondary-glow) 0%, transparent 70%);
+            animation-delay: 5s;
+        }
+        
+        .circle-3 {
+            width: 200px;
+            height: 200px;
+            top: 40%;
+            left: 10%;
+            animation-delay: 10s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-30px) translateX(20px); }
+            50% { transform: translateY(0) translateX(40px); }
+            75% { transform: translateY(30px) translateX(20px); }
+        }
+        
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(5, 8, 15, 0.95);
             backdrop-filter: blur(15px);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 30px;
-            transition: 0.3s;
+            border-bottom: 1px solid var(--border);
+            height: var(--nav-height);
+            transition: all var(--transition-base);
         }
-        .glass-card:hover { border-color: var(--primary); background: rgba(255, 255, 255, 0.05); }
-
-        .hero-text { text-align: center; }
-        .hero-text h1 { font-size: 68px; font-weight: 800; line-height: 1; margin-bottom: 20px; letter-spacing: -3px; }
-        .hero-text p { color: var(--text-dim); font-size: 18px; max-width: 450px; margin: 0 auto 40px; }
-
-        /* --- Stats & Labels --- */
-        .stat-group { display: flex; justify-content: space-between; margin-bottom: 30px; }
-        .stat-item h4 { font-size: 11px; text-transform: uppercase; color: var(--text-dim); letter-spacing: 1px; }
-        .stat-item span { font-size: 32px; font-weight: 800; display: block; }
         
-        .feature-item { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; }
-        .icon-circle { width: 35px; height: 35px; background: rgba(59, 130, 246, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 14px; }
-
-        .game-preview { 
-            display: flex; gap: 15px; margin-top: 40px; justify-content: center;
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
         }
-        .game-thumb { 
-            width: 180px; height: 110px; border-radius: 12px; background: #1e293b; 
-            border: 1px solid var(--border); overflow: hidden; position: relative;
+        
+        .logo {
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .game-thumb img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.6); }
-        .game-thumb span { position: absolute; bottom: 10px; left: 10px; font-size: 11px; font-weight: 700; }
-
-        /* --- Responsive --- */
-        @media (max-width: 1100px) {
-            .hero-grid { grid-template-columns: 1fr; }
-            .hero-text { order: -1; }
+        
+        .logo span {
+            color: var(--primary);
+            position: relative;
+        }
+        
+        .logo span::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--secondary);
+            transform: scaleX(0);
+            transition: transform var(--transition-base);
+        }
+        
+        .logo:hover span::after {
+            transform: scaleX(1);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            list-style: none;
+        }
+        
+        .nav-item {
+            color: var(--text-dim);
+            font-weight: 600;
+            font-size: 15px;
+            text-decoration: none;
+            position: relative;
+            padding: 8px 0;
+            transition: color var(--transition-base);
+        }
+        
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--secondary);
+            transition: width var(--transition-base);
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            color: white;
+        }
+        
+        .nav-item:hover::after, .nav-item.active::after {
+            width: 100%;
+        }
+        
+        .auth-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 12px 28px;
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-primary), var(--shadow-lg);
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 30px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .hero-content {
+            max-width: 700px;
+            z-index: 1;
+        }
+        
+        .hero-title {
+            font-size: 4.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ffffff, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: textGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes textGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5)); }
+            100% { filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.7)); }
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+        
+        .stats-container {
+            display: flex;
+            gap: 40px;
+            margin-top: 60px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            min-width: 200px;
+            backdrop-filter: blur(10px);
+            transition: all var(--transition-base);
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: var(--glow-primary);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Games Section */
+        .games-section {
+            padding: 100px 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 60px;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .game-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: all var(--transition-base);
+            position: relative;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: var(--glow-primary);
+        }
+        
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transition: transform var(--transition-base);
+        }
+        
+        .game-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .game-image {
+            height: 180px;
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+        
+        .game-content {
+            padding: 25px;
+        }
+        
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .game-desc {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .players-count {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-dimmer);
+            font-size: 0.9rem;
+        }
+        
+        .hot-badge {
+            background: var(--danger);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Winners Section */
+        .winners-section {
+            padding: 100px 30px;
+            background: linear-gradient(to bottom, transparent, rgba(15, 23, 42, 0.5));
+        }
+        
+        .winners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 60px auto 0;
+        }
+        
+        .winner-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            text-align: center;
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .winner-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--glow-secondary);
+            border-color: var(--secondary);
+        }
+        
+        .winner-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            border: 3px solid var(--border);
+        }
+        
+        .winner-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .winner-amount {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+        
+        .winner-game {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .winner-time {
+            font-size: 0.8rem;
+            color: var(--text-dimmer);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        /* Features Section */
+        .features-section {
+            padding: 100px 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+        
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 35px 25px;
+            text-align: center;
+            transition: all var(--transition-base);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: var(--glow-primary);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .feature-desc {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 30px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(5, 8, 15, 0.9));
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .cta-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 14px 32px;
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            text-decoration: none;
+            transition: all var(--transition-base);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--glow-primary);
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 60px 30px 30px;
+            border-top: 1px solid var(--border);
+            background: var(--darker-bg);
+            text-align: center;
+        }
+        
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        
+        .footer-text {
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        
+        .copyright {
+            color: var(--text-dimmer);
+            font-size: 0.9rem;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-light);
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero-title {
+                font-size: 3.5rem;
+            }
+            
+            .section-title {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                gap: 25px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.8rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .stats-container {
+                gap: 20px;
+            }
+            
+            .stat-box {
+                min-width: 160px;
+                padding: 20px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+                background: none;
+                border: none;
+                color: white;
+                font-size: 1.5rem;
+                cursor: pointer;
+            }
+            
+            .cta-title {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .hero-section {
+                padding: 100px 20px 40px;
+            }
+            
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            
+            .games-section, .winners-section, .features-section, .cta-section {
+                padding: 60px 20px;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-secondary, .auth-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+        
+        /* Counter Animation */
+        .counter {
+            display: inline-block;
+            font-variant-numeric: tabular-nums;
         }
     </style>
 </head>
-
-<body data-api-key="YOUR_KEY" data-auth-domain="YOUR_DOMAIN" data-project-id="YOUR_ID" data-bucket="YOUR_BUCKET" data-sender-id="YOUR_SENDER" data-app-id="YOUR_APP">
-
+<body>
+    <!-- Background Animation -->
+    <div class="bg-animation">
+        <div class="floating-circle circle-1"></div>
+        <div class="floating-circle circle-2"></div>
+        <div class="floating-circle circle-3"></div>
+    </div>
+    
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
-            <a href="#" class="logo">X-<span>BET</span></a>
+            <a href="#" class="logo">
+                X-<span>BET</span>
+            </a>
+            
             <ul class="nav-links">
                 <li><a href="#" class="nav-item active">Home</a></li>
                 <li><a href="#" class="nav-item">Games</a></li>
-                <li><a href="#" id="link-dash" class="nav-item hidden">Dashboard</a></li>
+                <li><a href="#" class="nav-item">Leaderboard</a></li>
+                <li><a href="#" class="nav-item">Support</a></li>
             </ul>
-            <div id="authArea"><div class="sync-spinner"></div></div>
+            
+            <a href="#" class="auth-btn">Join Now</a>
         </div>
     </nav>
-
-    <main>
-        <div class="hero-grid">
-            <div class="glass-card floating fade-in" style="animation-delay: 0.2s;">
-                <h3 style="margin-bottom: 25px; font-size: 14px; letter-spacing: 1px;">THE ERA OF TRANSPARENCY</h3>
-                <div class="feature-item">
-                    <div class="icon-circle">✓</div>
-                    <div>
-                        <h5 style="font-size: 14px;">Verified Fair Play</h5>
-                        <p style="font-size: 12px; color: var(--text-dim);">100% on-chain logic.</p>
-                    </div>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content fade-in">
+            <h1 class="hero-title">THE ULTIMATE GAMING EXPERIENCE</h1>
+            <p class="hero-subtitle">
+                Welcome to X-BET, where legends are made and fortunes are won. 
+                Join millions of players worldwide in the most thrilling gaming ecosystem ever created.
+            </p>
+            
+            <div class="stats-container">
+                <div class="stat-box fade-in delay-1">
+                    <div class="stat-value counter" data-target="15473289">15M+</div>
+                    <div class="stat-label">Active Players</div>
                 </div>
-                <div class="feature-item">
-                    <div class="icon-circle">⚡</div>
-                    <div>
-                        <h5 style="font-size: 14px;">Instant Payouts</h5>
-                        <p style="font-size: 12px; color: var(--text-dim);">Real-time wallet sync.</p>
-                    </div>
+                <div class="stat-box fade-in delay-2">
+                    <div class="stat-value counter" data-target="984">$984M+</div>
+                    <div class="stat-label">Total Winnings</div>
                 </div>
-                <div class="feature-item">
-                    <div class="icon-circle">🔒</div>
-                    <div>
-                        <h5 style="font-size: 14px;">No Hidden Fees</h5>
-                        <p style="font-size: 12px; color: var(--text-dim);">Fixed 1% house edge.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="hero-text fade-in">
-                <h1>BEYOND<br><span style="color: var(--primary);">GAMING</span> LOGIC</h1>
-                <p>Experience the ultimate high-frequency gaming platform built for the modern enterprise era.</p>
-                <div class="game-preview">
-                    <div class="game-thumb">
-                        <img src="https://images.unsplash.com/photo-1642104704074-907c0698cbd9?auto=format&fit=crop&q=60&w=400" alt="Crash">
-                        <span>CRYPTO CRASH</span>
-                    </div>
-                    <div class="game-thumb">
-                        <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=60&w=400" alt="Slots">
-                        <span>ORBITAL SLOTS</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-card floating fade-in" style="animation-delay: 0.4s;">
-                <div class="stat-group">
-                    <div class="stat-item">
-                        <h4>Winner Rate</h4>
-                        <span style="color: var(--success);">92.7%</span>
-                    </div>
-                    <div class="stat-item">
-                        <h4>Winner CNT</h4>
-                        <span>98.1k</span>
-                    </div>
-                </div>
-                <h3 style="margin-bottom: 15px; font-size: 14px;">MOST WANTED</h3>
-                <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; margin-bottom: 10px; border-left: 3px solid var(--primary);">
-                    <h6 style="font-size: 13px;">Quantum Dice</h6>
-                    <p style="font-size: 11px; color: var(--text-dim);">Current RTP: 99.1%</p>
-                </div>
-                <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px;">
-                    <h6 style="font-size: 13px;">Lumberjack Slots</h6>
-                    <p style="font-size: 11px; color: var(--text-dim);">4.2k Active Now</p>
+                <div class="stat-box fade-in delay-3">
+                    <div class="stat-value counter" data-target="99.7">99.7%</div>
+                    <div class="stat-label">Win Rate</div>
                 </div>
             </div>
         </div>
-    </main>
-
-    <script type="module">
-        /* FIREBASE LOGIC REMAINS THE SAME AS PREVIOUS STEP */
-        // (Include the script block from our previous 9.5/10 version here)
+    </section>
+    
+    <!-- Most Wanted Games -->
+    <section class="games-section">
+        <h2 class="section-title fade-in">MOST WANTED GAMES</h2>
+        <p class="section-subtitle fade-in delay-1">Experience the thrill of our top-rated games with massive payout potentials</p>
+        
+        <div class="games-grid">
+            <div class="game-card fade-in">
+                <div class="game-image">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <div class="game-content">
+                    <h3 class="game-title">Royal Fortune</h3>
+                    <p class="game-desc">The king of slot games with progressive jackpots reaching $10M+. Feel the thrill of royal wins.</p>
+                    <div class="game-stats">
+                        <div class="players-count">
+                            <i class="fas fa-users"></i>
+                            <span>2.4M players</span>
+                        </div>
+                        <div class="hot-badge">
+                            <i class="fas fa-fire"></i>
+                            HOT
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-card fade-in delay-1">
+                <div class="game-image">
+                    <i class="fas fa-dice"></i>
+                </div>
+                <div class="game-content">
+                    <h3 class="game-title">Dice Dynasty</h3>
+                    <p class="game-desc">Ancient dice game with modern twists. 98.5% RTP and instant win features.</p>
+                    <div class="game-stats">
+                        <div class="players-count">
+                            <i class="fas fa-users"></i>
+                            <span>1.8M players</span>
+                        </div>
+                        <div class="hot-badge">
+                            <i class="fas fa-bolt"></i>
+                            TRENDING
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-card fade-in delay-2">
+                <div class="game-image">
+                    <i class="fas fa-gem"></i>
+                </div>
+                <div class="game-content">
+                    <h3 class="game-title">Crypto Crash</h3>
+                    <p class="game-desc">Predict the crash multiplier in this high-risk, high-reward blockchain game.</p>
+                    <div class="game-stats">
+                        <div class="players-count">
+                            <i class="fas fa-users"></i>
+                            <span>3.1M players</span>
+                        </div>
+                        <div class="hot-badge">
+                            <i class="fas fa-rocket"></i>
+                            NEW
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Recent Winners -->
+    <section class="winners-section">
+        <h2 class="section-title fade-in">RECENT BIG WINNERS</h2>
+        <p class="section-subtitle fade-in delay-1">Real players, real wins. Join the winners circle today!</p>
+        
+        <div class="winners-grid">
+            <div class="winner-card fade-in">
+                <div class="winner-avatar">JD</div>
+                <h3 class="winner-name">John D.</h3>
+                <div class="winner-amount">$2,450,000</div>
+                <div class="winner-game">Royal Fortune Jackpot</div>
+                <div class="winner-time">2 hours ago</div>
+            </div>
+            
+            <div class="winner-card fade-in delay-1">
+                <div class="winner-avatar">SR</div>
+                <h3 class="winner-name">Sarah R.</h3>
+                <div class="winner-amount">$1,230,500</div>
+                <div class="winner-game">Crypto Crash 1000x</div>
+                <div class="winner-time">5 hours ago</div>
+            </div>
+            
+            <div class="winner-card fade-in delay-2">
+                <div class="winner-avatar">MT</div>
+                <h3 class="winner-name">Mike T.</h3>
+                <div class="winner-amount">$890,750</div>
+                <div class="winner-game">Dice Dynasty Max Win</div>
+                <div class="winner-time">Yesterday</div>
+            </div>
+            
+            <div class="winner-card fade-in delay-3">
+                <div class="winner-avatar">AL</div>
+                <h3 class="winner-name">Anna L.</h3>
+                <div class="winner-amount">$3,125,000</div>
+                <div class="winner-game">Mega Wheel Jackpot</div>
+                <div class="winner-time">2 days ago</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Why X-BET Section -->
+    <section class="features-section">
+        <h2 class="section-title fade-in">WHY X-BET STANDS OUT</h2>
+        <p class="section-subtitle fade-in delay-1">Premium features that make us the industry leader</p>
+        
+        <div class="features-grid">
+            <div class="feature-card fade-in">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="feature-title">Bank-Level Security</h3>
+                <p class="feature-desc">Military-grade encryption and blockchain verification ensure your funds and data are always protected.</p>
+            </div>
+            
+            <div class="feature-card fade-in delay-1">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3 class="feature-title">Instant Withdrawals</h3>
+                <p class="feature-desc">Get your winnings in minutes, not days. 24/7 withdrawal processing with no limits.</p>
+            </div>
+            
+            <div class="feature-card fade-in delay-2">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="feature-title">Highest RTP</h3>
+                <p class="feature-desc">Industry-leading 99.7% average Return to Player rate. More chances to win big.</p>
+            </div>
+            
+            <div class="feature-card fade-in delay-3">
+                <div class="feature-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3 class="feature-title">24/7 Premium Support</h3>
+                <p class="feature-desc">Dedicated support team available round the clock via chat, email, and phone.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2 class="cta-title fade-in">READY TO WIN BIG?</h2>
+        <p class="cta-subtitle fade-in delay-1">
+            Join X-BET today and get a 200% welcome bonus on your first deposit. 
+            Start your journey to becoming our next millionaire winner!
+        </p>
+        
+        <div class="cta-buttons fade-in delay-2">
+            <a href="#" class="auth-btn">Create Free Account</a>
+            <a href="#" class="btn-secondary">Explore All Games</a>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-logo">X-<span style="color:var(--primary)">BET</span></div>
+        <p class="footer-text">
+            X-BET is the world's premier online gaming platform, licensed and regulated in multiple jurisdictions. 
+            We believe in fair play, transparency, and creating unforgettable gaming experiences.
+        </p>
+        <div class="copyright">
+            © 2024 X-BET Enterprise Gaming. All rights reserved. | Must be 18+ to play | Please gamble responsibly
+        </div>
+    </footer>
+    
+    <script>
+        // Counter Animation
+        function animateCounters() {
+            const counters = document.querySelectorAll('.counter');
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const increment = target / 200;
+                let current = 0;
+                
+                const updateCounter = () => {
+                    if (current < target) {
+                        current += increment;
+                        if (target >= 1000000) {
+                            counter.textContent = `$${Math.floor(current/1000000)}M+`;
+                        } else if (target >= 1000) {
+                            counter.textContent = `${Math.floor(current/1000)}K+`;
+                        } else {
+                            counter.textContent = `${current.toFixed(1)}%`;
+                        }
+                        setTimeout(updateCounter, 10);
+                    } else {
+                        if (target >= 1000000) {
+                            counter.textContent = `$${Math.floor(target/1000000)}M+`;
+                        } else if (target >= 1000) {
+                            counter.textContent = `${Math.floor(target/1000)}K+`;
+                        } else {
+                            counter.textContent = `${target.toFixed(1)}%`;
+                        }
+                    }
+                };
+                
+                updateCounter();
+            });
+        }
+        
+        // Scroll Animation
+        function checkScroll() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight - 100) {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }
+            });
+        }
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(5, 8, 15, 0.98)';
+                navbar.style.boxShadow = 'var(--shadow-md)';
+            } else {
+                navbar.style.background = 'rgba(5, 8, 15, 0.95)';
+                navbar.style.boxShadow = 'none';
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial state for fade-in elements
+            document.querySelectorAll('.fade-in').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            });
+            
+            // Start animations
+            setTimeout(() => {
+                checkScroll();
+                animateCounters();
+            }, 300);
+            
+            // Add scroll listener
+            window.addEventListener('scroll', checkScroll);
+            
+            // Check on load
+            checkScroll();
+            
+            // Add hover effects for buttons
+            document.querySelectorAll('.auth-btn, .btn-secondary').forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+        
+        // Prevent form submission (since we have no backend here)
+        document.querySelectorAll('a[href="#"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                // In real implementation, this would navigate to actual pages
+                alert('In a full implementation, this would navigate to the respective page.');
+            });
+        });
     </script>
 </body>
 </html>
