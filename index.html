@@ -3,25 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET | Premium Portal</title>
+    <title>X-BET | Premium Gaming Logic</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #3b82f6; --secondary: #f59e0b; --dark-bg: #05080f;
             --text-main: #ffffff; --text-dim: #94a3b8; --border: rgba(255, 255, 255, 0.1);
-            --success: #10b981; --danger: #ef4444;
+            --success: #10b981; --danger: #ef4444; --glass: rgba(255, 255, 255, 0.03);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             background: var(--dark-bg); color: var(--text-main); 
             font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh;
+            background-image: radial-gradient(circle at 90% 10%, #1e293b 0%, #05080f 60%);
+            overflow-x: hidden;
         }
 
-        /* --- NAVBAR --- */
+        /* --- NAVIGATION --- */
         .navbar {
-            position: fixed; top: 0; width: 100%; z-index: 1000;
-            background: rgba(5, 8, 15, 0.85); backdrop-filter: blur(20px);
+            position: fixed; top: 0; width: 100%; z-index: 2000;
+            background: rgba(5, 8, 15, 0.85); backdrop-filter: blur(25px);
             border-bottom: 1px solid var(--border);
         }
 
@@ -30,7 +32,7 @@
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        .logo { font-size: 24px; font-weight: 800; color: white; text-decoration: none; }
+        .logo { font-size: 26px; font-weight: 800; color: white; text-decoration: none; letter-spacing: -1px; }
         .logo span { color: var(--primary); }
 
         .nav-links { display: flex; gap: 25px; align-items: center; }
@@ -40,56 +42,69 @@
         }
         .nav-item:hover { color: white; }
 
-        /* --- USER DATA & LOGOUT --- */
-        .auth-group { display: flex; align-items: center; gap: 20px; }
+        /* --- AUTH & USER SECTION --- */
+        #authPortal { display: flex; align-items: center; gap: 20px; }
 
-        .user-info {
-            display: flex; flex-direction: column; align-items: flex-end;
-            border-right: 1px solid var(--border); padding-right: 20px;
+        .user-box {
+            display: flex; align-items: center; gap: 15px;
+            padding-right: 15px; border-right: 1px solid var(--border);
         }
-        .user-balance { color: var(--success); font-weight: 800; font-size: 16px; }
-        .user-name { color: var(--text-dim); font-size: 12px; font-weight: 500; }
+        .user-data { text-align: right; }
+        .live-balance { color: var(--success); font-weight: 800; font-size: 16px; display: block; }
+        .username-tag { color: var(--text-dim); font-size: 11px; font-weight: 700; text-transform: uppercase; }
 
+        /* --- BUTTONS --- */
         .btn {
-            padding: 10px 20px; border-radius: 10px; font-weight: 700;
+            padding: 10px 22px; border-radius: 10px; font-weight: 700;
             text-decoration: none; font-size: 14px; cursor: pointer; transition: 0.2s;
+            border: none; display: inline-flex; align-items: center;
         }
         .btn-logout { 
-            background: transparent; color: var(--danger); 
+            background: rgba(239, 68, 68, 0.1); color: var(--danger); 
             border: 1.5px solid var(--danger);
         }
         .btn-logout:hover { background: var(--danger); color: white; }
 
-        .btn-primary { background: var(--primary); color: white; border: none; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: transparent; color: white; border: 1px solid var(--border); }
 
         /* --- HERO --- */
-        .hero { padding: 200px 20px 100px; text-align: center; }
-        .hero h1 { font-size: 72px; font-weight: 800; margin-bottom: 20px; }
+        .hero { padding: 220px 20px 100px; text-align: center; max-width: 900px; margin: 0 auto; }
+        .hero h1 { font-size: clamp(48px, 8vw, 82px); font-weight: 800; margin-bottom: 25px; line-height: 1.1; }
+        .hero p { color: var(--text-dim); font-size: 18px; margin-bottom: 40px; line-height: 1.6; }
+
+        /* Loader */
+        .sync-spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index.html" class="logo">X-<span>BET</span></a>
-            
-            <div class="nav-links">
-                <a href="index.html" class="nav-item">Home</a>
-                <a href="games.html" class="nav-item">Games</a>
-                <a href="dashboard.html" id="dashLink" class="nav-item" style="display:none">Dashboard</a>
-                <a href="bets.html" id="betsLink" class="nav-item" style="display:none">My Bets</a>
-                <a href="aboutus.html" class="nav-item">About</a>
+            <div style="display:flex; align-items:center; gap:40px;">
+                <a href="index.html" class="logo">X-<span>BET</span></a>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-item">Home</a>
+                    <a href="games.html" class="nav-item">Games</a>
+                    <a href="aboutus.html" class="nav-item">About</a>
+                    <a href="dashboard.html" id="navDash" class="nav-item" style="display:none">Dashboard</a>
+                    <a href="bets.html" id="navBets" class="nav-item" style="display:none">Bits</a>
+                </div>
             </div>
 
-            <div id="authSection" class="auth-group">
-                <span style="color: var(--text-dim); font-size: 12px;">Syncing...</span>
+            <div id="authPortal">
+                <div class="sync-spinner"></div>
             </div>
         </div>
     </nav>
 
     <main class="hero">
         <h1>Experience Premium <br>Gaming Logic.</h1>
-        <p style="color:var(--text-dim); font-size: 18px;">Fast payouts. Secure betting. Verified results.</p>
+        <p>Your secure gateway to instant-payout betting and verified fair play. Fast payouts. Secure betting. Verified results.</p>
+        <div id="heroAction">
+            <a href="signup.html" class="btn btn-primary" style="padding: 15px 35px; font-size: 16px;">Create Free Account</a>
+        </div>
     </main>
 
     <script type="module">
@@ -97,7 +112,7 @@
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // CONFIG (Replace with your actual keys)
+        // Your Config
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -111,45 +126,57 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        const authPortal = document.getElementById('authPortal');
+        const navDash = document.getElementById('navDash');
+        const navBets = document.getElementById('navBets');
+
+        // --- AUTH OBSERVER ---
         onAuthStateChanged(auth, (user) => {
-            const authSection = document.getElementById('authSection');
-            const dashLink = document.getElementById('dashLink');
-            const betsLink = document.getElementById('betsLink');
-
             if (user) {
-                // 1. Show Nav Links
-                dashLink.style.display = 'block';
-                betsLink.style.display = 'block';
-
-                // 2. Stream User Data (Name & Balance)
+                // 1. User is Logged In - Start Firestore Stream
                 onSnapshot(doc(db, "users", user.uid), (snap) => {
                     const data = snap.data() || {};
-                    authSection.innerHTML = `
-                        <div class="user-info">
-                            <span class="user-balance">$${(data.balance || 0).toLocaleString()}</span>
-                            <span class="user-name">${data.username || 'Anonymous'}</span>
-                        </div>
-                        <button id="logoutBtn" class="btn btn-logout">Logout</button>
-                    `;
-
-                    // Attach Logout Functionality
-                    document.getElementById('logoutBtn').onclick = async () => {
-                        if(confirm("Are you sure you want to logout?")) {
-                            await signOut(auth);
-                            window.location.reload();
-                        }
-                    };
+                    updateUI(true, data);
+                }, (error) => {
+                    console.error("Firestore Error:", error);
+                    updateUI(false);
                 });
             } else {
-                // 3. User is Guest
-                dashLink.style.display = 'none';
-                betsLink.style.display = 'none';
-                authSection.innerHTML = `
-                    <a href="login.html" class="nav-item" style="margin-right:10px">Login</a>
+                // 2. User is Logged Out
+                updateUI(false);
+            }
+        });
+
+        function updateUI(isLoggedIn, userData = null) {
+            if (isLoggedIn && userData) {
+                // Show member links
+                navDash.style.display = 'block';
+                navBets.style.display = 'block';
+                
+                // Update Header with Balance & Name
+                authPortal.innerHTML = `
+                    <div class="user-box">
+                        <div class="user-data">
+                            <span class="live-balance">$${(userData.balance || 0).toLocaleString()}</span>
+                            <span class="username-tag">${userData.username || 'PLAYER'}</span>
+                        </div>
+                    </div>
+                    <button id="logoutBtn" class="btn btn-logout">Logout</button>
+                `;
+
+                document.getElementById('logoutBtn').onclick = () => {
+                    if(confirm("Logout from X-BET?")) signOut(auth);
+                };
+            } else {
+                // Guest View
+                navDash.style.display = 'none';
+                navBets.style.display = 'none';
+                authPortal.innerHTML = `
+                    <a href="login.html" class="nav-item" style="margin-right:15px">Login</a>
                     <a href="signup.html" class="btn btn-primary">Sign Up</a>
                 `;
             }
-        });
+        }
     </script>
 </body>
 </html>
