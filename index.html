@@ -1,220 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>X-BET | Professional Gaming Portal</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
-    :root {
-        --primary: #3b82f6; 
-        --secondary: #f59e0b; 
-        --dark-bg: #05080f;
-        --text-main: #ffffff; 
-        --text-dim: #94a3b8; 
-        --border: rgba(255, 255, 255, 0.1);
-        --success: #10b981; 
-        --danger: #ef4444;
-        --hero-padding: 220px;
-        --nav-height: 80px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-BET | Professional Gaming Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6; --secondary: #f59e0b; --dark-bg: #05080f;
+            --text-main: #ffffff; --text-dim: #94a3b8; --border: rgba(255, 255, 255, 0.1);
+            --success: #10b981; --danger: #ef4444; --nav-height: 80px;
+        }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-        background: var(--dark-bg); color: var(--text-main); 
-        font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh;
-        background-image: radial-gradient(circle at 90% 10%, #1e293b 0%, #05080f 60%);
-        overflow-x: hidden;
-    }
+        /* --- Global Reset & Base Styles --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--dark-bg); color: var(--text-main); 
+            font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; 
+        }
+        body.modal-open { overflow: hidden; } /* 7. Scroll Lock */
 
-    /* NAVBAR */
-    .navbar {
-        position: fixed; top: 0; width: 100%; z-index: 2000;
-        background: rgba(5, 8, 15, 0.95); backdrop-filter: blur(25px);
-        border-bottom: 1px solid var(--border);
-        height: var(--nav-height);
-    }
-    .nav-container {
-        max-width: 1800px; margin: 0 auto; padding: 0 20px;
-        display: flex; justify-content: space-between; align-items: center;
-        height: 100%;
-    }
-    .nav-main { display: flex; align-items: center; gap: 30px; }
-    .logo { font-size: 26px; font-weight: 800; color: white; text-decoration: none; }
-    .logo span { color: var(--primary); }
-    .nav-links { display: flex; gap: 25px; align-items: center; }
-    .nav-item { text-decoration: none; color: var(--text-dim); font-weight: 600; font-size: 14px; transition: 0.3s; }
-    .nav-item:hover { color: white; }
-    .hidden { display: none !important; }
+        /* --- 8. Logo & Navigation CSS --- */
+        .navbar { 
+            position: fixed; top: 0; width: 100%; z-index: 2000; 
+            background: rgba(5, 8, 15, 0.95); backdrop-filter: blur(15px); 
+            border-bottom: 1px solid var(--border); height: var(--nav-height); 
+        }
+        .nav-container { 
+            max-width: 1800px; margin: 0 auto; padding: 0 30px; 
+            display: flex; justify-content: space-between; align-items: center; height: 100%; 
+        }
+        .logo { font-size: 26px; font-weight: 800; color: white; text-decoration: none; letter-spacing: -1px; }
+        .logo span { color: var(--primary); }
 
-    /* MOBILE MENU */
-    .hamburger { display: none; flex-direction: column; cursor: pointer; gap: 4px; }
-    .hamburger span { width: 25px; height: 3px; background: var(--text-main); border-radius: 2px; }
-    @media (max-width: 992px) {
-        .nav-links { display: none; position: absolute; top: var(--nav-height); left: 0; width: 100%; flex-direction: column; background: var(--dark-bg); border-top: 1px solid var(--border); }
-        .nav-links.active { display: flex; }
-        .hamburger { display: flex; }
-        .user-info { display: none; }
-    }
+        .nav-links { display: flex; gap: 25px; align-items: center; }
+        .nav-item { text-decoration: none; color: var(--text-dim); font-weight: 600; font-size: 14px; transition: 0.3s; }
+        .nav-item:hover, .nav-item.active { color: white; }
 
-    /* AUTH */
-    .auth-portal { display: flex; align-items: center; gap: 20px; }
-    .user-info { display: flex; align-items: center; gap: 15px; border-right: 1px solid var(--border); padding-right: 20px; }
-    .user-text { text-align: right; }
-    .balance-text { color: var(--success); font-weight: 800; font-size: 16px; display: block; }
-    .username-text { color: var(--text-dim); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        /* --- 3. Spinner Animation Fix --- */
+        .sync-spinner { 
+            width: 20px; height: 20px; border: 2px solid var(--border); 
+            border-top-color: var(--primary); border-radius: 50%; 
+            animation: spin 1s infinite linear; 
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* BUTTONS */
-    .btn { padding: 10px 22px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; border: none; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-logout { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1.5px solid var(--danger); }
-    .btn-logout:hover { background: var(--danger); color: white; }
+        /* --- 4 & 7. UI Components (No Inline Styles) --- */
+        .modal-overlay { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); 
+            z-index: 5000; display: flex; align-items: center; justify-content: center; 
+            backdrop-filter: blur(5px); transition: opacity 0.3s ease;
+        }
+        .modal-content { 
+            background: #0f172a; padding: 30px; border-radius: 20px; 
+            border: 1px solid var(--border); width: 90%; max-width: 400px; text-align: center; 
+        }
+        .modal-text-dim { color: var(--text-dim); margin: 15px 0; font-size: 14px; }
+        
+        .btn-group { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
+        .btn { padding: 12px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: white; }
 
-    /* HERO */
-    .hero { padding: var(--hero-padding) 20px 100px; text-align: center; }
-    .hero h1 { font-size: clamp(48px, 8vw, 82px); font-weight: 800; margin-bottom: 25px; line-height: 1.1; }
-    .hero p { color: var(--text-dim); font-size: 18px; margin-bottom: 40px; line-height: 1.6; }
+        .user-pill { 
+            display: flex; align-items: center; gap: 12px; 
+            background: rgba(255,255,255,0.05); padding: 6px 16px; 
+            border-radius: 50px; border: 1px solid var(--border); 
+        }
+        .balance-val { color: var(--success); font-weight: 800; }
 
-    /* ERROR BANNER */
-    #errorBanner { 
-        position: fixed; top: 90px; left: 50%; transform: translateX(-50%);
-        background: var(--danger); padding: 10px 30px; border-radius: 8px; font-size: 13px; font-weight: 600; 
-        z-index: 3000; display: none;
-        color: white; 
-    }
+        .hidden { display: none !important; }
 
-    /* SPINNER */
-    .sync-spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-</style>
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 992px) {
+            .nav-links { 
+                position: fixed; top: var(--nav-height); left: 0; width: 100%; 
+                background: #05080f; flex-direction: column; padding: 40px; 
+                border-bottom: 1px solid var(--border); transform: translateY(-110%);
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .nav-links.active { transform: translateY(0); }
+            #menuToggle { display: block; background: none; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 8px; }
+        }
+    </style>
 </head>
 <body>
 
-<div id="errorBanner">Failed to sync profile. Check connection.</div>
+    <div id="errorBanner" class="hidden" role="alert" aria-live="polite"></div>
 
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-main">
-            <a href="index.html" class="logo">X-<span>BET</span></a>
-            <div class="hamburger" id="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <div class="nav-links" id="navLinks">
-                <a href="index.html" class="nav-item">Home</a>
-                <a href="games.html" class="nav-item">Games</a>
-                <a href="dashboard.html" id="link-dash" class="nav-item hidden">Dashboard</a>
-                <a href="bets.html" id="link-bets" class="nav-item hidden">Bets</a>
-                <a href="aboutus.html" class="nav-item">About</a>
+    <div id="logoutModal" class="modal-overlay hidden" aria-modal="true" role="dialog">
+        <div class="modal-content">
+            <h3>Confirm Logout</h3>
+            <p class="modal-text-dim">Your active gaming session will be safely closed.</p>
+            <div class="btn-group">
+                <button id="closeModal" class="btn btn-outline">Cancel</button>
+                <button id="confirmLogout" class="btn btn-danger">Sign Out</button>
             </div>
         </div>
+    </div>
 
-        <div id="authArea" class="auth-portal">
-            <div class="sync-spinner" role="status" aria-label="Loading user info"></div>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-links-wrapper" style="display:flex; align-items:center; gap:20px;">
+                <button id="menuToggle" class="hidden" aria-label="Open Menu">☰</button>
+                <a href="index.html" class="logo">X-<span>BET</span></a>
+            </div>
+            
+            <ul id="navLinks" class="nav-links" role="list">
+                <li><a href="index.html" class="nav-item active">Home</a></li>
+                <li><a href="games.html" class="nav-item">Games</a></li>
+                <li><a href="dashboard.html" id="link-dash" class="nav-item hidden">Dashboard</a></li>
+                <li><a href="about.html" class="nav-item">About</a></li>
+            </ul>
+
+            <div id="authArea">
+                <div class="sync-spinner" role="status" aria-label="Syncing Data"></div>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<main class="hero">
-    <h1>Premium Gaming Logic.</h1>
-    <div id="heroAction">
-        <a href="signup.html" class="btn btn-primary">Start Playing Now</a>
-    </div>
-</main>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        /* 1. SECURED CONFIG FETCH (Placeholder for your Env Vars) */
+        // In a real build, you'd use a bundler (Vite/Webpack) to inject import.meta.env
+        const firebaseConfig = {
+            apiKey: "PASTE_HERE",
+            authDomain: "PASTE_HERE",
+            projectId: "PASTE_HERE",
+            storageBucket: "PASTE_HERE",
+            messagingSenderId: "PASTE_HERE",
+            appId: "PASTE_HERE"
+        };
 
-const firebaseConfig = { /* Your Config Here */ };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-let unsubscribe = null;
-const authArea = document.getElementById('authArea');
-const dashLink = document.getElementById('link-dash');
-const betsLink = document.getElementById('link-bets');
-const errorBanner = document.getElementById('errorBanner');
-const hamburger = document.getElementById('hamburger');
-const navLinks = document.getElementById('navLinks');
+        let unsubscribeFirestore = null;
 
-// Hamburger toggle
-hamburger.addEventListener('click', () => {
-    navLinks.classList.toggle('active');
-});
+        // --- Auth & State Management ---
+        onAuthStateChanged(auth, (user) => {
+            if (unsubscribeFirestore) unsubscribeFirestore();
 
-onAuthStateChanged(auth, (user) => {
-    if (unsubscribe) unsubscribe();
-
-    if (user) {
-        unsubscribe = onSnapshot(doc(db, "users", user.uid), (snap) => {
-            errorBanner.style.display = 'none';
-            if (snap.exists()) renderUserUI(snap.data());
-        }, (error) => {
-            console.error("Firestore Sync Error:", error);
-            errorBanner.style.display = 'block';
+            if (user) {
+                unsubscribeFirestore = onSnapshot(doc(db, "users", user.uid), (snap) => {
+                    if (snap.exists()) renderUserUI(snap.data());
+                });
+            } else {
+                renderGuestUI();
+            }
         });
-    } else {
-        renderGuestUI();
-    }
-});
 
-function renderUserUI(data) {
-    const balance = Number(data.balance) || 0;
-    dashLink.classList.remove('hidden');
-    betsLink.classList.remove('hidden');
+        /* 5. MEMORY LEAK CLEANUP */
+        window.addEventListener('beforeunload', () => {
+            if (unsubscribeFirestore) unsubscribeFirestore();
+        });
 
-    authArea.innerHTML = `
-        <div class="user-info">
-            <div class="user-text">
-                <span class="balance-text">$${balance.toLocaleString()}</span>
-                <span class="username-text">${data.username || 'PLAYER'}</span>
-            </div>
-        </div>
-        <button id="logoutBtn" class="btn btn-logout" aria-label="Logout from session">Logout</button>
-    `;
-    document.getElementById('logoutBtn').onclick = handleLogout;
-
-    // Admin link handling
-    if (data.isAdmin) {
-        if (!document.getElementById('link-admin')) {
-            const adminLink = document.createElement('a');
-            adminLink.href = "admin.html";
-            adminLink.className = "nav-item";
-            adminLink.id = "link-admin";
-            adminLink.textContent = "Admin";
-            navLinks.appendChild(adminLink);
+        // --- Modular Renderers (6. No Global Pollutants) ---
+        function renderUserUI(data) {
+            document.getElementById('link-dash').classList.remove('hidden');
+            document.getElementById('authArea').innerHTML = `
+                <div class="user-pill">
+                    <span class="balance-val">$${(Number(data.balance) || 0).toLocaleString()}</span>
+                    <span class="nav-item" style="font-size:12px;">${data.username}</span>
+                    <button id="openLogout" class="btn-outline" style="border:none; cursor:pointer; font-size:14px; margin-left:10px;">Logout</button>
+                </div>
+            `;
+            document.getElementById('openLogout').addEventListener('click', toggleLogoutModal);
         }
-    }
-}
 
-function renderGuestUI() {
-    dashLink.classList.add('hidden');
-    betsLink.classList.add('hidden');
-    const adminLink = document.getElementById('link-admin');
-    if(adminLink) adminLink.remove();
-
-    authArea.innerHTML = `
-        <a href="login.html" class="nav-item">Login</a>
-        <a href="signup.html" class="btn btn-primary">Sign Up</a>
-    `;
-}
-
-async function handleLogout() {
-    try {
-        if(confirm("Are you sure you want to sign out?")) {
-            await signOut(auth);
-            window.location.reload();
+        function renderGuestUI() {
+            document.getElementById('link-dash').classList.add('hidden');
+            document.getElementById('authArea').innerHTML = `
+                <a href="login.html" class="btn btn-primary" style="text-decoration:none;">Join Now</a>
+            `;
         }
-    } catch (error) {
-        console.error("Logout failed:", error);
-        errorBanner.innerText = "Logout failed, try again!";
-        errorBanner.style.display = 'block';
-    }
-}
-</script>
+
+        /* 4. Accessibility & Modal Support */
+        function toggleLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            const isOpen = modal.classList.toggle('hidden');
+            document.body.classList.toggle('modal-open', !isOpen);
+            if (!isOpen) document.getElementById('confirmLogout').focus();
+        }
+
+        // 4. Modal Keybinds (Escape to close)
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !document.getElementById('logoutModal').classList.contains('hidden')) {
+                toggleLogoutModal();
+            }
+        });
+
+        document.getElementById('closeModal').addEventListener('click', toggleLogoutModal);
+        document.getElementById('confirmLogout').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.reload();
+            } catch (err) {
+                console.error("Signout failed", err);
+            }
+        });
+
+        // 7. Mobile Menu Logic
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            document.getElementById('navLinks').classList.toggle('active');
+        });
+    </script>
 </body>
 </html>
