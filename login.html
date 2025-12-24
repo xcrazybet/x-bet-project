@@ -10,45 +10,20 @@
             --primary-blue: #3b82f6;
             --primary-orange: #f59e0b;
             --bg-dark: #0f172a;
-            --nav-bg: rgba(15, 23, 42, 0.9);
             --glass: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
         }
 
         body {
             margin: 0;
-            padding: 0;
             background-color: var(--bg-dark);
             color: white;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(245, 158, 11, 0.05) 0%, transparent 40%);
-        }
-
-        /* Top Navigation (Same as your Index) */
-        nav {
-            background: var(--nav-bg);
-            padding: 20px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--glass-border);
-            backdrop-filter: blur(10px);
-        }
-
-        .logo { font-size: 24px; font-weight: 800; color: #6366f1; letter-spacing: 1px; }
-
-        /* Login Card */
-        .auth-wrapper {
-            flex-grow: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
         }
 
         .login-card {
@@ -60,34 +35,27 @@
             width: 100%;
             max-width: 400px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
         }
 
-        .header-text { text-align: center; margin-bottom: 35px; }
-        .header-text h1 { font-size: 28px; margin: 0; background: linear-gradient(90deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .header-text p { color: #64748b; font-size: 14px; margin-top: 8px; }
+        .logo { font-size: 32px; font-weight: 800; color: var(--primary-blue); margin-bottom: 30px; }
+        .logo span { color: var(--primary-orange); }
 
-        /* Form Styling */
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; }
         
         input {
             width: 100%;
-            padding: 14px 18px;
+            padding: 14px;
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
             color: white;
             font-size: 15px;
-            transition: 0.3s;
             box-sizing: border-box;
         }
 
-        input:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            background: rgba(59, 130, 246, 0.05);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-        }
+        input:focus { outline: none; border-color: var(--primary-blue); }
 
         .btn-submit {
             width: 100%;
@@ -97,63 +65,40 @@
             border-radius: 12px;
             color: white;
             font-weight: 700;
-            font-size: 16px;
             cursor: pointer;
             transition: 0.3s;
             margin-top: 10px;
         }
 
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3); }
-        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        /* Notification area */
-        #status {
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 13px;
-            text-align: center;
-            display: none;
-        }
+        #status { margin-top: 20px; padding: 12px; border-radius: 10px; display: none; }
         .error { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
         .success { background: rgba(16, 185, 129, 0.1); color: #4ade80; border: 1px solid rgba(16, 185, 129, 0.2); }
-
-        .footer-link { text-align: center; margin-top: 25px; font-size: 14px; color: #64748b; }
-        .footer-link a { color: var(--primary-orange); text-decoration: none; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="logo">X-BET</div>
-        <div style="font-size: 13px; color: #64748b;">SSL SECURE PORTAL</div>
-    </nav>
-
-    <div class="auth-wrapper">
-        <div class="login-card">
-            <div class="header-text">
-                <h1>Welcome Back</h1>
-                <p>Sign in to your premium gaming account</p>
+    <div class="login-card">
+        <div class="logo">X-<span>BET</span></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
             </div>
-
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="email" placeholder="name@example.com" required>
-                </div>
-                <div class="form-group">
-                    <label>Security Password</label>
-                    <input type="password" id="password" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn-submit" id="btnText">Authorized Login</button>
-            </form>
-
-            <div id="status"></div>
-
-            <div class="footer-link">
-                Don't have an account? <a href="signup.html">Join X-BET</a>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
             </div>
-        </div>
+            <button type="submit" class="btn-submit" id="submitBtn">Authorized Login</button>
+        </form>
+
+        <div id="status"></div>
+
+        <p style="margin-top: 25px; font-size: 14px; color: #64748b;">
+            New player? <a href="signup.html" style="color: var(--primary-orange); text-decoration: none;">Create Account</a>
+        </p>
     </div>
 
     <script type="module">
@@ -161,7 +106,7 @@
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // CONFIG (Must match your signup.html)
+        // CONFIG (Must match your signup)
         const firebaseConfig = {
             apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
             authDomain: "x-bet-prod-jd.firebaseapp.com",
@@ -177,12 +122,11 @@
 
         const loginForm = document.getElementById('loginForm');
         const statusBox = document.getElementById('status');
-        const submitBtn = document.getElementById('btnText');
+        const submitBtn = document.getElementById('submitBtn');
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // UI Setup
             statusBox.style.display = 'none';
             submitBtn.disabled = true;
             submitBtn.innerText = "Authenticating...";
@@ -195,41 +139,20 @@
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // 2. Fetch Firestore Data (Username/Balance)
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
-
-                    // 3. Save Pro Session to LocalStorage
-                    localStorage.setItem('XBET_ACTIVE_SESSION', JSON.stringify({
-                        uid: user.uid,
-                        username: data.username,
-                        balance: data.balance || 0,
-                        lastAccess: new Date().toLocaleDateString()
-                    }));
-
-                    // 4. Success UI
-                    statusBox.className = "success";
-                    statusBox.innerText = "Access Granted! Synchronizing environment...";
-                    statusBox.style.display = "block";
-
-                    // 5. REDIRECT TO YOUR INDEX.HTML
-                    setTimeout(() => {
-                        window.location.href = "index.html"; 
-                    }, 1500);
-                }
-            } catch (error) {
-                console.error(error);
-                statusBox.className = "error";
+                // 2. Success Feedback
+                statusBox.className = "success";
+                statusBox.innerText = "Access Granted! Redirecting...";
                 statusBox.style.display = "block";
-                
-                if (error.code === 'auth/invalid-credential') {
-                    statusBox.innerText = "Unauthorized: Invalid email or password.";
-                } else {
-                    statusBox.innerText = "Connection Error: Please check your network.";
-                }
-                
+
+                // 3. REDIRECT TO INDEX.HTML (The Landing Page area)
+                setTimeout(() => {
+                    window.location.href = "index.html"; 
+                }, 1500);
+
+            } catch (error) {
+                statusBox.className = "error";
+                statusBox.innerText = "Error: " + error.message;
+                statusBox.style.display = "block";
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Authorized Login";
             }
