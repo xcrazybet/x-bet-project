@@ -3,674 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET - Sign Up</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-    <script src="firebase-config.js"></script>
-    <!-- Cross-Browser Sync System -->
-    <script src="cross-browser-sync.js"></script>
+    <title>X-BET - Premium Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        /* [Keep all your existing CSS styles - they're perfect] */
-        /* ... Your existing CSS ... */
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Animated Background Elements */
+        .blob {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            filter: blur(80px);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.2;
+            animation: move 10s infinite alternate;
+        }
+
+        @keyframes move {
+            from { transform: translate(-100px, -100px); }
+            to { transform: translate(100px, 100px); }
+        }
+
+        .signup-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .signup-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .signup-logo {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .signup-tagline {
+            color: var(--text-dim);
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            color: var(--text-dim);
+            letter-spacing: 0.5px;
+        }
+
+        .input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .sync-status {
+            font-size: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .signup-footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+
+        .signup-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Success Message styling */
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .transaction-code-display {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            color: #60a5fa;
+            letter-spacing: 1px;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
+    <div class="blob"></div>
+    
     <div class="signup-container">
-        <!-- Header -->
         <div class="signup-header">
             <div class="signup-logo">X-BET</div>
-            <div class="signup-tagline">Create Your Account</div>
+            <div class="signup-tagline">Join the elite gaming network</div>
         </div>
 
-        <!-- Sync Status -->
-        <div id="syncStatus" class="sync-status">
-            <span class="loading"></span> Connecting to X-BET system...
+        <div id="firebaseStatus" class="sync-status">
+            <span id="firebaseIcon">📡</span> <span id="firebaseText">Connecting to X-BET Cloud...</span>
         </div>
 
-        <!-- Firebase Status -->
-        <div id="firebaseStatus" class="sync-status" style="background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; display: none;">
-            <span id="firebaseIcon">⚡</span> <span id="firebaseText">Connecting to Cloud Database...</span>
-        </div>
+        <div id="message"></div>
 
-        <!-- Messages -->
-        <div id="message" class="message"></div>
-
-        <!-- Signup Form -->
         <form id="signupForm">
-            <!-- Username -->
             <div class="form-group">
-                <label class="form-label" for="username">Username</label>
+                <label class="form-label">Username</label>
                 <div class="input-container">
                     <span class="input-icon">👤</span>
-                    <input type="text" id="username" class="form-input" placeholder="Choose a username" required>
+                    <input type="text" id="username" class="form-input" placeholder="User123" required>
                 </div>
             </div>
 
-            <!-- Email -->
             <div class="form-group">
-                <label class="form-label" for="email">Email Address</label>
+                <label class="form-label">Email</label>
                 <div class="input-container">
-                    <span class="input-icon">📧</span>
-                    <input type="email" id="email" class="form-input" placeholder="Your email address" required>
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="email" class="form-input" placeholder="name@example.com" required>
                 </div>
             </div>
 
-            <!-- Password -->
             <div class="form-group">
-                <label class="form-label" for="password">Password</label>
+                <label class="form-label">Password</label>
                 <div class="input-container">
                     <span class="input-icon">🔒</span>
-                    <input type="password" id="password" class="form-input" placeholder="Create a password" required>
-                    <button type="button" class="password-toggle" onclick="togglePassword('password')">👁</button>
+                    <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('password')">👁️</button>
                 </div>
             </div>
 
-            <!-- Confirm Password -->
-            <div class="form-group">
-                <label class="form-label" for="confirmPassword">Confirm Password</label>
-                <div class="input-container">
-                    <span class="input-icon">✅</span>
-                    <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm your password" required>
-                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">👁</button>
-                </div>
-            </div>
-
-            <!-- Terms -->
-            <div class="checkbox-group">
-                <input type="checkbox" id="terms" required>
-                <label for="terms">
-                    I agree to the <a href="#">Terms of Service</a>
-                </label>
-            </div>
-
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary" id="submitBtn">
-                Create Account
-            </button>
+            <button type="submit" class="btn-primary" id="submitBtn">Initialize Account</button>
         </form>
 
-        <!-- Admin Panel Link -->
-        <a href="admin.html" id="adminLink" class="admin-link" style="display: none;">
-            🔧 Go to Admin Panel
-        </a>
-
-        <!-- Footer -->
         <div class="signup-footer">
-            Already have an account? <a href="login.html">Sign In</a>
+            Already a member? <a href="login.html">Sign In</a>
         </div>
     </div>
 
-    <script>
-        // Firebase Database Manager
-        class FirebaseManager {
-            constructor() {
-                this.db = firebase.firestore();
-                this.auth = firebase.auth();
-                this.isConnected = false;
-                this.checkConnection();
-            }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-            async checkConnection() {
-                try {
-                    await this.db.collection('system').doc('ping').get();
-                    this.isConnected = true;
-                    console.log("✅ Firebase connection established");
-                    return true;
-                } catch (error) {
-                    console.log("⚠️ Firebase offline mode");
-                    this.isConnected = false;
-                    return false;
-                }
-            }
+        // Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
+            authDomain: "x-bet-prod-jd.firebaseapp.com",
+            projectId: "x-bet-prod-jd",
+            storageBucket: "x-bet-prod-jd.firebasestorage.app",
+            messagingSenderId: "499334334535",
+            appId: "1:499334334535:web:bebc1bf817e24d9e3c4962"
+        };
 
-            async createUserInFirebase(userData) {
-                try {
-                    if (!this.isConnected) {
-                        return { success: false, error: "Firebase offline. Using local storage only." };
-                    }
+        // Initialize
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-                    // Store user in Firestore
-                    await this.db.collection('users').doc(userData.id).set({
-                        username: userData.username,
-                        email: userData.email,
-                        balance: userData.balance || 0,
-                        gameBalance: userData.gameBalance || 0,
-                        transactionCode: userData.transactionCode,
-                        isAdmin: false,
-                        status: 'active',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                        activities: [],
-                        ipAddress: userData.ipAddress,
-                        browserInfo: userData.browserInfo,
-                        lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+        // UI Logic
+        const signupForm = document.getElementById('signupForm');
+        const statusText = document.getElementById('firebaseText');
 
-                    // Create activity log
-                    await this.db.collection('activities').add({
-                        userId: userData.id,
-                        username: userData.username,
-                        action: 'account_created',
-                        details: 'User registered new account',
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                        ipAddress: userData.ipAddress,
-                        browser: userData.browserInfo
-                    });
+        // Update status UI
+        statusText.innerText = "✅ Cloud Network Active";
 
-                    // Update system stats
-                    await this.updateSystemStats('user_registered');
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "Processing...";
 
-                    return { success: true };
-                } catch (error) {
-                    console.error("Firebase save error:", error);
-                    return { success: false, error: error.message };
-                }
-            }
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const userId = 'u_' + Date.now();
 
-            async updateSystemStats(action) {
-                try {
-                    const statsRef = this.db.collection('system').doc('stats');
-                    const statsDoc = await statsRef.get();
-                    
-                    if (statsDoc.exists) {
-                        await statsRef.update({
-                            totalUsers: firebase.firestore.FieldValue.increment(1),
-                            lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    } else {
-                        await statsRef.set({
-                            totalUsers: 1,
-                            totalAdmins: 0,
-                            totalTransactions: 0,
-                            totalGames: 0,
-                            totalDeposits: 0,
-                            totalWithdrawals: 0,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    }
-                } catch (error) {
-                    console.error("Stats update error:", error);
-                }
-            }
-
-            async getUserByUsername(username) {
-                try {
-                    const snapshot = await this.db.collection('users')
-                        .where('username', '==', username)
-                        .limit(1)
-                        .get();
-                    
-                    if (!snapshot.empty) {
-                        const doc = snapshot.docs[0];
-                        return { id: doc.id, ...doc.data() };
-                    }
-                    return null;
-                } catch (error) {
-                    console.error("Firebase user fetch error:", error);
-                    return null;
-                }
-            }
-
-            async getAllUsers() {
-                try {
-                    const snapshot = await this.db.collection('users').get();
-                    const users = {};
-                    snapshot.forEach(doc => {
-                        users[doc.id] = { id: doc.id, ...doc.data() };
-                    });
-                    return users;
-                } catch (error) {
-                    console.error("Firebase users fetch error:", error);
-                    return {};
-                }
-            }
-
-            async logActivity(userId, username, action, details, amount = 0) {
-                try {
-                    if (!this.isConnected) return;
-                    
-                    await this.db.collection('activities').add({
-                        userId: userId,
-                        username: username,
-                        action: action,
-                        details: details,
-                        amount: amount,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                        ipAddress: window.xbetStorage.getClientIP(),
-                        browser: navigator.userAgent
-                    });
-                } catch (error) {
-                    console.error("Activity log error:", error);
-                }
-            }
-        }
-
-        // Enhanced XBetStorage with Firebase Sync
-        class XBetStorage {
-            constructor() {
-                this.initStorage();
-                this.firebase = new FirebaseManager();
-                this.setupFirebaseStatus();
-            }
-
-            initStorage() {
-                if (!localStorage.getItem('XBET_USERS_DATA')) {
-                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify({}));
-                }
-                
-                if (!localStorage.getItem('XBET_MASTER_STORE')) {
-                    const masterStore = {
-                        systemName: "X-BET Gaming System",
-                        version: "2.0.0",
-                        totalUsers: 0,
-                        totalAdmins: 0,
-                        totalTransactions: 0,
-                        createdAt: new Date().toISOString(),
-                        lastUpdate: new Date().toISOString(),
-                        settings: {
-                            autoBackup: true,
-                            syncInterval: 30000,
-                            maxUsers: 10000,
-                            firebaseEnabled: true
-                        }
-                    };
-                    localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
-                }
-            }
-
-            setupFirebaseStatus() {
-                const statusDiv = document.getElementById('firebaseStatus');
-                const statusText = document.getElementById('firebaseText');
-                const statusIcon = document.getElementById('firebaseIcon');
-                
-                if (this.firebase.isConnected) {
-                    statusDiv.style.display = 'block';
-                    statusDiv.style.background = 'rgba(16, 185, 129, 0.1)';
-                    statusDiv.style.borderLeftColor = '#10b981';
-                    statusText.innerHTML = '✅ Cloud Database Connected (Any Browser Access)';
-                    statusIcon.textContent = '☁️';
-                } else {
-                    statusDiv.style.display = 'block';
-                    statusDiv.style.background = 'rgba(245, 158, 11, 0.1)';
-                    statusDiv.style.borderLeftColor = '#f59e0b';
-                    statusText.innerHTML = '⚠️ Using Local Storage Only (Connect for Cloud Sync)';
-                    statusIcon.textContent = '📱';
-                }
-            }
-
-            async registerUser(username, email, password, initialBalance = 0) {
-                try {
-                    // Generate user ID
-                    const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    
-                    // Generate transaction code
-                    const transactionCode = this.generateTransactionCode(username);
-                    
-                    // Create user object
-                    const userData = {
-                        id: userId,
-                        username: username,
-                        email: email,
-                        password: btoa(password),
-                        balance: initialBalance,
-                        gameBalance: 0,
-                        transactionCode: transactionCode,
-                        isAdmin: false,
-                        status: 'active',
-                        createdAt: new Date().toISOString(),
-                        lastLogin: new Date().toISOString(),
-                        lastUpdate: new Date().toISOString(),
-                        activities: [],
-                        ipAddress: this.getClientIP(),
-                        browserInfo: navigator.userAgent,
-                        firebaseSynced: false
-                    };
-
-                    // Get current users data
-                    const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
-                    
-                    // Check if username or email already exists
-                    for (const userId in usersData) {
-                        if (usersData[userId].username === username) {
-                            throw new Error('Username already exists');
-                        }
-                        if (usersData[userId].email === email) {
-                            throw new Error('Email already registered');
-                        }
-                    }
-                    
-                    // Add user to XBET_USERS_DATA
-                    usersData[userId] = userData;
-                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
-                    
-                    // Update XBET_MASTER_STORE
-                    const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE'));
-                    masterStore.totalUsers++;
-                    masterStore.lastUpdate = new Date().toISOString();
-                    localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
-                    
-                    // Store in separate user key
-                    localStorage.setItem(`XBET_USER_${username}`, JSON.stringify(userData));
-                    
-                    // ✅ SYNC TO FIREBASE
-                    const firebaseResult = await this.firebase.createUserInFirebase(userData);
-                    if (firebaseResult.success) {
-                        userData.firebaseSynced = true;
-                        userData.firebaseId = userId;
-                        usersData[userId] = userData;
-                        localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
-                    }
-                    
-                    console.log(`User ${username} registered with ID: ${userId}`);
-                    return { 
-                        success: true, 
-                        userId: userId, 
-                        transactionCode: transactionCode,
-                        firebaseSynced: firebaseResult.success
-                    };
-                    
-                } catch (error) {
-                    console.error('Registration error:', error);
-                    return { success: false, error: error.message };
-                }
-            }
-
-            generateTransactionCode(username) {
-                const prefix = username.substring(0, 3).toUpperCase();
-                const timestamp = Date.now().toString(36).toUpperCase().slice(-6);
-                const random = Math.random().toString(36).slice(2, 8).toUpperCase();
-                return `XBT-${prefix}-${timestamp}-${random}`;
-            }
-
-            getClientIP() {
-                return 'client_' + Math.random().toString(36).substr(2, 8);
-            }
-
-            getAllUsers() {
-                const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
-                return usersData;
-            }
-
-            getUserByUsername(username) {
-                const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
-                for (const userId in usersData) {
-                    if (usersData[userId].username === username) {
-                        return usersData[userId];
-                    }
-                }
-                return null;
-            }
-
-            async syncWithFirebase() {
-                try {
-                    if (!this.firebase.isConnected) {
-                        console.log("Firebase not connected, skipping sync");
-                        return false;
-                    }
-
-                    const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
-                    const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE') || '{}');
-                    
-                    // Sync users to Firebase
-                    for (const userId in usersData) {
-                        const user = usersData[userId];
-                        if (!user.firebaseSynced) {
-                            await this.firebase.createUserInFirebase(user);
-                            user.firebaseSynced = true;
-                            usersData[userId] = user;
-                        }
-                    }
-                    
-                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
-                    
-                    // Sync stats
-                    if (this.firebase.isConnected) {
-                        await this.firebase.updateSystemStats('manual_sync');
-                    }
-                    
-                    return true;
-                } catch (error) {
-                    console.error("Sync error:", error);
-                    return false;
-                }
-            }
-        }
-
-        // Clean Signup System
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('X-BET Signup System Starting...');
-            
-            // Get DOM elements
-            const signupForm = document.getElementById('signupForm');
-            const messageDiv = document.getElementById('message');
-            const syncStatusDiv = document.getElementById('syncStatus');
-            const submitBtn = document.getElementById('submitBtn');
-            const adminLink = document.getElementById('adminLink');
-            
-            // Initialize XBetStorage
-            window.xbetStorage = new XBetStorage();
-            
-            // Check system status
-            async function checkSystemStatus() {
-                const stats = window.xbetStorage.getSystemStats();
-                syncStatusDiv.innerHTML = `
-                    ✅ X-BET System Ready
-                    <div style="font-size: 11px; margin-top: 5px; color: #94a3b8;">
-                        Users: ${stats.totalUsers} | Version: ${stats.version}
-                    </div>
-                `;
-                
-                // Show admin link if no admin users exist
-                const users = window.xbetStorage.getAllUsers();
-                let hasAdmin = false;
-                for (const userId in users) {
-                    if (users[userId].isAdmin) {
-                        hasAdmin = true;
-                        break;
-                    }
-                }
-                
-                if (!hasAdmin) {
-                    adminLink.style.display = 'block';
-                }
-
-                // Auto-sync with Firebase
-                setTimeout(async () => {
-                    const synced = await window.xbetStorage.syncWithFirebase();
-                    if (synced) {
-                        console.log("✅ Auto-sync completed");
-                    }
-                }, 3000);
-            }
-            
-            // Initialize check
-            setTimeout(checkSystemStatus, 1000);
-            
-            // Toggle password visibility
-            window.togglePassword = function(fieldId) {
-                const field = document.getElementById(fieldId);
-                const toggle = field.nextElementSibling;
-                
-                if (field.type === 'password') {
-                    field.type = 'text';
-                    toggle.textContent = '👁️';
-                } else {
-                    field.type = 'password';
-                    toggle.textContent = '👁';
-                }
-            };
-            
-            // Show message
-            function showMessage(text, type) {
-                messageDiv.innerHTML = text;
-                messageDiv.className = 'message ' + type;
-                messageDiv.style.display = 'block';
-                
-                if (type === 'success') {
-                    setTimeout(() => {
-                        messageDiv.style.display = 'none';
-                    }, 5000);
-                }
-            }
-            
-            // Validation functions
-            function isValidEmail(email) {
-                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-            }
-            
-            function isValidUsername(username) {
-                return /^[a-zA-Z0-9_]{3,20}$/.test(username);
-            }
-            
-            // Create user session
-            function createUserSession(username, email, transactionCode) {
-                const sessionData = {
-                    username: username,
-                    email: email,
-                    transactionCode: transactionCode,
-                    isAdmin: false,
-                    lastLogin: new Date().toISOString(),
-                    loginTime: Date.now(),
+            try {
+                // Save to Firestore
+                await setDoc(doc(db, "users", userId), {
+                    username,
+                    email,
                     balance: 0,
-                    gameBalance: 0,
-                    sessionId: 'sess_' + Date.now()
-                };
-                
-                sessionStorage.setItem('xbet_session', btoa(JSON.stringify(sessionData)));
-                localStorage.setItem('currentUser', username);
-                localStorage.setItem('session_expiry', Date.now() + 86400000);
+                    createdAt: serverTimestamp(),
+                    status: 'active'
+                });
+
+                // Save to LocalStorage (as backup)
+                localStorage.setItem('XBET_USER', JSON.stringify({username, userId}));
+
+                document.getElementById('message').innerHTML = `
+                    <div class="message success">
+                        <b>Success!</b> Account created for ${username}.<br>
+                        <div class="transaction-code-display">ID: ${userId}</div>
+                        Redirecting...
+                    </div>`;
+
+                setTimeout(() => window.location.href = 'dashboard.html', 2000);
+
+            } catch (error) {
+                console.error(error);
+                btn.disabled = false;
+                btn.innerText = "Try Again";
             }
-            
-            // Main signup handler
-            signupForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                // Get values
-                const username = document.getElementById('username').value.trim();
-                const email = document.getElementById('email').value.trim().toLowerCase();
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                const termsAccepted = document.getElementById('terms').checked;
-                
-                // Validation
-                if (!username || !email || !password || !confirmPassword) {
-                    showMessage('Please fill in all fields', 'error');
-                    return;
-                }
-                
-                if (!isValidUsername(username)) {
-                    showMessage('Username must be 3-20 characters (letters, numbers, underscores)', 'error');
-                    return;
-                }
-                
-                if (!isValidEmail(email)) {
-                    showMessage('Please enter a valid email address', 'error');
-                    return;
-                }
-                
-                if (password.length < 6) {
-                    showMessage('Password must be at least 6 characters', 'error');
-                    return;
-                }
-                
-                if (password !== confirmPassword) {
-                    showMessage('Passwords do not match', 'error');
-                    return;
-                }
-                
-                if (!termsAccepted) {
-                    showMessage('You must agree to the Terms of Service', 'error');
-                    return;
-                }
-                
-                // Check if user exists
-                const existingUser = window.xbetStorage.getUserByUsername(username);
-                if (existingUser) {
-                    showMessage('Username already taken', 'error');
-                    return;
-                }
-                
-                // Show loading
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = 'Creating Account...';
-                
-                try {
-                    // Register user using XBetStorage
-                    const storage = new XBetStorage();
-                    const result = await storage.registerUser(username, email, password, 0);
-                    
-                    if (!result.success) {
-                        throw new Error(result.error || 'Registration failed');
-                    }
-                    
-                    const transactionCode = result.transactionCode;
-                    const firebaseSynced = result.firebaseSynced;
-                    
-                    // Create session
-                    createUserSession(username, email, transactionCode);
-                    
-                    // Show success with Firebase status
-                    let firebaseStatusMsg = '';
-                    if (firebaseSynced) {
-                        firebaseStatusMsg = '<div style="background: rgba(16, 185, 129, 0.2); padding: 10px; border-radius: 8px; margin: 10px 0; border: 1px solid #10b981; color: #86efac; font-size: 12px;">✅ Account synced to cloud database</div>';
-                    } else {
-                        firebaseStatusMsg = '<div style="background: rgba(245, 158, 11, 0.2); padding: 10px; border-radius: 8px; margin: 10px 0; border: 1px solid #f59e0b; color: #fde68a; font-size: 12px;">⚠️ Account saved locally (cloud sync will happen automatically)</div>';
-                    }
-                    
-                    showMessage(`
-                        <div style="text-align: center;">
-                            <div style="font-size: 20px; margin-bottom: 15px;">Account Created Successfully!</div>
-                            
-                            <div class="transaction-code-display">
-                                ${transactionCode}
-                            </div>
-                            <div style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;">
-                                Save this code for transactions
-                            </div>
-                            
-                            ${firebaseStatusMsg}
-                            
-                            <div style="margin-top: 15px; font-size: 13px; color: #94a3b8;">
-                                Redirecting to dashboard...
-                            </div>
-                        </div>
-                    `, 'success');
-                    
-                    // Update system status
-                    checkSystemStatus();
-                    
-                    // Log activity to Firebase
-                    if (window.xbetStorage.firebase.isConnected) {
-                        window.xbetStorage.firebase.logActivity(
-                            result.userId,
-                            username,
-                            'account_created',
-                            'New user registration',
-                            0
-                        );
-                    }
-                    
-                    // Redirect
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 3000);
-                    
-                } catch (error) {
-                    console.error('Registration error:', error);
-                    showMessage('Error creating account. Please try again.', 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Create Account';
-                }
-            });
-            
-            // Focus on username
-            setTimeout(() => {
-                document.getElementById('username').focus();
-            }, 500);
         });
+
+        // Toggle Password Function (Global access)
+        window.togglePassword = (id) => {
+            const el = document.getElementById(id);
+            el.type = el.type === 'password' ? 'text' : 'password';
+        };
     </script>
 </body>
 </html>
