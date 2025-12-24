@@ -4,412 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>X-BET - Login</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
     <!-- Cross-Browser Sync System -->
     <script src="cross-browser-sync.js"></script>
     <style>
-        :root {
-            --primary: #3b82f6;
-            --secondary: #1d4ed8;
-            --accent: #8b5cf6;
-            --success: #10b981;
-            --danger: #ef4444;
-            --dark: #0f172a;
-            --light: #f8fafc;
-            --gray: #64748b;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, var(--dark), #1e293b);
-            color: var(--light);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        /* HEADER */
-        .header {
-            background: rgba(15, 23, 42, 0.95);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 0 15px;
-        }
-        
-        .nav {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 0;
-        }
-        
-        .logo h1 {
-            font-size: 24px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .nav-links a {
-            color: var(--light);
-            text-decoration: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        
-        .nav-links a.active {
-            background: rgba(59, 130, 246, 0.2);
-        }
-        
-        .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-1px);
-        }
-        
-        /* LOGIN FORM */
-        .login-container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .login-card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 40px;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-        
-        .login-title {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 28px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--gray);
-            font-size: 14px;
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 14px 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-        }
-        
-        /* Messages */
-        .message {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            display: none;
-            font-size: 14px;
-        }
-        
-        .error {
-            background: rgba(239, 68, 68, 0.2);
-            color: #fca5a5;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-        
-        .success {
-            background: rgba(16, 185, 129, 0.2);
-            color: #86efac;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        
-        .info {
-            background: rgba(59, 130, 246, 0.2);
-            color: #93c5fd;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-        
-        /* Sync Status */
-        .sync-status {
-            background: rgba(59, 130, 246, 0.1);
-            padding: 12px;
-            border-radius: 8px;
-            margin: 20px 0;
-            font-size: 12px;
-            text-align: center;
-            color: #93c5fd;
-            border: 1px solid rgba(59, 130, 246, 0.2);
-        }
-        
-        /* Login Options */
-        .login-options {
-            margin-top: 25px;
-            text-align: center;
-            font-size: 14px;
-        }
-        
-        .login-options a {
-            color: var(--primary);
-            text-decoration: none;
-            display: block;
-            margin: 8px 0;
-        }
-        
-        .login-options a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Password Toggle */
-        .password-container {
-            position: relative;
-        }
-        
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            font-size: 18px;
-        }
-        
-        /* Global Access Status */
-        .global-access {
-            background: rgba(16, 185, 129, 0.1);
-            padding: 12px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-size: 12px;
-            text-align: center;
-            color: #86efac;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-        
-        /* FOOTER */
-        .footer {
-            background: rgba(15, 23, 42, 0.95);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            text-align: center;
-            color: var(--gray);
-            font-size: 14px;
-        }
-        
-        /* Loading */
-        .loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s ease-in-out infinite;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .login-card {
-                padding: 30px 20px;
-            }
-            
-            .nav-links {
-                display: none;
-            }
-        }
-        
-        /* Debug Button */
-        .debug-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(59, 130, 246, 0.2);
-            color: white;
-            border: 1px solid rgba(59, 130, 246, 0.4);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 12px;
-            z-index: 100;
-            opacity: 0.5;
-        }
-        
-        .debug-btn:hover {
-            opacity: 1;
-            background: rgba(59, 130, 246, 0.4);
-        }
-        
-        /* Admin Access */
-        .admin-access {
-            margin-top: 15px;
-            text-align: center;
-        }
-        
-        .admin-access a {
-            color: #fca5a5;
-            text-decoration: none;
-            font-size: 12px;
-            background: rgba(239, 68, 68, 0.1);
-            padding: 8px 12px;
-            border-radius: 6px;
-            display: inline-block;
-        }
-        
-        .admin-access a:hover {
-            background: rgba(239, 68, 68, 0.2);
-        }
+        /* [Keep all your existing CSS styles] */
+        /* ... Your existing CSS ... */
     </style>
 </head>
 <body>
-    <!-- HEADER -->
-    <header class="header">
-        <nav class="nav">
-            <div class="logo">
-                <h1>X<span>-BET</span></h1>
-            </div>
-            <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="games.html">Games</a>
-                <a href="dashboard.html">Dashboard</a>
-                <a href="signup.html" class="btn-primary">Sign Up</a>
-            </div>
-        </nav>
-    </header>
-
-    <!-- LOGIN FORM -->
-    <div class="login-container">
-        <div class="login-card">
-            <h2 class="login-title">Login to X-BET</h2>
-            
-            <!-- Global Access Status -->
-            <div id="globalAccess" class="global-access">
-                ✅ Any Browser, Anywhere Access Active
-            </div>
-            
-            <!-- Sync Status -->
-            <div id="syncStatus" class="sync-status">
-                <span class="loading"></span> Connecting to X-BET Global System...
-            </div>
-            
-            <!-- Messages -->
-            <div id="message" class="message"></div>
-            
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="username">Username or Email</label>
-                    <input type="text" id="username" placeholder="Enter username or email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="password-container">
-                        <input type="password" id="password" placeholder="Enter password" required>
-                        <button type="button" class="password-toggle" onclick="togglePassword()">👁</button>
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn-primary" id="loginBtn" style="width: 100%; padding: 14px; font-size: 16px;">
-                    Login
-                </button>
-                
-                <div class="login-options">
-                    <a href="signup.html">Don't have an account? Sign up</a>
-                </div>
-                
-                <!-- Admin Access Link -->
-                <div class="admin-access">
-                    <a href="admin.html" id="adminLoginLink" style="display: none;">Admin Access</a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-        <p>© 2024 X-BET Gaming Platform. All rights reserved.</p>
-    </footer>
-
-    <!-- Debug Button (Hidden) -->
-    <div class="debug-btn" onclick="showDebugInfo()" title="Debug Info">🔍</div>
+    <!-- [Keep all your existing HTML structure] -->
+    <!-- ... Your existing HTML ... -->
 
     <script>
-        // XBetStorage Class Definition (Same as signup.html)
+        // Firebase Enhanced XBetStorage Class
         class XBetStorage {
             constructor() {
                 this.initStorage();
+                this.firebase = new FirebaseManager();
+                this.setupFirebaseStatus();
             }
 
             initStorage() {
-                // Initialize XBET_USERS_DATA in localStorage if not exists
                 if (!localStorage.getItem('XBET_USERS_DATA')) {
                     localStorage.setItem('XBET_USERS_DATA', JSON.stringify({}));
                 }
                 
-                // Initialize XBET_MASTER_STORE in localStorage if not exists
                 if (!localStorage.getItem('XBET_MASTER_STORE')) {
                     const masterStore = {
                         systemName: "X-BET Gaming System",
-                        version: "1.0.0",
+                        version: "2.0.0",
                         totalUsers: 0,
                         totalAdmins: 0,
                         totalTransactions: 0,
@@ -418,24 +46,51 @@
                         settings: {
                             autoBackup: true,
                             syncInterval: 30000,
-                            maxUsers: 10000
+                            maxUsers: 10000,
+                            firebaseEnabled: true
                         }
                     };
                     localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
                 }
             }
 
-            loginUser(usernameOrEmail, password) {
+            setupFirebaseStatus() {
+                setTimeout(() => {
+                    const globalAccessDiv = document.getElementById('globalAccess');
+                    if (globalAccessDiv && this.firebase.isConnected) {
+                        globalAccessDiv.innerHTML = `
+                            ☁️ Cloud Database Connected
+                            <div style="font-size: 11px; margin-top: 5px; color: #86efac;">
+                                Any Browser Access Active | Real-time Sync Enabled
+                            </div>
+                        `;
+                    }
+                }, 1000);
+            }
+
+            async loginUser(usernameOrEmail, password) {
                 try {
                     const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
                     
-                    // Find user by username or email
+                    // Find user by username or email (Local check first)
                     let foundUser = null;
                     for (const userId in usersData) {
                         const user = usersData[userId];
                         if (user.username === usernameOrEmail || user.email === usernameOrEmail) {
                             foundUser = user;
                             break;
+                        }
+                    }
+                    
+                    // If not found locally, check Firebase
+                    if (!foundUser && this.firebase.isConnected) {
+                        console.log("Checking Firebase for user...");
+                        const firebaseUser = await this.firebase.getUserByUsername(usernameOrEmail);
+                        if (firebaseUser) {
+                            foundUser = firebaseUser;
+                            // Store in local storage for offline access
+                            usersData[firebaseUser.id] = firebaseUser;
+                            localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
                         }
                     }
                     
@@ -446,7 +101,7 @@
                         };
                     }
                     
-                    // Check password (using btoa encoding from signup)
+                    // Check password
                     const encodedPassword = btoa(password);
                     if (foundUser.password !== encodedPassword) {
                         return { 
@@ -463,10 +118,32 @@
                         };
                     }
                     
-                    // Update last login
+                    // Update last login in local storage
                     foundUser.lastLogin = new Date().toISOString();
                     usersData[foundUser.id] = foundUser;
                     localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
+                    
+                    // Update last login in Firebase
+                    if (this.firebase.isConnected && foundUser.firebaseSynced) {
+                        try {
+                            await this.firebase.db.collection('users').doc(foundUser.id).update({
+                                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        } catch (error) {
+                            console.error("Firebase update error:", error);
+                        }
+                    }
+                    
+                    // Log activity to Firebase
+                    if (this.firebase.isConnected) {
+                        await this.firebase.logActivity(
+                            foundUser.id,
+                            foundUser.username,
+                            'user_login',
+                            'User logged in to system',
+                            0
+                        );
+                    }
                     
                     // Generate session token
                     const sessionToken = this.generateSessionToken(foundUser.id);
@@ -476,7 +153,7 @@
                     masterStore.lastUpdate = new Date().toISOString();
                     localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
                     
-                    // Return user data (without password) and session token
+                    // Return user data (without password)
                     const { password: _, ...userDataWithoutPassword } = foundUser;
                     
                     return {
@@ -496,12 +173,11 @@
                 const random = Math.random().toString(36).substr(2, 16);
                 const token = `xbet_${userId}_${timestamp}_${random}`;
                 
-                // Store session
                 const sessions = JSON.parse(localStorage.getItem('XBET_SESSIONS') || '{}');
                 sessions[token] = {
                     userId: userId,
                     createdAt: new Date().toISOString(),
-                    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+                    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
                     ipAddress: this.getClientIP(),
                     browser: navigator.userAgent
                 };
@@ -511,8 +187,7 @@
             }
 
             getClientIP() {
-                // This is a placeholder. In a real app, you'd get this from the server
-                return 'global_client_' + Math.random().toString(36).substr(2, 8);
+                return 'client_' + Math.random().toString(36).substr(2, 8);
             }
 
             validateSession(token) {
@@ -546,389 +221,54 @@
                 return {
                     ...masterStore,
                     activeUsers: Object.keys(usersData).length,
-                    storageSize: JSON.stringify(usersData).length + JSON.stringify(masterStore).length
+                    storageSize: JSON.stringify(usersData).length + JSON.stringify(masterStore).length,
+                    firebaseConnected: this.firebase.isConnected
                 };
             }
-        }
 
-        // 🔥 X-BET LOGIN SYSTEM v4.0 - GLOBAL ACCESS
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔐 X-BET Global Login System Starting...');
-            
-            // Get DOM elements
-            const loginForm = document.getElementById('loginForm');
-            const messageDiv = document.getElementById('message');
-            const syncStatusDiv = document.getElementById('syncStatus');
-            const globalAccessDiv = document.getElementById('globalAccess');
-            const loginBtn = document.getElementById('loginBtn');
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            const adminLoginLink = document.getElementById('adminLoginLink');
-            
-            // Initialize XBetStorage
-            window.xbetStorage = new XBetStorage();
-            
-            // Check system status
-            function checkSystemStatus() {
+            async syncFromFirebase() {
                 try {
-                    const stats = window.xbetStorage.getSystemStats();
-                    syncStatusDiv.innerHTML = `
-                        ✅ X-BET Global System Ready
-                        <div style="font-size: 11px; margin-top: 5px; color: #94a3b8;">
-                            Total Users: ${stats.totalUsers} | Active: ${stats.activeUsers}
-                        </div>
-                    `;
+                    if (!this.firebase.isConnected) return false;
                     
-                    // Update global access status
-                    const browserInfo = navigator.userAgent;
-                    globalAccessDiv.innerHTML = `
-                        ✅ Any Browser, Anywhere Access Active
-                        <div style="font-size: 11px; margin-top: 5px; color: #86efac;">
-                            Browser: ${browserInfo.substring(0, 50)}...
-                        </div>
-                    `;
+                    const firebaseUsers = await this.firebase.getAllUsers();
+                    const localUsers = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
                     
-                    // Check for admin users
-                    const users = window.xbetStorage.getAllUsers();
-                    let hasAdmin = false;
-                    for (const userId in users) {
-                        if (users[userId].isAdmin) {
-                            hasAdmin = true;
-                            break;
+                    // Merge Firebase data with local
+                    const mergedUsers = { ...localUsers };
+                    for (const [userId, userData] of Object.entries(firebaseUsers)) {
+                        if (mergedUsers[userId]) {
+                            // Update existing user with latest data
+                            mergedUsers[userId] = {
+                                ...mergedUsers[userId],
+                                ...userData,
+                                firebaseSynced: true,
+                                lastUpdate: new Date().toISOString()
+                            };
+                        } else {
+                            // Add new user from Firebase
+                            mergedUsers[userId] = {
+                                ...userData,
+                                firebaseSynced: true
+                            };
                         }
                     }
                     
-                    if (hasAdmin) {
-                        adminLoginLink.style.display = 'inline-block';
-                    }
-                    
-                } catch (error) {
-                    console.error('System status check error:', error);
-                    syncStatusDiv.innerHTML = '⚠️ System Initialization Required';
-                    globalAccessDiv.innerHTML = '⚠️ Global Access Unavailable';
-                }
-            }
-            
-            // Initialize check
-            setTimeout(checkSystemStatus, 1000);
-            
-            // Check existing sessions
-            function checkExistingSessions() {
-                try {
-                    // Check user session
-                    const userSession = sessionStorage.getItem('xbet_session');
-                    if (userSession) {
-                        try {
-                            const user = JSON.parse(atob(userSession));
-                            if (user.username && user.sessionToken) {
-                                const validation = window.xbetStorage.validateSession(user.sessionToken);
-                                if (validation.valid) {
-                                    // Auto-redirect if session is valid
-                                    setTimeout(() => {
-                                        if (user.isAdmin) {
-                                            window.location.href = 'admin.html';
-                                        } else {
-                                            window.location.href = 'dashboard.html';
-                                        }
-                                    }, 500);
-                                    return;
-                                }
-                            }
-                        } catch (e) {
-                            // Invalid session, continue with login
-                        }
-                    }
-                    
-                    // Check localStorage token
-                    const localStorageToken = localStorage.getItem('xbet_token');
-                    if (localStorageToken) {
-                        const validation = window.xbetStorage.validateSession(localStorageToken);
-                        if (validation.valid) {
-                            // Auto-fill username from token
-                            const sessions = JSON.parse(localStorage.getItem('XBET_SESSIONS') || '{}');
-                            const session = sessions[localStorageToken];
-                            if (session) {
-                                const users = window.xbetStorage.getAllUsers();
-                                const user = users[session.userId];
-                                if (user) {
-                                    usernameInput.value = user.username;
-                                    setTimeout(() => {
-                                        passwordInput.focus();
-                                    }, 100);
-                                }
-                            }
-                        }
-                    }
-                    
-                } catch (error) {
-                    console.error('Session check error:', error);
-                }
-            }
-            
-            // Run session check
-            checkExistingSessions();
-            
-            // Toggle password visibility
-            window.togglePassword = function() {
-                const toggle = passwordInput.nextElementSibling;
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    toggle.textContent = '👁️';
-                } else {
-                    passwordInput.type = 'password';
-                    toggle.textContent = '👁';
-                }
-            };
-            
-            // Show message
-            function showMessage(text, type = 'info') {
-                messageDiv.textContent = text;
-                messageDiv.className = `message ${type}`;
-                messageDiv.style.display = 'block';
-                
-                if (type === 'success') {
-                    setTimeout(() => {
-                        messageDiv.style.display = 'none';
-                    }, 3000);
-                }
-            }
-            
-            // Create global session
-            function createGlobalSession(userData, token) {
-                console.log('🔐 Creating global session for:', userData.username);
-                
-                try {
-                    // 1. Create session storage data
-                    const sessionData = {
-                        username: userData.username,
-                        email: userData.email,
-                        userId: userData.id,
-                        isAdmin: userData.isAdmin || false,
-                        balance: userData.balance || 0,
-                        gameBalance: userData.gameBalance || 0,
-                        transactionCode: userData.transactionCode,
-                        sessionToken: token,
-                        loginTime: Date.now(),
-                        browser: navigator.userAgent,
-                        location: 'global' // Placeholder for actual location detection
-                    };
-                    
-                    // 2. Save to sessionStorage (browser-specific)
-                    sessionStorage.setItem('xbet_session', btoa(JSON.stringify(sessionData)));
-                    
-                    // 3. Save token to localStorage for cross-tab access
-                    localStorage.setItem('xbet_token', token);
-                    localStorage.setItem('xbet_user', userData.username);
-                    
-                    // 4. Save to global sessions in XBET_USERS_DATA
-                    const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
-                    if (usersData[userData.id]) {
-                        if (!usersData[userData.id].sessions) {
-                            usersData[userData.id].sessions = [];
-                        }
-                        usersData[userData.id].sessions.push({
-                            token: token,
-                            loginTime: new Date().toISOString(),
-                            browser: navigator.userAgent,
-                            ip: window.xbetStorage.getClientIP()
-                        });
-                        // Keep only last 5 sessions
-                        if (usersData[userData.id].sessions.length > 5) {
-                            usersData[userData.id].sessions = usersData[userData.id].sessions.slice(-5);
-                        }
-                        localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
-                    }
-                    
-                    // 5. Update last login in master store
-                    const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE'));
-                    masterStore.lastUpdate = new Date().toISOString();
-                    localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
-                    
-                    console.log('✅ Global session created successfully');
+                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify(mergedUsers));
+                    console.log("✅ Synced from Firebase successfully");
                     return true;
-                    
                 } catch (error) {
-                    console.error('Global session creation error:', error);
+                    console.error("Firebase sync error:", error);
                     return false;
                 }
             }
-            
-            // 🌍 MAIN LOGIN HANDLER - GLOBAL ACCESS
-            loginForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                // Get credentials
-                const identifier = usernameInput.value.trim();
-                const password = passwordInput.value;
-                
-                // Validate inputs
-                if (!identifier || !password) {
-                    showMessage('Please enter both username/email and password', 'error');
-                    return;
-                }
-                
-                // Show loading
-                loginBtn.disabled = true;
-                loginBtn.innerHTML = '<span class="loading"></span> Global Login...';
-                
-                try {
-                    console.log('🌍 GLOBAL LOGIN PROCESS START');
-                    console.log('Browser:', navigator.userAgent);
-                    
-                    // Step 1: Use XBetStorage login
-                    const storage = new XBetStorage();
-                    const result = storage.loginUser(identifier, password);
-                    // Returns user data and session token
-                    
-                    if (!result.success) {
-                        showMessage(result.error || 'Login failed', 'error');
-                        loginBtn.disabled = false;
-                        loginBtn.innerHTML = 'Login';
-                        console.log('❌ Login failed:', result.error);
-                        return;
-                    }
-                    
-                    console.log('✅ Login successful for:', result.user.username);
-                    console.log('Session token generated:', result.token.substring(0, 20) + '...');
-                    
-                    // Step 2: Create global session
-                    const sessionCreated = createGlobalSession(result.user, result.token);
-                    
-                    if (!sessionCreated) {
-                        showMessage('Session creation failed. Please try again.', 'error');
-                        loginBtn.disabled = false;
-                        loginBtn.innerHTML = 'Login';
-                        return;
-                    }
-                    
-                    // Step 3: Show success message
-                    showMessage(`✅ Welcome back, ${result.user.username}! Global access activated.`, 'success');
-                    
-                    // Step 4: Redirect based on user type
-                    setTimeout(() => {
-                        if (result.user.isAdmin) {
-                            window.location.href = 'admin.html';
-                        } else {
-                            window.location.href = 'dashboard.html';
-                        }
-                    }, 1500);
-                    
-                    // Step 5: Log success to global log
-                    try {
-                        const globalLog = JSON.parse(localStorage.getItem('XBET_GLOBAL_LOG') || '[]');
-                        globalLog.push({
-                            username: result.user.username,
-                            action: 'login',
-                            time: new Date().toISOString(),
-                            browser: navigator.userAgent,
-                            location: 'global_access'
-                        });
-                        // Keep only last 100 entries
-                        if (globalLog.length > 100) {
-                            globalLog = globalLog.slice(-100);
-                        }
-                        localStorage.setItem('XBET_GLOBAL_LOG', JSON.stringify(globalLog));
-                    } catch (logError) {
-                        console.error('Log error:', logError);
-                    }
-                    
-                } catch (error) {
-                    console.error('Global login error:', error);
-                    showMessage('System error. Please try again.', 'error');
-                    loginBtn.disabled = false;
-                    loginBtn.innerHTML = 'Login';
-                }
-            });
-            
-            // Auto-focus username field
-            setTimeout(() => {
-                usernameInput.focus();
-            }, 500);
-            
-            console.log('✅ Global login system ready');
-        });
-        
-        // Session refresh function
-        function refreshSession() {
-            try {
-                const token = localStorage.getItem('xbet_token');
-                if (token) {
-                    const storage = new XBetStorage();
-                    const validation = storage.validateSession(token);
-                    if (validation.valid) {
-                        // Update expiry
-                        const sessions = JSON.parse(localStorage.getItem('XBET_SESSIONS') || '{}');
-                        if (sessions[token]) {
-                            sessions[token].expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-                            localStorage.setItem('XBET_SESSIONS', JSON.stringify(sessions));
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Session refresh error:', error);
-            }
         }
-        
-        // Refresh session every 30 minutes
-        setInterval(refreshSession, 1800000);
-        
-        // 🌍 DEBUG FUNCTIONS
-        function showDebugInfo() {
-            const storage = new XBetStorage();
-            const stats = storage.getSystemStats();
-            const users = storage.getAllUsers();
-            const sessions = JSON.parse(localStorage.getItem('XBET_SESSIONS') || '{}');
-            
-            let info = `🔍 X-BET DEBUG INFO\n`;
-            info += `==================\n`;
-            info += `Total Users: ${stats.totalUsers}\n`;
-            info += `Active Users: ${stats.activeUsers}\n`;
-            info += `Active Sessions: ${Object.keys(sessions).length}\n`;
-            info += `Browser: ${navigator.userAgent.substring(0, 40)}...\n`;
-            info += `Current Time: ${new Date().toLocaleTimeString()}\n`;
-            
-            if (Object.keys(users).length > 0) {
-                info += `\n📊 User List (${Object.keys(users).length}):\n`;
-                let count = 0;
-                for (const userId in users) {
-                    if (count < 5) {
-                        const user = users[userId];
-                        info += `- ${user.username} ($${user.balance}) - ${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}\n`;
-                        count++;
-                    }
-                }
-            }
-            
-            // Show global access info
-            const globalLog = JSON.parse(localStorage.getItem('XBET_GLOBAL_LOG') || '[]');
-            info += `\n🌍 Global Logins: ${globalLog.length}\n`;
-            if (globalLog.length > 0) {
-                const recent = globalLog.slice(-3);
-                recent.forEach(log => {
-                    info += `- ${log.username} at ${new Date(log.time).toLocaleTimeString()}\n`;
-                });
-            }
-            
-            alert(info);
-        }
-        
-        // 🚨 EMERGENCY GLOBAL SAVE ON PAGE UNLOAD
-        window.addEventListener('beforeunload', function(e) {
-            console.log('🌍 Page unloading, saving global state...');
-            
-            try {
-                const token = localStorage.getItem('xbet_token');
-                if (token) {
-                    const storage = new XBetStorage();
-                    storage.validateSession(token); // This updates session validation
-                }
-            } catch (error) {
-                console.error('Unload save error:', error);
-            }
-        });
-        
-        // 🚀 GLOBAL SYSTEM CHECK
-        window.addEventListener('load', function() {
+
+        // [Keep the rest of your login.js code, but update the initialization]
+        // Replace window.xbetStorage = new XBetStorage(); with:
+        // window.xbetStorage = new XBetStorage();
+
+        // Add auto-sync on page load
+        window.addEventListener('load', async function() {
             console.log('🌍 X-BET Global System Loaded');
             
             // Initialize global system
@@ -936,33 +276,19 @@
             const stats = storage.getSystemStats();
             
             console.log(`🌍 Global Users: ${stats.totalUsers}`);
-            console.log(`🌍 System Version: ${stats.version}`);
+            console.log(`🌍 Firebase Connected: ${stats.firebaseConnected}`);
             console.log(`🌍 Browser: ${navigator.userAgent}`);
             
-            // Set up auto-sync for cross-browser access
-            if (window.crossBrowserSync && window.crossBrowserSync.enableGlobalAccess) {
-                window.crossBrowserSync.enableGlobalAccess();
-                console.log('🌍 Cross-browser sync enabled');
-            }
+            // Auto-sync from Firebase
+            setTimeout(async () => {
+                if (storage.firebase.isConnected) {
+                    const synced = await storage.syncFromFirebase();
+                    if (synced) {
+                        console.log("✅ Auto-sync from Firebase completed");
+                    }
+                }
+            }, 2000);
         });
-        
-        // 🌍 BROWSER DETECTION
-        function detectBrowser() {
-            const ua = navigator.userAgent;
-            let browser = "Unknown";
-            
-            if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
-            else if (ua.includes("Firefox")) browser = "Firefox";
-            else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
-            else if (ua.includes("Edg")) browser = "Edge";
-            else if (ua.includes("Opera") || ua.includes("OPR")) browser = "Opera";
-            
-            return browser;
-        }
-        
-        // Log browser info
-        console.log(`🌍 Browser Detected: ${detectBrowser()}`);
-        console.log(`🌍 Global Access Ready`);
     </script>
 </body>
 </html>
