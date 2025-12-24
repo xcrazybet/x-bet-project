@@ -4,290 +4,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>X-BET - Login</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-    <script src="firebase-config.js"></script>
-    <!-- Cross-Browser Sync System -->
-    <script src="cross-browser-sync.js"></script>
     <style>
-        /* [Keep all your existing CSS styles] */
-        /* ... Your existing CSS ... */
+        /* Modern UI Style */
+        body { margin: 0; background: #0f172a; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-card { background: rgba(255,255,255,0.05); padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); width: 350px; text-align: center; }
+        .logo { font-size: 32px; font-weight: bold; color: #3b82f6; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; background: #3b82f6; border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+        #globalAccess { font-size: 12px; color: #94a3b8; margin-bottom: 20px; }
+        #error-msg { color: #f87171; margin-top: 15px; font-size: 14px; display: none; }
     </style>
 </head>
 <body>
-    <!-- [Keep all your existing HTML structure] -->
-    <!-- ... Your existing HTML ... -->
 
-    <script>
-        // Firebase Enhanced XBetStorage Class
-        class XBetStorage {
-            constructor() {
-                this.initStorage();
-                this.firebase = new FirebaseManager();
-                this.setupFirebaseStatus();
-            }
+    <div class="login-card">
+        <div class="logo">X-BET</div>
+        <div id="globalAccess">📡 Initializing Cloud...</div>
 
-            initStorage() {
-                if (!localStorage.getItem('XBET_USERS_DATA')) {
-                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify({}));
-                }
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="Email Address" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" class="btn" id="loginBtn">Login to System</button>
+        </form>
+
+        <div id="error-msg"></div>
+    </div>
+
+    <script type="module">
+        // Import Firebase v10 Modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // 1. YOUR FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
+            authDomain: "x-bet-prod-jd.firebaseapp.com",
+            projectId: "x-bet-prod-jd",
+            storageBucket: "x-bet-prod-jd.firebasestorage.app",
+            messagingSenderId: "499334334535",
+            appId: "1:499334334535:web:bebc1bf817e24d9e3c4962"
+        };
+
+        // 2. INITIALIZE
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const statusDiv = document.getElementById('globalAccess');
+        const loginForm = document.getElementById('loginForm');
+        const errorMsg = document.getElementById('error-msg');
+        const loginBtn = document.getElementById('loginBtn');
+
+        statusDiv.innerHTML = "☁️ Cloud Database Connected";
+
+        // 3. LOGIN HANDLER
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMsg.style.display = 'none';
+            loginBtn.disabled = true;
+            loginBtn.innerText = "Authenticating...";
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                // A. Firebase Auth Login
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // B. Fetch User Data from Firestore
+                const userDoc = await getDoc(doc(db, "users", user.uid));
                 
-                if (!localStorage.getItem('XBET_MASTER_STORE')) {
-                    const masterStore = {
-                        systemName: "X-BET Gaming System",
-                        version: "2.0.0",
-                        totalUsers: 0,
-                        totalAdmins: 0,
-                        totalTransactions: 0,
-                        createdAt: new Date().toISOString(),
-                        lastUpdate: new Date().toISOString(),
-                        settings: {
-                            autoBackup: true,
-                            syncInterval: 30000,
-                            maxUsers: 10000,
-                            firebaseEnabled: true
-                        }
-                    };
-                    localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+
+                    // C. Update Last Login
+                    await updateDoc(doc(db, "users", user.uid), {
+                        lastLogin: serverTimestamp()
+                    });
+
+                    // D. Local Storage Sync (Your existing logic)
+                    localStorage.setItem('XBET_CURRENT_USER', JSON.stringify({
+                        uid: user.uid,
+                        username: userData.username,
+                        email: userData.email,
+                        balance: userData.balance || 0
+                    }));
+
+                    loginBtn.innerText = "Success! Redirecting...";
+                    loginBtn.style.background = "#10b981";
+
+                    setTimeout(() => {
+                        window.location.href = "dashboard.html";
+                    }, 1000);
+
+                } else {
+                    throw new Error("User data not found in database.");
                 }
+
+            } catch (error) {
+                console.error(error);
+                errorMsg.innerText = error.message.replace("Firebase: ", "");
+                errorMsg.style.display = 'block';
+                loginBtn.disabled = false;
+                loginBtn.innerText = "Login to System";
             }
-
-            setupFirebaseStatus() {
-                setTimeout(() => {
-                    const globalAccessDiv = document.getElementById('globalAccess');
-                    if (globalAccessDiv && this.firebase.isConnected) {
-                        globalAccessDiv.innerHTML = `
-                            ☁️ Cloud Database Connected
-                            <div style="font-size: 11px; margin-top: 5px; color: #86efac;">
-                                Any Browser Access Active | Real-time Sync Enabled
-                            </div>
-                        `;
-                    }
-                }, 1000);
-            }
-
-            async loginUser(usernameOrEmail, password) {
-                try {
-                    const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
-                    
-                    // Find user by username or email (Local check first)
-                    let foundUser = null;
-                    for (const userId in usersData) {
-                        const user = usersData[userId];
-                        if (user.username === usernameOrEmail || user.email === usernameOrEmail) {
-                            foundUser = user;
-                            break;
-                        }
-                    }
-                    
-                    // If not found locally, check Firebase
-                    if (!foundUser && this.firebase.isConnected) {
-                        console.log("Checking Firebase for user...");
-                        const firebaseUser = await this.firebase.getUserByUsername(usernameOrEmail);
-                        if (firebaseUser) {
-                            foundUser = firebaseUser;
-                            // Store in local storage for offline access
-                            usersData[firebaseUser.id] = firebaseUser;
-                            localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
-                        }
-                    }
-                    
-                    if (!foundUser) {
-                        return { 
-                            success: false, 
-                            error: 'User not found. Please check your credentials.' 
-                        };
-                    }
-                    
-                    // Check password
-                    const encodedPassword = btoa(password);
-                    if (foundUser.password !== encodedPassword) {
-                        return { 
-                            success: false, 
-                            error: 'Invalid password. Please try again.' 
-                        };
-                    }
-                    
-                    // Check if user is active
-                    if (foundUser.status && foundUser.status !== 'active') {
-                        return { 
-                            success: false, 
-                            error: 'Account is ' + foundUser.status 
-                        };
-                    }
-                    
-                    // Update last login in local storage
-                    foundUser.lastLogin = new Date().toISOString();
-                    usersData[foundUser.id] = foundUser;
-                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
-                    
-                    // Update last login in Firebase
-                    if (this.firebase.isConnected && foundUser.firebaseSynced) {
-                        try {
-                            await this.firebase.db.collection('users').doc(foundUser.id).update({
-                                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                        } catch (error) {
-                            console.error("Firebase update error:", error);
-                        }
-                    }
-                    
-                    // Log activity to Firebase
-                    if (this.firebase.isConnected) {
-                        await this.firebase.logActivity(
-                            foundUser.id,
-                            foundUser.username,
-                            'user_login',
-                            'User logged in to system',
-                            0
-                        );
-                    }
-                    
-                    // Generate session token
-                    const sessionToken = this.generateSessionToken(foundUser.id);
-                    
-                    // Update master store
-                    const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE'));
-                    masterStore.lastUpdate = new Date().toISOString();
-                    localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
-                    
-                    // Return user data (without password)
-                    const { password: _, ...userDataWithoutPassword } = foundUser;
-                    
-                    return {
-                        success: true,
-                        user: userDataWithoutPassword,
-                        token: sessionToken
-                    };
-                    
-                } catch (error) {
-                    console.error('Login error:', error);
-                    return { success: false, error: 'System error. Please try again.' };
-                }
-            }
-
-            generateSessionToken(userId) {
-                const timestamp = Date.now();
-                const random = Math.random().toString(36).substr(2, 16);
-                const token = `xbet_${userId}_${timestamp}_${random}`;
-                
-                const sessions = JSON.parse(localStorage.getItem('XBET_SESSIONS') || '{}');
-                sessions[token] = {
-                    userId: userId,
-                    createdAt: new Date().toISOString(),
-                    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                    ipAddress: this.getClientIP(),
-                    browser: navigator.userAgent
-                };
-                localStorage.setItem('XBET_SESSIONS', JSON.stringify(sessions));
-                
-                return token;
-            }
-
-            getClientIP() {
-                return 'client_' + Math.random().toString(36).substr(2, 8);
-            }
-
-            validateSession(token) {
-                try {
-                    const sessions = JSON.parse(localStorage.getItem('XBET_SESSIONS') || '{}');
-                    const session = sessions[token];
-                    
-                    if (!session) {
-                        return { valid: false, reason: 'Session not found' };
-                    }
-                    
-                    if (new Date(session.expiresAt) < new Date()) {
-                        return { valid: false, reason: 'Session expired' };
-                    }
-                    
-                    return { valid: true, session: session };
-                } catch (error) {
-                    return { valid: false, reason: 'Session validation error' };
-                }
-            }
-
-            getAllUsers() {
-                const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
-                return usersData;
-            }
-
-            getSystemStats() {
-                const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE') || '{}');
-                const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
-                
-                return {
-                    ...masterStore,
-                    activeUsers: Object.keys(usersData).length,
-                    storageSize: JSON.stringify(usersData).length + JSON.stringify(masterStore).length,
-                    firebaseConnected: this.firebase.isConnected
-                };
-            }
-
-            async syncFromFirebase() {
-                try {
-                    if (!this.firebase.isConnected) return false;
-                    
-                    const firebaseUsers = await this.firebase.getAllUsers();
-                    const localUsers = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
-                    
-                    // Merge Firebase data with local
-                    const mergedUsers = { ...localUsers };
-                    for (const [userId, userData] of Object.entries(firebaseUsers)) {
-                        if (mergedUsers[userId]) {
-                            // Update existing user with latest data
-                            mergedUsers[userId] = {
-                                ...mergedUsers[userId],
-                                ...userData,
-                                firebaseSynced: true,
-                                lastUpdate: new Date().toISOString()
-                            };
-                        } else {
-                            // Add new user from Firebase
-                            mergedUsers[userId] = {
-                                ...userData,
-                                firebaseSynced: true
-                            };
-                        }
-                    }
-                    
-                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify(mergedUsers));
-                    console.log("✅ Synced from Firebase successfully");
-                    return true;
-                } catch (error) {
-                    console.error("Firebase sync error:", error);
-                    return false;
-                }
-            }
-        }
-
-        // [Keep the rest of your login.js code, but update the initialization]
-        // Replace window.xbetStorage = new XBetStorage(); with:
-        // window.xbetStorage = new XBetStorage();
-
-        // Add auto-sync on page load
-        window.addEventListener('load', async function() {
-            console.log('🌍 X-BET Global System Loaded');
-            
-            // Initialize global system
-            const storage = new XBetStorage();
-            const stats = storage.getSystemStats();
-            
-            console.log(`🌍 Global Users: ${stats.totalUsers}`);
-            console.log(`🌍 Firebase Connected: ${stats.firebaseConnected}`);
-            console.log(`🌍 Browser: ${navigator.userAgent}`);
-            
-            // Auto-sync from Firebase
-            setTimeout(async () => {
-                if (storage.firebase.isConnected) {
-                    const synced = await storage.syncFromFirebase();
-                    if (synced) {
-                        console.log("✅ Auto-sync from Firebase completed");
-                    }
-                }
-            }, 2000);
         });
     </script>
 </body>
