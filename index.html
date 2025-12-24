@@ -1,182 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET | Premium Gaming Logic</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #3b82f6; --secondary: #f59e0b; --dark-bg: #05080f;
-            --text-main: #ffffff; --text-dim: #94a3b8; --border: rgba(255, 255, 255, 0.1);
-            --success: #10b981; --danger: #ef4444; --glass: rgba(255, 255, 255, 0.03);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X-BET | Professional Gaming Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --primary: #3b82f6; 
+        --secondary: #f59e0b; 
+        --dark-bg: #05080f;
+        --text-main: #ffffff; 
+        --text-dim: #94a3b8; 
+        --border: rgba(255, 255, 255, 0.1);
+        --success: #10b981; 
+        --danger: #ef4444;
+        --hero-padding: 220px;
+        --nav-height: 80px;
+    }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            background: var(--dark-bg); color: var(--text-main); 
-            font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh;
-            background-image: radial-gradient(circle at 90% 10%, #1e293b 0%, #05080f 60%);
-            overflow-x: hidden;
-        }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+        background: var(--dark-bg); color: var(--text-main); 
+        font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh;
+        background-image: radial-gradient(circle at 90% 10%, #1e293b 0%, #05080f 60%);
+        overflow-x: hidden;
+    }
 
-        /* --- NAVIGATION --- */
-        .navbar {
-            position: fixed; top: 0; width: 100%; z-index: 2000;
-            background: rgba(5, 8, 15, 0.85); backdrop-filter: blur(25px);
-            border-bottom: 1px solid var(--border);
-        }
+    /* NAVBAR */
+    .navbar {
+        position: fixed; top: 0; width: 100%; z-index: 2000;
+        background: rgba(5, 8, 15, 0.95); backdrop-filter: blur(25px);
+        border-bottom: 1px solid var(--border);
+        height: var(--nav-height);
+    }
+    .nav-container {
+        max-width: 1800px; margin: 0 auto; padding: 0 20px;
+        display: flex; justify-content: space-between; align-items: center;
+        height: 100%;
+    }
+    .nav-main { display: flex; align-items: center; gap: 30px; }
+    .logo { font-size: 26px; font-weight: 800; color: white; text-decoration: none; }
+    .logo span { color: var(--primary); }
+    .nav-links { display: flex; gap: 25px; align-items: center; }
+    .nav-item { text-decoration: none; color: var(--text-dim); font-weight: 600; font-size: 14px; transition: 0.3s; }
+    .nav-item:hover { color: white; }
+    .hidden { display: none !important; }
 
-        .nav-container {
-            max-width: 1600px; margin: 0 auto; padding: 15px 30px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
+    /* MOBILE MENU */
+    .hamburger { display: none; flex-direction: column; cursor: pointer; gap: 4px; }
+    .hamburger span { width: 25px; height: 3px; background: var(--text-main); border-radius: 2px; }
+    @media (max-width: 992px) {
+        .nav-links { display: none; position: absolute; top: var(--nav-height); left: 0; width: 100%; flex-direction: column; background: var(--dark-bg); border-top: 1px solid var(--border); }
+        .nav-links.active { display: flex; }
+        .hamburger { display: flex; }
+        .user-info { display: none; }
+    }
 
-        .logo { font-size: 26px; font-weight: 800; color: white; text-decoration: none; letter-spacing: -1px; }
-        .logo span { color: var(--primary); }
+    /* AUTH */
+    .auth-portal { display: flex; align-items: center; gap: 20px; }
+    .user-info { display: flex; align-items: center; gap: 15px; border-right: 1px solid var(--border); padding-right: 20px; }
+    .user-text { text-align: right; }
+    .balance-text { color: var(--success); font-weight: 800; font-size: 16px; display: block; }
+    .username-text { color: var(--text-dim); font-size: 11px; font-weight: 700; text-transform: uppercase; }
 
-        .nav-links { display: flex; gap: 25px; align-items: center; }
-        .nav-item {
-            text-decoration: none; color: var(--text-dim); font-weight: 600;
-            font-size: 14px; transition: 0.3s;
-        }
-        .nav-item:hover { color: white; }
+    /* BUTTONS */
+    .btn { padding: 10px 22px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; border: none; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-logout { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1.5px solid var(--danger); }
+    .btn-logout:hover { background: var(--danger); color: white; }
 
-        /* --- AUTH & USER SECTION --- */
-        #authPortal { display: flex; align-items: center; gap: 20px; }
+    /* HERO */
+    .hero { padding: var(--hero-padding) 20px 100px; text-align: center; }
+    .hero h1 { font-size: clamp(48px, 8vw, 82px); font-weight: 800; margin-bottom: 25px; line-height: 1.1; }
+    .hero p { color: var(--text-dim); font-size: 18px; margin-bottom: 40px; line-height: 1.6; }
 
-        .user-box {
-            display: flex; align-items: center; gap: 15px;
-            padding-right: 15px; border-right: 1px solid var(--border);
-        }
-        .user-data { text-align: right; }
-        .live-balance { color: var(--success); font-weight: 800; font-size: 16px; display: block; }
-        .username-tag { color: var(--text-dim); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    /* ERROR BANNER */
+    #errorBanner { 
+        position: fixed; top: 90px; left: 50%; transform: translateX(-50%);
+        background: var(--danger); padding: 10px 30px; border-radius: 8px; font-size: 13px; font-weight: 600; 
+        z-index: 3000; display: none;
+        color: white; 
+    }
 
-        /* --- BUTTONS --- */
-        .btn {
-            padding: 10px 22px; border-radius: 10px; font-weight: 700;
-            text-decoration: none; font-size: 14px; cursor: pointer; transition: 0.2s;
-            border: none; display: inline-flex; align-items: center;
-        }
-        .btn-logout { 
-            background: rgba(239, 68, 68, 0.1); color: var(--danger); 
-            border: 1.5px solid var(--danger);
-        }
-        .btn-logout:hover { background: var(--danger); color: white; }
-
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-outline { background: transparent; color: white; border: 1px solid var(--border); }
-
-        /* --- HERO --- */
-        .hero { padding: 220px 20px 100px; text-align: center; max-width: 900px; margin: 0 auto; }
-        .hero h1 { font-size: clamp(48px, 8vw, 82px); font-weight: 800; margin-bottom: 25px; line-height: 1.1; }
-        .hero p { color: var(--text-dim); font-size: 18px; margin-bottom: 40px; line-height: 1.6; }
-
-        /* Loader */
-        .sync-spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
+    /* SPINNER */
+    .sync-spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <div style="display:flex; align-items:center; gap:40px;">
-                <a href="index.html" class="logo">X-<span>BET</span></a>
-                <div class="nav-links">
-                    <a href="index.html" class="nav-item">Home</a>
-                    <a href="games.html" class="nav-item">Games</a>
-                    <a href="aboutus.html" class="nav-item">About</a>
-                    <a href="dashboard.html" id="navDash" class="nav-item" style="display:none">Dashboard</a>
-                    <a href="bets.html" id="navBets" class="nav-item" style="display:none">Bits</a>
-                </div>
-            </div>
+<div id="errorBanner">Failed to sync profile. Check connection.</div>
 
-            <div id="authPortal">
-                <div class="sync-spinner"></div>
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-main">
+            <a href="index.html" class="logo">X-<span>BET</span></a>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html" class="nav-item">Home</a>
+                <a href="games.html" class="nav-item">Games</a>
+                <a href="dashboard.html" id="link-dash" class="nav-item hidden">Dashboard</a>
+                <a href="bets.html" id="link-bets" class="nav-item hidden">Bets</a>
+                <a href="aboutus.html" class="nav-item">About</a>
             </div>
         </div>
-    </nav>
 
-    <main class="hero">
-        <h1>Experience Premium <br>Gaming Logic.</h1>
-        <p>Your secure gateway to instant-payout betting and verified fair play. Fast payouts. Secure betting. Verified results.</p>
-        <div id="heroAction">
-            <a href="signup.html" class="btn btn-primary" style="padding: 15px 35px; font-size: 16px;">Create Free Account</a>
+        <div id="authArea" class="auth-portal">
+            <div class="sync-spinner" role="status" aria-label="Loading user info"></div>
         </div>
-    </main>
+    </div>
+</nav>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<main class="hero">
+    <h1>Premium Gaming Logic.</h1>
+    <div id="heroAction">
+        <a href="signup.html" class="btn btn-primary">Start Playing Now</a>
+    </div>
+</main>
 
-        // Your Config
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+const firebaseConfig = { /* Your Config Here */ };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-        const authPortal = document.getElementById('authPortal');
-        const navDash = document.getElementById('navDash');
-        const navBets = document.getElementById('navBets');
+let unsubscribe = null;
+const authArea = document.getElementById('authArea');
+const dashLink = document.getElementById('link-dash');
+const betsLink = document.getElementById('link-bets');
+const errorBanner = document.getElementById('errorBanner');
+const hamburger = document.getElementById('hamburger');
+const navLinks = document.getElementById('navLinks');
 
-        // --- AUTH OBSERVER ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // 1. User is Logged In - Start Firestore Stream
-                onSnapshot(doc(db, "users", user.uid), (snap) => {
-                    const data = snap.data() || {};
-                    updateUI(true, data);
-                }, (error) => {
-                    console.error("Firestore Error:", error);
-                    updateUI(false);
-                });
-            } else {
-                // 2. User is Logged Out
-                updateUI(false);
-            }
+// Hamburger toggle
+hamburger.addEventListener('click', () => {
+    navLinks.classList.toggle('active');
+});
+
+onAuthStateChanged(auth, (user) => {
+    if (unsubscribe) unsubscribe();
+
+    if (user) {
+        unsubscribe = onSnapshot(doc(db, "users", user.uid), (snap) => {
+            errorBanner.style.display = 'none';
+            if (snap.exists()) renderUserUI(snap.data());
+        }, (error) => {
+            console.error("Firestore Sync Error:", error);
+            errorBanner.style.display = 'block';
         });
+    } else {
+        renderGuestUI();
+    }
+});
 
-        function updateUI(isLoggedIn, userData = null) {
-            if (isLoggedIn && userData) {
-                // Show member links
-                navDash.style.display = 'block';
-                navBets.style.display = 'block';
-                
-                // Update Header with Balance & Name
-                authPortal.innerHTML = `
-                    <div class="user-box">
-                        <div class="user-data">
-                            <span class="live-balance">$${(userData.balance || 0).toLocaleString()}</span>
-                            <span class="username-tag">${userData.username || 'PLAYER'}</span>
-                        </div>
-                    </div>
-                    <button id="logoutBtn" class="btn btn-logout">Logout</button>
-                `;
+function renderUserUI(data) {
+    const balance = Number(data.balance) || 0;
+    dashLink.classList.remove('hidden');
+    betsLink.classList.remove('hidden');
 
-                document.getElementById('logoutBtn').onclick = () => {
-                    if(confirm("Logout from X-BET?")) signOut(auth);
-                };
-            } else {
-                // Guest View
-                navDash.style.display = 'none';
-                navBets.style.display = 'none';
-                authPortal.innerHTML = `
-                    <a href="login.html" class="nav-item" style="margin-right:15px">Login</a>
-                    <a href="signup.html" class="btn btn-primary">Sign Up</a>
-                `;
-            }
+    authArea.innerHTML = `
+        <div class="user-info">
+            <div class="user-text">
+                <span class="balance-text">$${balance.toLocaleString()}</span>
+                <span class="username-text">${data.username || 'PLAYER'}</span>
+            </div>
+        </div>
+        <button id="logoutBtn" class="btn btn-logout" aria-label="Logout from session">Logout</button>
+    `;
+    document.getElementById('logoutBtn').onclick = handleLogout;
+
+    // Admin link handling
+    if (data.isAdmin) {
+        if (!document.getElementById('link-admin')) {
+            const adminLink = document.createElement('a');
+            adminLink.href = "admin.html";
+            adminLink.className = "nav-item";
+            adminLink.id = "link-admin";
+            adminLink.textContent = "Admin";
+            navLinks.appendChild(adminLink);
         }
-    </script>
+    }
+}
+
+function renderGuestUI() {
+    dashLink.classList.add('hidden');
+    betsLink.classList.add('hidden');
+    const adminLink = document.getElementById('link-admin');
+    if(adminLink) adminLink.remove();
+
+    authArea.innerHTML = `
+        <a href="login.html" class="nav-item">Login</a>
+        <a href="signup.html" class="btn btn-primary">Sign Up</a>
+    `;
+}
+
+async function handleLogout() {
+    try {
+        if(confirm("Are you sure you want to sign out?")) {
+            await signOut(auth);
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error("Logout failed:", error);
+        errorBanner.innerText = "Logout failed, try again!";
+        errorBanner.style.display = 'block';
+    }
+}
+</script>
 </body>
 </html>
