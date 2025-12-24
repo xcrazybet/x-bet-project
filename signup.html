@@ -1,85 +1,164 @@
-// Main signup handler
-            signupForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-BET | Secure Registration</title>
+    <style>
+        /* [KEEP ALL YOUR CSS FROM THE PREVIOUS DESIGN HERE] */
+        /* Ensure you include the .loading and .transaction-code-display classes */
+        :root { --primary: #2563eb; --light: #f8fafc; }
+        body { background: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .signup-container { background: rgba(255,255,255,0.05); padding: 40px; border-radius: 24px; width: 100%; max-width: 480px; border: 1px solid rgba(255,255,255,0.1); }
+        .signup-logo { font-size: 3rem; font-weight: 800; text-align: center; color: var(--primary); margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; box-sizing: border-box; }
+        .btn { width: 100%; padding: 18px; border-radius: 12px; background: var(--primary); border: none; color: white; font-weight: bold; cursor: pointer; }
+        .message { padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none; text-align: center; }
+        .success { background: rgba(16, 185, 129, 0.2); color: #4ade80; border: 1px solid #10b981; }
+        .error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+        .transaction-code-display { background: #000; padding: 15px; border: 2px dashed #10b981; margin: 15px 0; font-family: monospace; font-size: 1.2rem; color: #4ade80; }
+        .loading { border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top: 3px solid #fff; width: 18px; height: 18px; animation: spin 1s linear infinite; display: inline-block; margin-right: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="signup-container">
+        <div class="signup-logo">X-BET</div>
+        
+        <div id="message" class="message"></div>
+
+        <form id="signupForm">
+            <div class="form-group">
+                <input type="text" id="username" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input type="email" id="email" placeholder="Email Address" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Password (min 6 chars)" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+            </div>
+            <button type="submit" class="btn" id="submitBtn">Create Pro Account</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px; font-size: 14px;">
+            Already a member? <a href="login.html" style="color: var(--primary);">Login</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // 1. PROJECT CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
+            authDomain: "x-bet-prod-jd.firebaseapp.com",
+            projectId: "x-bet-prod-jd",
+            storageBucket: "x-bet-prod-jd.firebasestorage.app",
+            messagingSenderId: "499334334535",
+            appId: "1:499334334535:web:bebc1bf817e24d9e3c4962"
+        };
+
+        // 2. INITIALIZE
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const signupForm = document.getElementById('signupForm');
+        const messageDiv = document.getElementById('message');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // 3. UTILITY: Generate Transaction Code
+        function generateXBTCode(name) {
+            const part1 = name.substring(0, 3).toUpperCase();
+            const part2 = Math.random().toString(36).substring(2, 8).toUpperCase();
+            return `XBT-${part1}-${part2}`;
+        }
+
+        // 4. MAIN HANDLER
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Reset UI
+            messageDiv.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> Connecting to X-Cloud...';
+
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            // Basic Validation
+            if (password !== confirm) {
+                showFeedback("Passwords do not match!", "error");
+                resetBtn();
+                return;
+            }
+
+            try {
+                // A. Create User in Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // B. Generate unique "Pro" Transaction Code
+                const transCode = generateXBTCode(username);
+
+                // C. Create Pro Profile in Firestore
+                await setDoc(doc(db, "users", user.uid), {
+                    username: username,
+                    email: email,
+                    uid: user.uid,
+                    transactionCode: transCode,
+                    balance: 0,
+                    role: "PLAYER",
+                    status: "ACTIVE",
+                    createdAt: new Date().toISOString()
+                });
+
+                // D. Local Storage Backup (Optional for Speed)
+                localStorage.setItem('XBET_USER_DATA', JSON.stringify({ username, transCode }));
+
+                // E. Show Pro Success Message
+                const successHTML = `
+                    <div style="font-weight: bold;">ACCOUNT VERIFIED</div>
+                    <div style="font-size: 13px; margin: 10px 0;">Please save your security code:</div>
+                    <div class="transaction-code-display">${transCode}</div>
+                    <div style="font-size: 12px;">Redirecting to Login...</div>
+                `;
+                showFeedback(successHTML, "success");
+
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 5000);
+
+            } catch (error) {
+                console.error(error);
+                let friendlyMsg = "Registration Failed.";
+                if (error.code === 'auth/email-already-in-use') friendlyMsg = "This email is already registered.";
+                if (error.code === 'auth/weak-password') friendlyMsg = "Password must be at least 6 characters.";
                 
-                // 1. Get Form Values
-                const username = document.getElementById('username').value.trim();
-                const email = document.getElementById('email').value.trim();
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                const terms = document.getElementById('terms').checked;
-
-                // 2. Comprehensive Validation
-                if (!isValidUsername(username)) {
-                    showMessage('Username must be 3-20 characters (letters, numbers, underscores only)', 'error');
-                    return;
-                }
-
-                if (!isValidEmail(email)) {
-                    showMessage('Please enter a valid email address', 'error');
-                    return;
-                }
-
-                if (password.length < 6) {
-                    showMessage('Password must be at least 6 characters long', 'error');
-                    return;
-                }
-
-                if (password !== confirmPassword) {
-                    showMessage('Passwords do not match!', 'error');
-                    return;
-                }
-
-                if (!terms) {
-                    showMessage('You must agree to the Terms & Conditions', 'error');
-                    return;
-                }
-
-                // 3. UI State: Loading
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="loading"></span> Encrypting Data...';
-
-                try {
-                    // 4. Register in Local System (XBetStorage)
-                    const result = storage.registerUser(username, email, password);
-
-                    if (result.success) {
-                        // Create Session for immediate access
-                        createUserSession(result.userData);
-
-                        // Success UI with Transaction Code
-                        const successHTML = `
-                            <div style="text-align:center">
-                                <strong style="font-size: 18px;">Account Created Successfully!</strong><br>
-                                Welcome to the platform, ${username}.<br>
-                                <div class="transaction-code-display">
-                                    TRANS-CODE: ${result.transactionCode}
-                                </div>
-                                <p style="font-size: 12px; color: #fff; margin-top: 10px;">
-                                    ⚠️ Save this code! You will need it for all withdrawals.
-                                </p>
-                            </div>
-                        `;
-                        
-                        showMessage(successHTML, 'success', 15000);
-
-                        // 5. Smooth Redirect to Login
-                        setTimeout(() => {
-                            window.location.href = 'login.html';
-                        }, 5000);
-
-                    } else {
-                        throw new Error(result.error);
-                    }
-
-                } catch (error) {
-                    console.error('Signup Error:', error);
-                    showMessage(error.message || 'System error during registration', 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Create Account';
-                }
-            });
+                showFeedback(friendlyMsg, "error");
+                resetBtn();
+            }
         });
+
+        function showFeedback(text, type) {
+            messageDiv.innerHTML = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+        }
+
+        function resetBtn() {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Create Pro Account";
+        }
     </script>
 </body>
 </html>
