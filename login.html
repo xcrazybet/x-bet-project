@@ -3,102 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-BET | Member Access</title>
+    <title>X-BET | Authorized Access</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-blue: #3b82f6;
-            --primary-orange: #f59e0b;
-            --bg-dark: #0f172a;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-
-        body {
-            margin: 0;
-            background-color: var(--bg-dark);
-            color: white;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-image: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
-        }
-
-        .login-card {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            padding: 40px;
-            border-radius: 24px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            text-align: center;
-        }
-
-        .logo { font-size: 32px; font-weight: 800; color: var(--primary-blue); margin-bottom: 30px; }
-        .logo span { color: var(--primary-orange); }
-
+        :root { --p-blue: #3b82f6; --p-orange: #f59e0b; --bg: #0f172a; --glass: rgba(255, 255, 255, 0.03); }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-image: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); }
+        .card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
+        .logo { font-size: 32px; font-weight: 800; color: var(--p-blue); margin-bottom: 30px; }
+        .logo span { color: var(--p-orange); }
         .form-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; }
-        
-        input {
-            width: 100%;
-            padding: 14px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: white;
-            font-size: 15px;
-            box-sizing: border-box;
-        }
-
-        input:focus { outline: none; border-color: var(--primary-blue); }
-
-        .btn-submit {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 10px;
-        }
-
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3); }
-
-        #status { margin-top: 20px; padding: 12px; border-radius: 10px; display: none; }
+        label { display: block; font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; }
+        input { width: 100%; padding: 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; box-sizing: border-box; }
+        .btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        #status { margin-top: 20px; padding: 12px; border-radius: 10px; display: none; font-size: 13px; word-break: break-word; }
         .error { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
         .success { background: rgba(16, 185, 129, 0.1); color: #4ade80; border: 1px solid rgba(16, 185, 129, 0.2); }
     </style>
 </head>
 <body>
 
-    <div class="login-card">
+    <div class="card">
         <div class="logo">X-<span>BET</span></div>
-        
         <form id="loginForm">
             <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="email" placeholder="Enter your email" required>
+                <label>Registered Email</label>
+                <input type="email" id="email" placeholder="email@example.com" required>
             </div>
             <div class="form-group">
                 <label>Password</label>
                 <input type="password" id="password" placeholder="••••••••" required>
             </div>
-            <button type="submit" class="btn-submit" id="submitBtn">Authorized Login</button>
+            <button type="submit" class="btn" id="submitBtn">Authorized Login</button>
         </form>
-
         <div id="status"></div>
-
-        <p style="margin-top: 25px; font-size: 14px; color: #64748b;">
-            New player? <a href="signup.html" style="color: var(--primary-orange); text-decoration: none;">Create Account</a>
-        </p>
+        <div style="margin-top:25px; font-size:14px; color:#64748b;">
+            Need an account? <a href="signup.html" style="color:var(--p-orange); text-decoration:none; font-weight:600;">Signup</a>
+        </div>
     </div>
 
     <script type="module">
@@ -106,7 +47,6 @@
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // CONFIG (Must match your signup)
         const firebaseConfig = {
             apiKey: "AIzaSyA72Yo_YGqno9PX25p3yQBvyflcaM-NqEM",
             authDomain: "x-bet-prod-jd.firebaseapp.com",
@@ -120,12 +60,10 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const loginForm = document.getElementById('loginForm');
-        const statusBox = document.getElementById('status');
-        const submitBtn = document.getElementById('submitBtn');
-
-        loginForm.addEventListener('submit', async (e) => {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const statusBox = document.getElementById('status');
+            const submitBtn = document.getElementById('submitBtn');
             
             statusBox.style.display = 'none';
             submitBtn.disabled = true;
@@ -135,24 +73,42 @@
             const password = document.getElementById('password').value;
 
             try {
-                // 1. Firebase Login
+                // 1. AUTHENTICATION (Checks Firebase Auth Users list)
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // 2. Success Feedback
-                statusBox.className = "success";
-                statusBox.innerText = "Access Granted! Redirecting...";
-                statusBox.style.display = "block";
+                // 2. DATA SYNC (Fetch balance/username from Firestore)
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                
+                if (userDoc.exists()) {
+                    localStorage.setItem('XBET_SESSION', JSON.stringify({
+                        uid: user.uid,
+                        ...userDoc.data()
+                    }));
 
-                // 3. REDIRECT TO INDEX.HTML (The Landing Page area)
-                setTimeout(() => {
-                    window.location.href = "index.html"; 
-                }, 1500);
+                    statusBox.className = "success";
+                    statusBox.innerText = "Access Verified! Loading Profile...";
+                    statusBox.style.display = "block";
+
+                    setTimeout(() => { window.location.href = "index.html"; }, 1500);
+                } else {
+                    throw new Error("profile-missing");
+                }
 
             } catch (error) {
+                console.error("Login Error:", error);
                 statusBox.className = "error";
-                statusBox.innerText = "Error: " + error.message;
                 statusBox.style.display = "block";
+                
+                // DIAGNOSIS LOGIC: Shows real reason for failure
+                if (error.code === 'auth/user-not-found') {
+                    statusBox.innerText = "User not found in Firebase Auth. Did you use createUserWithEmailAndPassword on signup?";
+                } else if (error.code === 'auth/wrong-password') {
+                    statusBox.innerText = "Incorrect password.";
+                } else {
+                    statusBox.innerText = "System Error: " + (error.code || error.message);
+                }
+                
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Authorized Login";
             }
