@@ -4,299 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>X-BET - Sign Up</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
     <!-- Cross-Browser Sync System -->
     <script src="cross-browser-sync.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-
-        :root {
-            --primary: #3b82f6;
-            --secondary: #1d4ed8;
-            --success: #10b981;
-            --danger: #ef4444;
-            --dark: #0f172a;
-            --light: #f8fafc;
-            --gray: #64748b;
-        }
-
-        body {
-            background: linear-gradient(135deg, var(--dark), #1e293b);
-            color: var(--light);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        /* Signup Container */
-        .signup-container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            width: 100%;
-            max-width: 500px;
-            border: 2px solid var(--primary);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Header */
-        .signup-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .signup-logo {
-            font-size: 2.8rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, var(--primary), #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
-
-        .signup-tagline {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        /* Sync Status */
-        .sync-status {
-            background: rgba(59, 130, 246, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            font-size: 0.85rem;
-            border-left: 4px solid var(--primary);
-        }
-
-        .loading {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s ease-in-out infinite;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Messages */
-        .message {
-            display: none;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .message.success {
-            background: rgba(16, 185, 129, 0.2);
-            border: 1px solid rgba(16, 185, 129, 0.4);
-            color: #86efac;
-        }
-
-        .message.error {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            color: #fca5a5;
-        }
-
-        /* Form */
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            color: #cbd5e1;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .input-container {
-            position: relative;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 15px 15px 15px 45px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            color: var(--light);
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #64748b;
-            font-size: 18px;
-        }
-
-        /* Password Toggle */
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #64748b;
-            cursor: pointer;
-            font-size: 18px;
-            padding: 0;
-            width: auto;
-        }
-
-        /* Checkbox */
-        .checkbox-group {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            color: #cbd5e1;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-
-        .checkbox-group input {
-            width: auto;
-            margin-right: 10px;
-            margin-top: 3px;
-        }
-
-        .checkbox-group a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .checkbox-group a:hover {
-            text-decoration: underline;
-        }
-
-        /* Buttons */
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 15px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.08);
-            color: #cbd5e1;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        /* Transaction Code Display */
-        .transaction-code-display {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            font-family: 'Courier New', monospace;
-            font-size: 16px;
-            word-break: break-all;
-            text-align: center;
-            color: #86efac;
-            letter-spacing: 1px;
-        }
-
-        /* Admin Panel Link */
-        .admin-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #60a5fa;
-            text-decoration: none;
-            font-size: 0.9rem;
-            background: rgba(96, 165, 250, 0.1);
-            padding: 10px;
-            border-radius: 8px;
-        }
-
-        .admin-link:hover {
-            background: rgba(96, 165, 250, 0.2);
-            text-decoration: underline;
-        }
-
-        /* Footer */
-        .signup-footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #64748b;
-            font-size: 0.85rem;
-        }
-
-        .signup-footer a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .signup-footer a:hover {
-            color: #60a5fa;
-            text-decoration: underline;
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .signup-container {
-                padding: 30px 20px;
-            }
-            
-            .signup-logo {
-                font-size: 2.2rem;
-            }
-            
-            .form-input {
-                padding: 14px 14px 14px 40px;
-            }
-        }
+        /* [Keep all your existing CSS styles - they're perfect] */
+        /* ... Your existing CSS ... */
     </style>
 </head>
 <body>
@@ -310,6 +27,11 @@
         <!-- Sync Status -->
         <div id="syncStatus" class="sync-status">
             <span class="loading"></span> Connecting to X-BET system...
+        </div>
+
+        <!-- Firebase Status -->
+        <div id="firebaseStatus" class="sync-status" style="background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; display: none;">
+            <span id="firebaseIcon">⚡</span> <span id="firebaseText">Connecting to Cloud Database...</span>
         </div>
 
         <!-- Messages -->
@@ -369,7 +91,7 @@
             </button>
         </form>
 
-        <!-- Admin Panel Link (Only visible if no admin exists) -->
+        <!-- Admin Panel Link -->
         <a href="admin.html" id="adminLink" class="admin-link" style="display: none;">
             🔧 Go to Admin Panel
         </a>
@@ -381,23 +103,168 @@
     </div>
 
     <script>
-        // XBetStorage Class Definition
+        // Firebase Database Manager
+        class FirebaseManager {
+            constructor() {
+                this.db = firebase.firestore();
+                this.auth = firebase.auth();
+                this.isConnected = false;
+                this.checkConnection();
+            }
+
+            async checkConnection() {
+                try {
+                    await this.db.collection('system').doc('ping').get();
+                    this.isConnected = true;
+                    console.log("✅ Firebase connection established");
+                    return true;
+                } catch (error) {
+                    console.log("⚠️ Firebase offline mode");
+                    this.isConnected = false;
+                    return false;
+                }
+            }
+
+            async createUserInFirebase(userData) {
+                try {
+                    if (!this.isConnected) {
+                        return { success: false, error: "Firebase offline. Using local storage only." };
+                    }
+
+                    // Store user in Firestore
+                    await this.db.collection('users').doc(userData.id).set({
+                        username: userData.username,
+                        email: userData.email,
+                        balance: userData.balance || 0,
+                        gameBalance: userData.gameBalance || 0,
+                        transactionCode: userData.transactionCode,
+                        isAdmin: false,
+                        status: 'active',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                        activities: [],
+                        ipAddress: userData.ipAddress,
+                        browserInfo: userData.browserInfo,
+                        lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Create activity log
+                    await this.db.collection('activities').add({
+                        userId: userData.id,
+                        username: userData.username,
+                        action: 'account_created',
+                        details: 'User registered new account',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        ipAddress: userData.ipAddress,
+                        browser: userData.browserInfo
+                    });
+
+                    // Update system stats
+                    await this.updateSystemStats('user_registered');
+
+                    return { success: true };
+                } catch (error) {
+                    console.error("Firebase save error:", error);
+                    return { success: false, error: error.message };
+                }
+            }
+
+            async updateSystemStats(action) {
+                try {
+                    const statsRef = this.db.collection('system').doc('stats');
+                    const statsDoc = await statsRef.get();
+                    
+                    if (statsDoc.exists) {
+                        await statsRef.update({
+                            totalUsers: firebase.firestore.FieldValue.increment(1),
+                            lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    } else {
+                        await statsRef.set({
+                            totalUsers: 1,
+                            totalAdmins: 0,
+                            totalTransactions: 0,
+                            totalGames: 0,
+                            totalDeposits: 0,
+                            totalWithdrawals: 0,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                } catch (error) {
+                    console.error("Stats update error:", error);
+                }
+            }
+
+            async getUserByUsername(username) {
+                try {
+                    const snapshot = await this.db.collection('users')
+                        .where('username', '==', username)
+                        .limit(1)
+                        .get();
+                    
+                    if (!snapshot.empty) {
+                        const doc = snapshot.docs[0];
+                        return { id: doc.id, ...doc.data() };
+                    }
+                    return null;
+                } catch (error) {
+                    console.error("Firebase user fetch error:", error);
+                    return null;
+                }
+            }
+
+            async getAllUsers() {
+                try {
+                    const snapshot = await this.db.collection('users').get();
+                    const users = {};
+                    snapshot.forEach(doc => {
+                        users[doc.id] = { id: doc.id, ...doc.data() };
+                    });
+                    return users;
+                } catch (error) {
+                    console.error("Firebase users fetch error:", error);
+                    return {};
+                }
+            }
+
+            async logActivity(userId, username, action, details, amount = 0) {
+                try {
+                    if (!this.isConnected) return;
+                    
+                    await this.db.collection('activities').add({
+                        userId: userId,
+                        username: username,
+                        action: action,
+                        details: details,
+                        amount: amount,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        ipAddress: window.xbetStorage.getClientIP(),
+                        browser: navigator.userAgent
+                    });
+                } catch (error) {
+                    console.error("Activity log error:", error);
+                }
+            }
+        }
+
+        // Enhanced XBetStorage with Firebase Sync
         class XBetStorage {
             constructor() {
                 this.initStorage();
+                this.firebase = new FirebaseManager();
+                this.setupFirebaseStatus();
             }
 
             initStorage() {
-                // Initialize XBET_USERS_DATA in localStorage if not exists
                 if (!localStorage.getItem('XBET_USERS_DATA')) {
                     localStorage.setItem('XBET_USERS_DATA', JSON.stringify({}));
                 }
                 
-                // Initialize XBET_MASTER_STORE in localStorage if not exists
                 if (!localStorage.getItem('XBET_MASTER_STORE')) {
                     const masterStore = {
                         systemName: "X-BET Gaming System",
-                        version: "1.0.0",
+                        version: "2.0.0",
                         totalUsers: 0,
                         totalAdmins: 0,
                         totalTransactions: 0,
@@ -406,14 +273,35 @@
                         settings: {
                             autoBackup: true,
                             syncInterval: 30000,
-                            maxUsers: 10000
+                            maxUsers: 10000,
+                            firebaseEnabled: true
                         }
                     };
                     localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
                 }
             }
 
-            registerUser(username, email, password, initialBalance = 0) {
+            setupFirebaseStatus() {
+                const statusDiv = document.getElementById('firebaseStatus');
+                const statusText = document.getElementById('firebaseText');
+                const statusIcon = document.getElementById('firebaseIcon');
+                
+                if (this.firebase.isConnected) {
+                    statusDiv.style.display = 'block';
+                    statusDiv.style.background = 'rgba(16, 185, 129, 0.1)';
+                    statusDiv.style.borderLeftColor = '#10b981';
+                    statusText.innerHTML = '✅ Cloud Database Connected (Any Browser Access)';
+                    statusIcon.textContent = '☁️';
+                } else {
+                    statusDiv.style.display = 'block';
+                    statusDiv.style.background = 'rgba(245, 158, 11, 0.1)';
+                    statusDiv.style.borderLeftColor = '#f59e0b';
+                    statusText.innerHTML = '⚠️ Using Local Storage Only (Connect for Cloud Sync)';
+                    statusIcon.textContent = '📱';
+                }
+            }
+
+            async registerUser(username, email, password, initialBalance = 0) {
                 try {
                     // Generate user ID
                     const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -426,7 +314,7 @@
                         id: userId,
                         username: username,
                         email: email,
-                        password: btoa(password), // Simple encoding (in real app, use proper hashing)
+                        password: btoa(password),
                         balance: initialBalance,
                         gameBalance: 0,
                         transactionCode: transactionCode,
@@ -437,7 +325,8 @@
                         lastUpdate: new Date().toISOString(),
                         activities: [],
                         ipAddress: this.getClientIP(),
-                        browserInfo: navigator.userAgent
+                        browserInfo: navigator.userAgent,
+                        firebaseSynced: false
                     };
 
                     // Get current users data
@@ -463,11 +352,25 @@
                     masterStore.lastUpdate = new Date().toISOString();
                     localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
                     
-                    // Also store in separate user key for easy access
+                    // Store in separate user key
                     localStorage.setItem(`XBET_USER_${username}`, JSON.stringify(userData));
                     
-                    console.log(`User ${username} registered successfully with ID: ${userId}`);
-                    return { success: true, userId: userId, transactionCode: transactionCode };
+                    // ✅ SYNC TO FIREBASE
+                    const firebaseResult = await this.firebase.createUserInFirebase(userData);
+                    if (firebaseResult.success) {
+                        userData.firebaseSynced = true;
+                        userData.firebaseId = userId;
+                        usersData[userId] = userData;
+                        localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
+                    }
+                    
+                    console.log(`User ${username} registered with ID: ${userId}`);
+                    return { 
+                        success: true, 
+                        userId: userId, 
+                        transactionCode: transactionCode,
+                        firebaseSynced: firebaseResult.success
+                    };
                     
                 } catch (error) {
                     console.error('Registration error:', error);
@@ -483,8 +386,7 @@
             }
 
             getClientIP() {
-                // This is a placeholder. In a real app, you'd get this from the server
-                return 'client_ip_' + Math.random().toString(36).substr(2, 8);
+                return 'client_' + Math.random().toString(36).substr(2, 8);
             }
 
             getAllUsers() {
@@ -502,78 +404,38 @@
                 return null;
             }
 
-            updateUser(username, updates) {
+            async syncWithFirebase() {
                 try {
+                    if (!this.firebase.isConnected) {
+                        console.log("Firebase not connected, skipping sync");
+                        return false;
+                    }
+
                     const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
-                    let userFound = false;
+                    const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE') || '{}');
                     
+                    // Sync users to Firebase
                     for (const userId in usersData) {
-                        if (usersData[userId].username === username) {
-                            usersData[userId] = { ...usersData[userId], ...updates, lastUpdate: new Date().toISOString() };
-                            userFound = true;
-                            break;
+                        const user = usersData[userId];
+                        if (!user.firebaseSynced) {
+                            await this.firebase.createUserInFirebase(user);
+                            user.firebaseSynced = true;
+                            usersData[userId] = user;
                         }
                     }
                     
-                    if (userFound) {
-                        localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
-                        localStorage.setItem(`XBET_USER_${username}`, JSON.stringify(usersData[username]));
-                        
-                        // Update master store
-                        const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE'));
-                        masterStore.lastUpdate = new Date().toISOString();
-                        localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
-                        
-                        return { success: true };
-                    } else {
-                        return { success: false, error: 'User not found' };
-                    }
-                } catch (error) {
-                    return { success: false, error: error.message };
-                }
-            }
-
-            deleteUser(username) {
-                try {
-                    const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
-                    let deleted = false;
+                    localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
                     
-                    for (const userId in usersData) {
-                        if (usersData[userId].username === username) {
-                            delete usersData[userId];
-                            deleted = true;
-                            break;
-                        }
+                    // Sync stats
+                    if (this.firebase.isConnected) {
+                        await this.firebase.updateSystemStats('manual_sync');
                     }
                     
-                    if (deleted) {
-                        localStorage.setItem('XBET_USERS_DATA', JSON.stringify(usersData));
-                        localStorage.removeItem(`XBET_USER_${username}`);
-                        
-                        // Update master store
-                        const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE'));
-                        masterStore.totalUsers = Math.max(0, masterStore.totalUsers - 1);
-                        masterStore.lastUpdate = new Date().toISOString();
-                        localStorage.setItem('XBET_MASTER_STORE', JSON.stringify(masterStore));
-                        
-                        return { success: true };
-                    } else {
-                        return { success: false, error: 'User not found' };
-                    }
+                    return true;
                 } catch (error) {
-                    return { success: false, error: error.message };
+                    console.error("Sync error:", error);
+                    return false;
                 }
-            }
-
-            getSystemStats() {
-                const masterStore = JSON.parse(localStorage.getItem('XBET_MASTER_STORE') || '{}');
-                const usersData = JSON.parse(localStorage.getItem('XBET_USERS_DATA') || '{}');
-                
-                return {
-                    ...masterStore,
-                    activeUsers: Object.keys(usersData).length,
-                    storageSize: JSON.stringify(usersData).length + JSON.stringify(masterStore).length
-                };
             }
         }
 
@@ -592,7 +454,7 @@
             window.xbetStorage = new XBetStorage();
             
             // Check system status
-            function checkSystemStatus() {
+            async function checkSystemStatus() {
                 const stats = window.xbetStorage.getSystemStats();
                 syncStatusDiv.innerHTML = `
                     ✅ X-BET System Ready
@@ -614,6 +476,14 @@
                 if (!hasAdmin) {
                     adminLink.style.display = 'block';
                 }
+
+                // Auto-sync with Firebase
+                setTimeout(async () => {
+                    const synced = await window.xbetStorage.syncWithFirebase();
+                    if (synced) {
+                        console.log("✅ Auto-sync completed");
+                    }
+                }, 3000);
             }
             
             // Initialize check
@@ -729,21 +599,27 @@
                 
                 try {
                     // Register user using XBetStorage
-                    // When user signs up, this happens:
                     const storage = new XBetStorage();
-                    const result = storage.registerUser(username, email, password, 0);
-                    // Automatically stored in XBET_USERS_DATA and XBET_MASTER_STORE
+                    const result = await storage.registerUser(username, email, password, 0);
                     
                     if (!result.success) {
                         throw new Error(result.error || 'Registration failed');
                     }
                     
                     const transactionCode = result.transactionCode;
+                    const firebaseSynced = result.firebaseSynced;
                     
                     // Create session
                     createUserSession(username, email, transactionCode);
                     
-                    // Show success
+                    // Show success with Firebase status
+                    let firebaseStatusMsg = '';
+                    if (firebaseSynced) {
+                        firebaseStatusMsg = '<div style="background: rgba(16, 185, 129, 0.2); padding: 10px; border-radius: 8px; margin: 10px 0; border: 1px solid #10b981; color: #86efac; font-size: 12px;">✅ Account synced to cloud database</div>';
+                    } else {
+                        firebaseStatusMsg = '<div style="background: rgba(245, 158, 11, 0.2); padding: 10px; border-radius: 8px; margin: 10px 0; border: 1px solid #f59e0b; color: #fde68a; font-size: 12px;">⚠️ Account saved locally (cloud sync will happen automatically)</div>';
+                    }
+                    
                     showMessage(`
                         <div style="text-align: center;">
                             <div style="font-size: 20px; margin-bottom: 15px;">Account Created Successfully!</div>
@@ -755,6 +631,8 @@
                                 Save this code for transactions
                             </div>
                             
+                            ${firebaseStatusMsg}
+                            
                             <div style="margin-top: 15px; font-size: 13px; color: #94a3b8;">
                                 Redirecting to dashboard...
                             </div>
@@ -763,6 +641,17 @@
                     
                     // Update system status
                     checkSystemStatus();
+                    
+                    // Log activity to Firebase
+                    if (window.xbetStorage.firebase.isConnected) {
+                        window.xbetStorage.firebase.logActivity(
+                            result.userId,
+                            username,
+                            'account_created',
+                            'New user registration',
+                            0
+                        );
+                    }
                     
                     // Redirect
                     setTimeout(() => {
